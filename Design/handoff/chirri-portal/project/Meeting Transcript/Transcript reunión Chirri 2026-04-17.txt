@@ -1,0 +1,4547 @@
+
+Eugenio de Tomaso:
+[golpe] Hey, huh, let's go! 
+
+Daniel Zacharias:
+Averigué para comprar algún microfonito piola, ¿viste? Salen-- los buenos salen... 
+
+Eugenio de Tomaso:
+Sí, bueno. 
+
+Victoria de Tomaso:
+¿Para qué lo querés? 
+
+Eugenio de Tomaso:
+Para vos que para- 
+
+Daniel Zacharias:
+Para grabar esta situación. 
+
+Eugenio de Tomaso:
+Ah, boludo, pero el, el barato... Mirá, te sale, te, te, nos sirve igual. 
+
+Daniel Zacharias:
+No sirve o nos sirve. 
+
+Eugenio de Tomaso:
+Nos sirve. 
+
+Daniel Zacharias:
+Puede ser, pero no sé, porque... los bara-- no encontré baratos que sean... o sea, son individuales. Yo quiero uno tipo araña y- 
+
+Victoria de Tomaso:
+¿Para qué querés uno tipo araña? 
+
+Daniel Zacharias:
+No sé. No, para grabar esta-- pero esto te va, me va bien. 
+
+Victoria de Tomaso:
+Te presto uno para que pruebes, a ver si te gusta. Traé el mic, el mío, ¿ta? Por ahí. 
+
+Daniel Zacharias:
+¿Un micrófono querés? 
+
+Victoria de Tomaso:
+Y para que lo pruebe, a ver si le parece que le sirve. 
+
+Daniel Zacharias:
+Pero no está cargada. 
+
+Victoria de Tomaso:
+Ah, ¿no está cargado? Mmm. 
+
+Daniel Zacharias:
+Estos sirven. La otra vez traen-- lo transcribió perfecto. Uso un sistema de IA que transcribe hasta chasquidos de lengua. 
+
+Victoria de Tomaso:
+Chasquidos. Ay, no. ¿Podés explicar la experiencia lo que tiene que hacer? 
+
+Daniel Zacharias:
+Dale. ¿Mañana vas a tener un agente que hable con tus empleados? 
+
+Victoria de Tomaso:
+Sí, sí. Me gustaría, porque- 
+
+Daniel Zacharias:
+¿Cómo más? 
+
+Victoria de Tomaso:
+...esa es la pregunta que me hacen. 
+
+Eugenio de Tomaso:
+Es más- 
+
+Daniel Zacharias:
+Te vas a sorprender. 
+
+Eugenio de Tomaso:
+Ojo, ¿eh? 
+
+Daniel Zacharias:
+¿Qué? 
+
+Eugenio de Tomaso:
+Que Aaron no haya conectado un agente al Slack y me esté con-- y, y le diga, tipo que tenga automatizado las respuestas, porque es muy ChatGPT como me habla, boludo. 
+
+Daniel Zacharias:
+O sea que no es que copia y pega, sino que le dice a Cloud: respondele a Eugenio. 
+
+Eugenio de Tomaso:
+Claro, tipo, claro, no es que respondele a Eugenio. A ver, decime qué le vas a responder. 
+
+Daniel Zacharias:
+¿Sabés qué pasa? Me parece que yo le hice eso una vez con Dust y te pone abajo, te dice enviado a través de, si lo usas en MSP, no sé si te lo pone sin algún... 
+
+Victoria de Tomaso:
+Es un reñón. MSP. 
+
+Eugenio de Tomaso:
+Ojo, ¿eh? No sé. Bueno, él capaz que encontró la, la manera. 
+
+Daniel Zacharias:
+Puede ser. No, yo ni probé porque no me interesaba tampoco. 
+
+Eugenio de Tomaso:
+Yo ahora le voy a decir a-- che, a ver, fijate lo que dice. Le voy a empezar a hacer lo que me dijo. 
+
+Daniel Zacharias:
+Boludo, si conectás el MSP de Slack y... 
+
+Eugenio de Tomaso:
+Y ya está. 
+
+Daniel Zacharias:
+Y ya está. 
+
+Eugenio de Tomaso:
+Ya está. 
+
+Daniel Zacharias:
+Ahora, si el ca-- el chabón hace eso y no es capaz de conectar hub con nada. Che, muy rico el café, gracias. 
+
+Eugenio de Tomaso:
+Muy rico, tiene un gustito... Me gustó, ¿eh? 
+
+Daniel Zacharias:
+Eh, chicos, hay que saber comprar. 
+
+Eugenio de Tomaso:
+Esto. Aparte con espumita. 
+
+Daniel Zacharias:
+[ríe] 
+
+Victoria de Tomaso:
+Bueno, ¿qué necesitan saber de nosotros, chicos? Estoy lista para darles toda mi información. 
+
+Daniel Zacharias:
+Trabajamos. Chicos, ¿trajo un PowerPoint? No, basta de PowerPoints. No, eh- 
+
+Victoria de Tomaso:
+No quiero ver más PowerPoints. 
+
+Daniel Zacharias:
+Yo, em... Porque nosotros, como les habíamos contado, nuestra primera propuesta es hacer un prototipo. Yo eso lo mantendría. 
+
+Eugenio de Tomaso:
+Sí, ya. 
+
+Daniel Zacharias:
+Em, porque creo que podemos hacer un prototipo para ver si vamos por el camino correcto, pero ya encarar a lo que va a ser el piloto. El piloto ya es algo usable, es algo que a ustedes les va a servir, que también consideramos que no nos debería llevar demasiado tiempo, pero estas cosas dependen de unos factores que no podemos controlar. 
+
+Eugenio de Tomaso:
+Bien. 
+
+Daniel Zacharias:
+Em, de ser mínimamente algo humano, que es entender bien, iterar bien. Acá yo igual [chasquea lengua] un poco quiero también contarles los planes de los roles, que con Euge nos estamos organizando un poquito más de una manera en la cual yo voy a tomar un rol más de project management y él va a ser más el experto técnico, pero no va, va a ser mucho más-- va a ser muy intercambiable. Pero por una cuestión- 
+
+Eugenio de Tomaso:
+Él ahora se hace él codear. 
+
+Victoria de Tomaso:
+Se codea. 
+
+Daniel Zacharias:
+Ahora programo. Sí. Obviamente me gusta, pero me empe-- está empezando a pasar lo que me pasaba antes, que me pongo a pro-- codear y digo: "Che, debería estar viendo lo de Google Ads en lugar de- 
+
+Eugenio de Tomaso:
+Ah, claro. 
+
+Daniel Zacharias:
+...estar revisando PR's. 
+
+Eugenio de Tomaso:
+Es más divertido codear, boludo. 
+
+Victoria de Tomaso:
+Y son re amigos, son re Big Bang Theory los dos. [ríe] 
+
+Daniel Zacharias:
+Espero tener un poquito más de carisma que- 
+
+Victoria de Tomaso:
+Ay, ya lo sos. 
+
+Daniel Zacharias:
+Los giras eso. Bueno, em, una de las cosas que van a encontrar, que tal vez me encuentro diciendo es: esa idea está buenísima, la dejamos para la siguiente iteración. 
+
+Victoria de Tomaso:
+Ay, Dios. Odio cuando me dicen eso, pero está bien, voy a controlar mi ansiedad. 
+
+Daniel Zacharias:
+Sí, porque- 
+
+Eugenio de Tomaso:
+Yo tengo paciencia. 
+
+Victoria de Tomaso:
+Él tiene paciencia. 
+
+Daniel Zacharias:
+[ríe] 
+
+Eugenio de Tomaso:
+Ella no, pero es espectacular. 
+
+Daniel Zacharias:
+Por ejemplo, porque pusiste a hablar de lo de TikTok o lo de Facebook e Instagram, bárbaro. El día de mañana lo hacemos, ¿sí? Hoy foco. 
+
+Eugenio de Tomaso:
+Claro. 
+
+Daniel Zacharias:
+Y también hay que entender si esto es un producto aparte, si es un producto in-- es una funcionalidad nueva en lo que estamos haciendo. Está bien que sus cabezas disparen y nuestra labor va a ser encauzarlos un poquito y ordenarlos para... También nosotros entendemos que, eh, en base a lo que nos cuentan, qué es, eh, el-- ¿cuál es la traducción de low hanging fruit? Lo que más... 
+
+Eugenio de Tomaso:
+No sé, el opuesto no, la verdad. 
+
+Daniel Zacharias:
+No, el opuesto no, la traducción. 
+
+Eugenio de Tomaso:
+Eh, sí, lo más fa-- eh, low hanging fruit es lo más fácil. 
+
+Victoria de Tomaso:
+Lo que necesitás. 
+
+Daniel Zacharias:
+No. 
+
+Eugenio de Tomaso:
+No. 
+
+Daniel Zacharias:
+Lo que está-- el, el-- literalmente significa la fruta que está colgando más abajo, que es más fácil agarrar. 
+
+Eugenio de Tomaso:
+Ah, bien. 
+
+Daniel Zacharias:
+Y que tiene, o sea, es lo que tiene mayor retorno de inversión, que es porque tiene bajo costo y má-- y mayor valor. Eh, entonces con eso la idea es ha-- es trabajar, pero todo parte de los principales dolores que tienen ustedes. Su dolor es el tema de armar reportes para clientes e integra-integrar la información. Vamos a ir por eso, ¿sí? Así que, mmm, el objetivo de esta reunión es armar el prototipo. O sea, el objetivo es salir de acá y que nosotros podamos venir un par de días en la semana que viene y decirles: "Chicos, acá tenemos el prototipo, mírenlo, va por acá". 
+
+Eugenio de Tomaso:
+Okey. 
+
+Daniel Zacharias:
+Que la gracia que tiene es que nosotros podemos hacerlo muy rápido y el feedback lo podemos recibir ustedes ya con algo que hasta lo pueden jugar, con lo cual ustedes pueden jugar. 
+
+Victoria de Tomaso:
+Qué divertido ser tan inteligente, saber lo que es un, una agente de IA. 
+
+Daniel Zacharias:
+Sí, igual con ustedes estoy siendo, obviamente bajé mi dial de vendedor. 
+
+Eugenio de Tomaso:
+Sí, sí. 
+
+Daniel Zacharias:
+Pero sí, estoy un poco prendido. 
+
+Eugenio de Tomaso:
+Porque ya compramos. [ríen] Claro. 
+
+Daniel Zacharias:
+No, ustedes- 
+
+Eugenio de Tomaso:
+Nada que decir 
+
+Daniel Zacharias:
+...van a tener la, la versión mucho más tranquila de vendedor. Esto es más auténtico, pero obviamente un poquito de vendedor hay, se, se me filtra. Euge me va a mantener real igual.Eh, a mí me gustaría arrancar con lo de reportes, que es lo que entiendo- 
+
+Julián Montero Ciancio
+Dale. 
+
+Daniel Zacharias:
+Es lo que más les duele. Mi recomendación es que esto no deja de ser software, donde el software lo que trata de hacer es replicar lo que funciona en la, la, semánticamente, lo que pasa en la vida real. Entonces, ustedes arranquen contándonos- 
+
+Julián Montero Ciancio
+Claro, eso. 
+
+Daniel Zacharias:
+Cómo es el, cómo es un día, o sea, lo que vos querés reemplazar, básicamente. 
+
+Altavoz 5
+Correcto. 
+
+Daniel Zacharias:
+Cómo es un día y dentro de ese día andá mechando: esto es una pata en los huevos, esto me sale a veces mal, a veces bien, en esto tengo que coordinar con estas personas y es muy costoso o tarda mucho. Obviamente, porque ahí vamos a identificar los dolores para saber, bueno, por dónde, cómo priorizar un poco. Pero después de todo esto nosotros vamos a poder decir: "Mirá, podemos hacer esto. Eh, arrancamos con este dolor, te lo resolvemos de esta forma y esto va a representar tal vez una porción del proceso tuyo completo, no todo. O sea, lo anterior y lo posterior tal vez sigue siendo manual, pero la parte que te cuesta más, que está en el medio, te la vamos a automatizar o te la podés reemplazar con este sistema. Y después podés ir haciendo que el sistema coma más, más de tu proceso, ¿sí? 
+
+Julián Montero Ciancio
+Pero hay que partir de un, el mínimo. 
+
+Daniel Zacharias:
+Hay que partir de un mínimo. Puede ser al mi- al principio, puede ser en el medio, puede ser al final. 
+
+Julián Montero Ciancio
+Okey. 
+
+Daniel Zacharias:
+La realidad es que eso no- 
+
+Julián Montero Ciancio
+Ahora yo hago un comentario, porque la mayoría de los reportes lo hace una de las chicas que trabaja con nosotros. 
+
+Daniel Zacharias:
+Sí. 
+
+Julián Montero Ciancio
+¿No necesitaría mejor más su voz que la nuestra? O primero hoy hacemos un panel general. 
+
+Altavoz 5
+Primero lo general. 
+
+Julián Montero Ciancio
+Y después, después- 
+
+Daniel Zacharias:
+Después nosotros encima con ella podemos probar Atlas. 
+
+Julián Montero Ciancio
+Sí. 
+
+Altavoz 5
+Tati es la que hace todos los reportes. 
+
+Julián Montero Ciancio
+Ah, Tati es la que hace- 
+
+Daniel Zacharias:
+Nosotros, ustedes nos tienen que-- a ver, esto es para ustedes. 
+
+Julián Montero Ciancio
+No, perfecto. Yo decía si por su proceso necesitan algo más específico, yo te voy a decir la big picture, pero tal vez el- 
+
+Daniel Zacharias:
+Exacto. Mirá, y haríamos doble clic y nosotros haremos la, una entrevista virtual o no, eh, re-- humana o no, con Tati, eh, para tal vez extraer. Hay que ver si hace falta, ¿eh? Tal vez no hace falta y el prototipo se los podemos mostrar directamente a ustedes. 
+
+Julián Montero Ciancio
+Yo hago uno de los reportes de otra marca, entonces yo los puedo asesorar en eso, pero los otros reportes no sé. 
+
+Altavoz 5
+Igual yo sé cómo son los otros reportes, porque yo chequeo el pre y el post. 
+
+Julián Montero Ciancio
+Bueno, igual ahora también un tema que vamos a saber es que ustedes, eh, tengan un formato de reportes para todos los clientes. Exacto, claro, unificar todo. 
+
+Altavoz 5
+Yo quiero que tengan todos en uno. 
+
+Julián Montero Ciancio
+No que Tati use uno, vosotros otro. Eso también puedo aprovechar para eso. 
+
+Daniel Zacharias:
+Es que, bueno, este es un también clásico problema del desarrollo de software cuando hacés un producto. Es qué generalizás y qué no, y qué, eh, hacés customizable o configurable y qué no. Todo lo que es configurable es más costoso, tipo, y todo lo que no es mejor. Hay pros y cons, como todo. O sea, y ustedes nomás vamos a tratar de apuntar a que tengan alguno más estandarizado. De eso, el reporte estandarizado, posiblemente el de un cliente y el otro va a compartir un porcentaje idealmente alto y hay un pequeño porcentaje de cosas que son específicas de cada cliente. 
+
+Julián Montero Ciancio
+Exacto. 
+
+Daniel Zacharias:
+Eso es lo que hay que customizar. Tal vez ese es tu mayor dolor y ahí es donde tenemos que enfocar. 
+
+Altavoz 5
+Plataforma diez. 
+
+Julián Montero Ciancio
+Igual, creo que el mayor dolor es la carga de datos. No sé, si querés hacernos la primera pregunta y empezamos. 
+
+Daniel Zacharias:
+No, ¿cómo es el proceso? Arranca contándonos todo el proceso. 
+
+Altavoz 5
+Pero igual pará, porque Plataforma diez pide la carga de datos manual versus- 
+
+Julián Montero Ciancio
+La hice en dos etapas. 
+
+Altavoz 5
+Claro, versus los otros clientes, que es una etapa sola. 
+
+Julián Montero Ciancio
+Pero supongamos que vamos solo al reporte final de mes. Te parece que es unificado para todos. 
+
+Altavoz 5
+Queden puras. 
+
+Daniel Zacharias:
+Y, y una cosa más. Ustedes supongan correctamente que no conocemos su negocio. 
+
+Julián Montero Ciancio
+Claro, que no sabemos nada. 
+
+Daniel Zacharias:
+No sabemos nada. 
+
+Julián Montero Ciancio
+Bueno, nosotros nos encargamos de manejar las redes sociales de cinco o seis marcas, no me acuerdo cuántas. Eh, cada una tiene sus objetivos, unos de ventas, otros de posicionamiento. Mismo hay etapas o, o hay meses que son de posicionamiento y otros que son de ventas, o tal vez hot sales de ventas y otros, por ejemplo, ¿no? Eh, épocas, más que etapas, em... 
+
+Altavoz 5
+Mismo algunas marcas nos-- por Q nos ponen ciertos objetivos, tanto en engagement influencers o en engagement orgánico de cada cuenta. 
+
+Julián Montero Ciancio
+O alcance o visualizaciones. 
+
+Altavoz 5
+Viralización, o sea, cada uno. 
+
+Daniel Zacharias:
+Me voy a adelantar, pero no, no lo quiero evitar, lo voy a evitar. Eso quiere decir que los reportes que ustedes presentan van a depender de los objetivos de el, del periodo del reporte que están presentando. 
+
+Altavoz 5
+En Plataforma diez, sí. 
+
+Julián Montero Ciancio
+A ver, siempre vamos a presentar lo mismo, pero los resultados es lo que cambia. Tal vez un mes miran más una cosa que otra cosa, pero nosotros presentamos todo. 
+
+Daniel Zacharias:
+Pero ustedes presentan todo. Listo, okey. 
+
+Julián Montero Ciancio
+Eso no te cambia en, en la estructura de la presentación, por así decirlo. 
+
+Daniel Zacharias:
+Exacto. No, podés tener eventualmente-- ataqué el tema reportes porque entiendo que a eso vamos. 
+
+Julián Montero Ciancio
+Sí, sí. 
+
+Daniel Zacharias:
+Entonces ya empezá a hacer preguntas. Listo, perfecto. 
+
+Julián Montero Ciancio
+Bien. Em, los reportes los presentamos a mes vencido, o sea, la primera semana del siguiente mes, de lo que pasó el mes anterior. Em, y tratamos de, por, por lo menos en Plataforma diez, que es el mane-- el que manejo yo, hago primero una comparativa de este mes con el mes anterior. Eeeh, y luego, eventualmente, hago una comparativa de el trimestre, que es lo que nos miden, viste, el Q de cada Q que nos miden. Entonces, nada, cada tres meses hago la comparativa de los tres meses. 
+
+Daniel Zacharias:
+¿Son reportes distintos? Sí, ¿no? O sea, hacés uno mensual y después- 
+
+Julián Montero Ciancio
+No, no, agrego un slide de comparativa de tres meses. 
+
+Daniel Zacharias:
+Perfecto. 
+
+Julián Montero Ciancio
+El mismo reporte. Eh, si quieren les puedo mostrar un reporte. ¿Les interesa o primero te cuento? 
+
+Daniel Zacharias:
+Primero contanos todo el proceso y después nos mostrás el reporte. 
+
+Julián Montero Ciancio
+Te cuento todo el proceso. Yo-- tenemos un Excel donde tenemos todos los contenidos que vamos a public-publicando mes a mes y ahí yo voy cargando por cada posteo cantidad de views, cantidad de comentarios, cantidad de no sé qué cosa. ¿Y eso de dónde lo sacás? De Instagram. Abro el celular, veo tu-- tres likes. Escribo tres en Excel. 
+
+Altavoz 5
+Cuatro comentarios. 
+
+Julián Montero Ciancio
+Por publicación. 
+
+Daniel Zacharias:
+Por publicación. 
+
+Julián Montero Ciancio
+¿Y eso qué lo hacés? Al...
+
+Eugenio de Tomaso:
+En el momento de, de hacer el reporte, tipo, la publicación va a-- está, está viva hace un mes. 
+
+Julián Montero Ciancio
+Sí. Al momento del reporte este, hago eso. 
+
+Eugenio de Tomaso:
+Bien. 
+
+Julián Montero Ciancio
+Paralelamente, Vicky, como dijo, semana a semana vamos presentando mini datos de: bueno, esta semana tuvimos tanto, pero el reporte que hablamos es el reporte mensual. 
+
+Eugenio de Tomaso:
+Pero Vicky, mini datos al-- mini reportes al cliente. 
+
+Altavoz 5
+Claro. 
+
+Julián Montero Ciancio
+Sí, pero no es, no es ni un PDF, es un Excel donde cargamos- 
+
+Altavoz 5
+Un Excel donde cargamos todo y ellos lo van mirando todo el mes. 
+
+Julián Montero Ciancio
+Hubo tantas views. Okey, listo. 
+
+Victoria de Tomaso:
+Okey. 
+
+Julián Montero Ciancio
+Como un seguimiento de cómo viene semana a semana, pero el reporte es mensual. 
+
+Victoria de Tomaso:
+Bien. 
+
+Julián Montero Ciancio
+Entonces, yo voy-- el, el ul-- el primero de mes cargo, entro ahí, bueno, tantas likes, ta, ta, ta, tan, y separamos entre nuestros posteos y lo que hacen influencers. 
+
+Victoria de Tomaso:
+Okey. 
+
+Julián Montero Ciancio
+Eh, que también es importante. 
+
+Victoria de Tomaso:
+Lo que hace influencers, la información esa- 
+
+Altavoz 5
+Colaboraciones. 
+
+Victoria de Tomaso:
+¿Te la proveen vos, te la proveen o vos también la extraes? 
+
+Julián Montero Ciancio
+La veo también en la plataforma, porque son posteos compartidos entre la cuenta de ellos y nosotros. Si alguno por algún motivo ocultó las métricas, tenemos que escribirle a los influencers y pedírselas. 
+
+Altavoz 5
+Y pedirle las métricas. 
+
+Victoria de Tomaso:
+Perfecto. 
+
+Eugenio de Tomaso:
+Ah, porque ellos pueden poner que no se vean la cantidad de- 
+
+Altavoz 5
+Claro, eso es cuando no llegan al, al objetivo. 
+
+Julián Montero Ciancio
+Claro, cuando no llegaron o algo, tal vez te lo ocultan y- 
+
+Eugenio de Tomaso:
+¿Y qué le pedís? ¿Un print screen? 
+
+Julián Montero Ciancio
+Sí. Che, ¿cómo te fue? Mandame una captura y listo. 
+
+Victoria de Tomaso:
+Okey. 
+
+Julián Montero Ciancio
+Em... 
+
+Victoria de Tomaso:
+Y cuán-- proporcionalmente, ¿te pasa mucho? 
+
+Julián Montero Ciancio
+No. 
+
+Victoria de Tomaso:
+Okey. 
+
+Julián Montero Ciancio
+O un poq-- no, porque ahora fidelizamos los influencers, ya son más frecuentes, siempre trabajamos con los mismos, entonces ya hay- 
+
+Victoria de Tomaso:
+Perfecto. 
+
+Julián Montero Ciancio
+Un poco de trabajo, pero a veces cuando hay uno nuevo, sí, pero es una vez cada tres meses, cuatro meses. 
+
+Victoria de Tomaso:
+Okey, listo. Ta. 
+
+Julián Montero Ciancio
+Eso, uno. Em... 
+
+Altavoz 5
+Eso es Plataforma10. 
+
+Julián Montero Ciancio
+Sí. Bueno, eh, cargo todos los datos, eh, en el Excel y ahí yo tengo la suma de total. Entonces, voy a un Canva y escribo total de views, total de no sé cuánto y calculo el engagement. La, la, la, no sé, la fórmula no sé cómo era, pero la-- el alcance, las interacciones por el alcance dividido, sí, algo así. 
+
+Eugenio de Tomaso:
+Hay una, hay una fórmula. 
+
+Victoria de Tomaso:
+Hay fórmulas. Okey. Las fórmulas en general son estándar para cualquier- 
+
+Eugenio de Tomaso:
+Es la industria, lo googleás la fórmula. 
+
+Julián Montero Ciancio
+Sí. Igual ya te mandamos la nuestra por las dudas. 
+
+Eugenio de Tomaso:
+Sí, sí, mandanos, sí, sí. 
+
+Julián Montero Ciancio
+Mantener siempre el mismo valor, porque algunos lo hacen por cien y otros lo hacen por mil. 
+
+Altavoz 5
+Es depende. 
+
+Julián Montero Ciancio
+Si son cuentas de millones de no sé cuánto, lo hacen por mil. Eh, bien. Entonces, en la presentación yo cargo eso. Así nos fue este mes, así nos fue comparado al mes anterior. Después me piden un gráfico de crecimiento de seguidores. Me piden que ese es un gráfico, eh, anual, te diría, de año-- del marzo a marzo, por así decirlo, cómo están siendo seguidores. 
+
+Victoria de Tomaso:
+Te muestran los últimos doce meses. 
+
+Julián Montero Ciancio
+Exactamente. Mejor dicho, de esa manera. Y otro gráfico que compara, em, el engagement respecto del alcance que hubo en, también en los últimos doce meses. 
+
+Victoria de Tomaso:
+Okey. 
+
+Julián Montero Ciancio
+Que eso tengo un Excel que me dieron ellos, que yo cargo y se genera el gráfico solo. Copio y pego en Canva. 
+
+Victoria de Tomaso:
+Esto parece ser específico para... 
+
+Julián Montero Ciancio
+Para Plataforma10. 
+
+Eugenio de Tomaso:
+Está bueno para replicarlo en otros. 
+
+Julián Montero Ciancio
+Pero se puede replicar en todos. 
+
+Eugenio de Tomaso:
+A ustedes les gustaría. 
+
+Altavoz 5
+Sí, a mí me gustaría porque es más fácil. Lo único, entre paréntesis, nosotros tenemos por ahora un met-- se llama Metricool, que es esta, que no tengo los datos de ingreso porque como me chupan mucho- 
+
+Victoria de Tomaso:
+Traigo mi compu, si querés. 
+
+Altavoz 5
+Si no los hago yo, no los ingreso. Eh, que lo que nos da es como un total de lo que pasó en el mes, nos da información del mes. 
+
+Eugenio de Tomaso:
+Mhm. 
+
+Altavoz 5
+Pero- 
+
+Eugenio de Tomaso:
+¿No podés meterte para chusmearlo? 
+
+Julián Montero Ciancio
+Traeme la compu y te lo muestro. 
+
+Altavoz 5
+Traer el estado de... 
+
+Julián Montero Ciancio
+Te cuento los problemas. 
+
+Altavoz 5
+¿Qué pasa? Metricool, o sea, Plataforma10 no usa pauta en redes sociales directo desde meta. O sea, lo que publicamos nosotros en Instagram, TikTok, bla, no lo pauta. 
+
+Eugenio de Tomaso:
+Esto... 
+
+Altavoz 5
+Ellos pautan todo lo que hacen tipo ad hoc. 
+
+Eugenio de Tomaso:
+Mhm. 
+
+Altavoz 5
+Nada de lo que hacemos nosotros en redes está pautado, salvo un sorteo, ponele. 
+
+Victoria de Tomaso:
+Perdón. ¿Qué es pautado? 
+
+Altavoz 5
+Ponerle plata para que salga todo el tiempo en publicidad. 
+
+Eugenio de Tomaso:
+Compr-comprar la publicidad en la plataforma. 
+
+Altavoz 5
+Exacto. 
+
+Eugenio de Tomaso:
+Ellos lo que hacen es agarran cuentas y dan publicaciones que no son pagas. 
+
+Altavoz 5
+Exacto. Suben fotos al Meta Business, que es de Instagram, que no está dentro de nuestro Instagram, de lo que subimos, es algo aparte, son piezas apartes. 
+
+Victoria de Tomaso:
+Okey. 
+
+Julián Montero Ciancio
+Esto es Metricool. 
+
+Altavoz 5
+Pero ¿qué pasa? Metricool no sabe... 
+
+Julián Montero Ciancio
+Esto es abril del 2000-- ah, esto es el anual, de abril a marzo. Eh, por ejemplo, acá, esto, lo, las rayas amarillas son cada posteo que hicimos. 
+
+Victoria de Tomaso:
+Okey. 
+
+Julián Montero Ciancio
+Y acá te está marcando, por ejemplo, seguidores en violeta y gente que empezamos a seguir en verde. No sé. Eh, bueno, esto no nos interesa. Acá nos compara visualizaciones en violeta, verde es el alcance, rosa no sé. ¿Entendés? Y esto podés prender o apagar. 
+
+Victoria de Tomaso:
+Mhm. 
+
+Julián Montero Ciancio
+Y ves lo que querés o no querés. Esto, por ejemplo, es de toda la cuenta. Esto es de lo que hayamos publicado nosotros. ¿Qué implica esto? Que acá, por ejemplo, hay posteos de influencers que colaboraron con nosotros, pero acá son solo las cosas que publicamos nosotros. 
+
+Victoria de Tomaso:
+Okey. 
+
+Julián Montero Ciancio
+No sé. 
+
+Altavoz 5
+Lo único que no sabe diferenciar es lo que tiene pauta- 
+
+Julián Montero Ciancio
+Exacto. 
+
+Altavoz 5
+Dentro de la red social. 
+
+Julián Montero Ciancio
+Ves, ciento dos millones de visualizaciones que ni en pedo tuvimos. Eso es porque pusieron plata. 
+
+Victoria de Tomaso:
+Mmm. 
+
+Julián Montero Ciancio
+Que por lo general es un noventa y siete por ciento plata. 
+
+Eugenio de Tomaso:
+O sea que se contamina. O sea que lo que ponen plata contamina. Ustedes no tie-- no pueden saber. 
+
+Julián Montero Ciancio
+Exacto, no lo sé. Yo en el mes a mes les muestro acá. 
+
+Altavoz 5
+Pobre Julián, me da pena. 
+
+Eugenio de Tomaso:
+¿Metrocool no lo hace, boludo? 
+
+Altavoz 5
+No. 
+
+Julián Montero Ciancio
+No sé, habría que averiguar si pagando más. 
+
+Altavoz 5
+No, no, tenemos el pro, pro, pro. 
+
+Julián Montero Ciancio
+Ah, listo. 
+
+Altavoz 5
+Yo pagué el pro, pro, pro. 
+
+Julián Montero Ciancio
+Panel de profesionales de Instagram, por ejemplo, visualizaciones. Ahí te marca en el último mes ocho millones y acá te dice en chiquitito noventa y siete coma tres fueron de anuncios. 
+
+Eugenio de Tomaso:
+Ah, o sea que te dice- 
+
+Julián Montero Ciancio
+Entonces, yo le resto eso, le hago menos el noventa y siete coma tres por ciento y eso es lo que yo tuveDe visualizaciones 
+
+Daniel Zacharias:
+Ah, o sea que hacés así. O sea, pero vos no podés discriminar las visualizaciones por publicación en Instagram 
+
+Julián Montero Ciancio
+Por publicación sí, pero [comunicación cruzada] las publicaciones están limpias, están- 
+
+Altavoz 5
+Claro, pero lo que- 
+
+Daniel Zacharias:
+Lo que no sabés qué publicación fue pautada y qué publicación- 
+
+Julián Montero Ciancio
+No, las publicaciones no las pautan, pero pautan un video en stories que le pintó ellos y eso trajo más visualizaciones, pero no se ve reflejado en ningún contenido, ¿entendés? 
+
+Altavoz 5
+Claro. 
+
+Julián Montero Ciancio
+Lo ven ellos internamente. Es un anuncio por fuera de las publicaciones. 
+
+Altavoz 5
+O trajo más seguidores que nosotros solo lo vemos en cuenta, pero no sabemos de dónde viene. 
+
+Daniel Zacharias:
+Entonces, el reporte que ustedes le dan le dicen... A ver, hacé el resumen . 
+
+Julián Montero Ciancio
+¿Cómo el resumen? 
+
+Daniel Zacharias:
+Del reporte, tipo de lo que nos dijiste hasta ahora, el re-- ustedes van y le dicen: "Tomá, estas son las [comunicación cruzada]". A ver. 
+
+Julián Montero Ciancio
+Te muestro el reporte de plataforma diez y ta. 
+
+Altavoz 5
+Ese para mí es el más difícil, el resto de los clientes es una pavada. 
+
+Daniel Zacharias:
+Un social. Está bueno. 
+
+Julián Montero Ciancio
+Este, bueno, este tiene la identidad de plataforma diez. 
+
+Altavoz 5
+Ellos nos piden que tengamos identidad. 
+
+Julián Montero Ciancio
+Eh, le digo, acá vamos. Acá, ves, comparo. 
+
+Daniel Zacharias:
+Mhm. O sea que ellos te piden y no podemos- 
+
+Julián Montero Ciancio
+Este es el gráfico de Excel. Este es el trimestral. Este es el gráfico de seguidores, que este es una copia de pantalla de lo que vimos recién en Metricool. Este también de interacciones, este, este. Después, nuestro mejor contenido y el mejor contenido de influencer del último mes. 
+
+Altavoz 5
+Es una paja con las pelotudeces que piden a mí me causa gracia. 
+
+Julián Montero Ciancio
+Después esto, ellos nos pasan, eh, cuánto traccionó cada influencer a una compra o a un no sé qué. 
+
+Daniel Zacharias:
+Ah. 
+
+Julián Montero Ciancio
+Ellos me mandan la factura. 
+
+Altavoz 5
+UTMs se llaman. 
+
+Daniel Zacharias:
+Ah, porque tienen un UTM. Okey. 
+
+Altavoz 5
+Podemos medir las UTM desde- 
+
+Daniel Zacharias:
+A ver. 
+
+Julián Montero Ciancio
+Bueno, TikTok. Bueno, es otra cosa, ¿ves? Instagram, TikTok. Esto es las UTM del último mes. Eh, TikTok, Tungi. Y acá también. Orgánico y pago están mes-mezclados, pero acá no sé cuál es el porcentaje, entonces no lo puedo di-diferenciar. Seguidores, no sé qué poronga. Y ahora sumaron... 
+
+Altavoz 5
+Twitter. 
+
+Julián Montero Ciancio
+Twitter, pero nada, es nuevo, entonces no hay mucha data. Y después hago una conclusión, que en verdad es- 
+
+Daniel Zacharias:
+Perfecto. 
+
+Julián Montero Ciancio
+Le doy el reporte a Cloud y me dice: "Viste la copia, sí" [risas]. 
+
+Daniel Zacharias:
+Sí, sí, sí. ¿Y las cuentas que usan son? 
+
+Julián Montero Ciancio
+Instagram, TikTok y X. 
+
+Altavoz 5
+Twitter. 
+
+Daniel Zacharias:
+Pero ellos te dan el usuario y la contraseña- 
+
+Altavoz 5
+Sí, tenemos todo. 
+
+Daniel Zacharias:
+Okey. 
+
+Altavoz 5
+Nosotros tenemos toda esa información. Ahora, este es el más complicado. 
+
+Daniel Zacharias:
+Sí. 
+
+Altavoz 5
+El resto de los clientes... 
+
+Julián Montero Ciancio
+No son tan hinchas. 
+
+Altavoz 5
+No son hincha pelotas. Ellos solo quieren que esté el reporte mensual y que haya una última página [comunicación cruzada] que compare este mes con el mes que pasó. 
+
+Daniel Zacharias:
+Okey. 
+
+Altavoz 5
+¿Me entendés? Bueno, como un mini analítica de comparación de mes, nada más. 
+
+Daniel Zacharias:
+Vos este reporte se lo presentás, se lo mandás por mail, hacen una reunión y... 
+
+Julián Montero Ciancio
+No, se lo doy. 
+
+Daniel Zacharias:
+Se lo das y listo. 
+
+Julián Montero Ciancio
+Ellos lo, se lo presentan a sus jefes. 
+
+Daniel Zacharias:
+Okey. 
+
+Altavoz 5
+Y después nos mandan un mail donde dicen: "Buenísimo, eh"- 
+
+Daniel Zacharias:
+Claro, vos le estás haciendo el laburo que deberían hacer ellos. 
+
+Altavoz 5
+Exacto. 
+
+Daniel Zacharias:
+En realidad, vos este reporte... 
+
+Julián Montero Ciancio
+Por eso te piden el branding. 
+
+Daniel Zacharias:
+El branding, claro, para no hacerlo ellos. 
+
+Altavoz 5
+Y este es el de Ultracom, Mundo FW. 
+
+Julián Montero Ciancio
+Este es- 
+
+Daniel Zacharias:
+Con el branding de Ultracom. 
+
+Altavoz 5
+No, nuestro. Esos somos nosotros, así divertidos. 
+
+Daniel Zacharias:
+Ah, está. Sí, bien hippie. 
+
+Altavoz 5
+Eso Tati- 
+
+Julián Montero Ciancio
+Este es más resumido, ¿ves? Los mejores contenidos y una conclusión, chao. ¿Pero él siempre fue tan corto? 
+
+Altavoz 5
+No, Tati lo empezó a hacer corto porque le hacen muchas preguntas, sino... [risas] 
+
+Julián Montero Ciancio
+Lo que sí exige esta marca, por ejemplo, para ustedes no les cambia nada, es que no sea una imagen, sino que sea editable, ¿no? Cosa de poder, eh, supongo que cargan estos números... 
+
+Altavoz 5
+En algún lado. 
+
+Julián Montero Ciancio
+En algún lado, no sé, como que puedan copiar y pegar los números. 
+
+Daniel Zacharias:
+Pará, bueno, ahí está. Eh, acá hay, hay dos, hay dos me parece aristas acá en, en lo que va a ser el prototipo. Una- 
+
+Altavoz 5
+Es que piden demasiada con-- eh, información al pedo que no nos sirve de nada. 
+
+Daniel Zacharias:
+No, no. Nos mandás, eh, mandanos de cada marca. 
+
+Julián Montero Ciancio
+Dale. 
+
+Daniel Zacharias:
+Tuvo-- cuanto más, mejor, ¿no? Un a-- un aspecto es el del tema del portal de clientes, ¿no? Que es, bueno, yo les-- la idea es prepararle un portal de clientes donde cada persona tiene, eh, ca-cada cliente va a tener un usuario, contraseña o múltiples, no importa, y vos decís: "A ver, entrá acá, este es tu portal de clientes, vas a poder los reportes de todos los últimos meses, eventualmente mucha más información, pero accedelo acá de una manera, si querés autónoma, te vas a mandar un mail cada vez que tenga un nuevo reporte disponible y entrás el link y lo ves ahí, pum". Y después está hasta la creación del reporte. O sea, para mí son dos aspectos independientes. Alguno es-- hay que ver cuán in-- cuán separados los ma-los manejamos. Porque vos el reporte nosotros te lo podemos armar automáticamente y escupirte un PDF o un Per-- PowerPoint editable, o lo hacemos de una manera que está en una base de datos y con un portal de clientes la gente lo puede ir a acceder. Pros y cons. Vos lo que me estás mostrando es algo supereditable y en un portal de clientes no es tan editable, a menos que lo hagamos editable y obviamente va a tener más costo. Em, la verdad que hay que tomar una decisión. Editable, ¿para quién? 
+
+Julián Montero Ciancio
+Editable, ¿para quién? Sí, no, siempre va a ser dentro de Chirry. 
+
+Daniel Zacharias:
+Por eso digo, pero si vos-- a ver, porque también lo que hay que pensar un poco es el uso que le van a dar los clientes, porque los clientes capaz que quieren también bajarlo y ellos hacerle cambios. 
+
+Julián Montero Ciancio
+Eso no sería un problema, le hacés un "descargar el PowerPoint" y lo editás. 
+
+Daniel Zacharias:
+Y lo editás. 
+
+Julián Montero Ciancio
+Pero esta es la información que te ofrece Chirry. Cuando vos dijiste que en Shellmo lo querían editar, ¿es porque el cliente lo quiere editar o porque sus empleados...? Lo que sucedía es que antes mandábamos capturas de pantalla de, de Instagram. 
+
+Altavoz 5
+Gráficos. 
+
+Julián Montero Ciancio
+Bueno, estos son los números, pin, pin, captura, pin, pin, pin, chau. Dijo: "No, mandámelo en texto", porque no sé. 
+
+Altavoz 5
+Porque después le deben cargar todo junto a Cloud, algo deben hacer. 
+
+Julián Montero Ciancio
+Entonces copian y pegan los números en vez de estar escribiendo- 
+
+Daniel Zacharias:
+Okey. Bueno, de hecho, un portal de clientes podrías fácilmente decir descarga Excel, descarga un PDF, descarga solo la data. Sí, sí, sí. 
+
+Julián Montero Ciancio
+La verdad que... 
+
+Altavoz 5
+Eso me gusta. 
+
+Julián Montero Ciancio
+De ese lado, y eso es una pavada, porque si vos... 
+
+Daniel Zacharias:
+Eso es lo más fácil. 
+
+Julián Montero Ciancio
+Eso es lo más fácil. 
+
+Daniel Zacharias:
+Lo más difícil
+
+Eugenio de Tomaso:
+Es juntar toda la- 
+
+Altavoz 5
+Toda la información 
+
+Eugenio de Tomaso:
+...es todo lo que hace él, que yo me lo pueda pensar y decís: Instagram no tiene API así tan fácil. 
+
+Altavoz 5
+TikTok sí es difícil levantar la información. 
+
+Eugenio de Tomaso:
+Pero ahora con un scraper- 
+
+Altavoz 5
+Se puede 
+
+Eugenio de Tomaso:
+...y es, eh- 
+
+Daniel Zacharias:
+Yo creo que como no estamos escrapeando grandes volúmenes, sino específicamente lo de estos, lo levantas con Playwright. Eh, mismo, yo creo que igual, a, una buena porción de esto seguramente lo podés hacer con los APIs o MCP que tengan. No pueden tardar mucho en ya ofrecer esas cosas, a menos que quieran ser un poquito más recelosos. 
+
+Eugenio de Tomaso:
+Sí, sí. 
+
+Daniel Zacharias:
+Pero no pueden. 
+
+Altavoz 5
+Yo tengo una pregunta. Todo esto, ustedes van a necesitar nuestras contraseñas, Metricool. ¿Qué es lo que más necesitan? Porque voy por lo siguiente. Sobre todo Plataforma dieciséis. Las demás marcas no, pero van a hacer hincha bolas con el tema de data, de seguridad, porque- 
+
+Eugenio de Tomaso:
+No, está bien, no, en nosotros también. Lo que quizás que, que ellos pongan sus, sus credenciales. 
+
+Daniel Zacharias:
+No, pero eso no es un problema porque ustedes confían en nosotros. El tema es: sus clientes tienen que confiar en que ustedes tienen la data, eh, la ingresan us-- ah, el nivel de protección de datos lo mantienen igual, solo que la información se la van a presentar de otra manera y nada más. 
+
+Altavoz 5
+Perfecto. 
+
+Eugenio de Tomaso:
+Claro, pero digo, yo te tengo que dar el acceso al Instagram de Plataforma dieciséis y va a llegar: "Se conectaron desde Temperley a tu Instagram", ¿entendés? Esa es la pregunta. 
+
+Daniel Zacharias:
+Mmm, no de Temperley, de- 
+
+Eugenio de Tomaso:
+Igual yo- 
+
+Daniel Zacharias:
+De Atlanta. [risas] 
+
+Eugenio de Tomaso:
+Yo, perdón, eh, pero- 
+
+Altavoz 5
+Si, si lo conectamos a Metricool directo. 
+
+Eugenio de Tomaso:
+Pero para nosotros, para ver las engagement y eso, es-- [sonido de notificación] a ver, hay una parte que es pública, que es ver las publicaciones, sacar los datos, etcétera. 
+
+Daniel Zacharias:
+Sí. 
+
+Eugenio de Tomaso:
+Mismo hasta, esto es post MVP, pero podés dar un servicio aún mejor que es que agarremos los comentarios a publicación y analicemos el sentimiento de esos comentarios, etcétera. 
+
+Altavoz 5
+Eso lo hago con Cloud. 
+
+Eugenio de Tomaso:
+Claro, pero eso lo automatizás post MVP. 
+
+Altavoz 5
+Ay, me encanta eso. 
+
+Eugenio de Tomaso:
+Vos le decís: flaco, meté y mirá. Y link-- bueno, hay un montón de cosas para hacer. Eso es público, eso lo hacemos nosotros. Lo que más nos va a costar es, por ejemplo, en Plataforma dieciséis, meterte y ver el porcentaje- 
+
+Daniel Zacharias:
+Exactamente. 
+
+Eugenio de Tomaso:
+Cosa que es muy de la cuenta de ellos. Yo creo que- 
+
+Daniel Zacharias:
+Yo, yo no tengo problema. Yo le preguntaba- 
+
+Eugenio de Tomaso:
+Chicos, si por wording, de cómo explicarle a los tipos de cómo está, está seguro y está encriptado. 
+
+Altavoz 5
+Ah, que vienen ustedes a la reunión. 
+
+Daniel Zacharias:
+No pasa nada. 
+
+Eugenio de Tomaso:
+Igual nada. Le digo: che, se conecta a la CM, habilitales. No, ¿entendés? Ni le digo que son ustedes. 
+
+Altavoz 5
+Nada, otro bombo. Yo el resto me chupan un huevo porque sé que FW va a estar chocha. Para ella va a ser- 
+
+Eugenio de Tomaso:
+Sí, sí. 
+
+Daniel Zacharias:
+Bueno. 
+
+Altavoz 5
+Todo lo que necesita. 
+
+Daniel Zacharias:
+Yo creo, ya con lo que me contaron, o sea, co-- era un poco repitiendo lo que ya dije, ¿no? Primer, eh, primer objetivo es el tema del portal de clientes, que creo que-- me parece que sin eso, el, eso le agrega un montón de valor también a ustedes como marca. 
+
+Eugenio de Tomaso:
+Mmm, sí, total. 
+
+Daniel Zacharias:
+Creo que me parece que eso tiene una-- o sea, más allá de, del tema de que los datos son correctos, facilitarles tiempo y, y, y certeza que los datos, sino que ustedes como marca pueden presentarle esto a un cliente y decir: mirá, tenés esto, entrá, podés ver los datos. No les quiero ni siquiera empezar a explicar la capacidad de [golpe] explotación y análisis de datos que van a poder aprovechar. 
+
+Altavoz 5
+Claro, porque va a tener un montón de información. 
+
+Daniel Zacharias:
+Van a tener un montón de información. Muchísima más y toda centralizada. Eso es tipo medio infinito el nivel de, de posibilidades que tienen. Van a poder totalmente ofrecerles a sus clientes dashboards de data analytics. O sea, yo tal vez estoy hablando en chino para ustedes, pero es relativamente estándar. 
+
+Altavoz 5
+No, sí. Está bueno lo de data analytics, a veces nos serviría como... 
+
+Daniel Zacharias:
+Ni hablar de que ustedes pueden tener su propio dashboard de data analytics interno. 
+
+Altavoz 5
+Eso me encanta. 
+
+Eugenio de Tomaso:
+Sí. 
+
+Daniel Zacharias:
+Porque al fin y al cabo la data es medio la misma y ustedes hasta podrían tener su propio portal de analytics, ver cómo van avanzando sus propios clientes, todo eso. Esto, ahora estamos más enfocados en cada cliente. Y después están como, bueno, obviamente, armar, el armar el, el, el reporte en sí y extraer los datos que, como decía Euge, eso es lo más difícil. Lo otro, lo otro es soplar y hacer bo-- es casi soplar y hacer botellas. Es lo-- de hecho, es la parte más divertida. El desafío es que Instagram, que Meta, que el ramal en coche, que Metricool. 
+
+Altavoz 5
+TikTok, Twitter, Metricool. Eso si se quieren, como que [chasquido] lo que hay que ver de para darle los ingresos a los Instagrams tiene que ser día de semana. 
+
+Eugenio de Tomaso:
+Pero por ejemplo, Metricool cuesta, perdón, eh. Yo estoy haciendo un mini research mientras hablamos. Dieciséis euros por mes y te deja hasta diez marcas. 
+
+Daniel Zacharias:
+Sí. 
+
+Altavoz 5
+Mmm. 
+
+Eugenio de Tomaso:
+Podés pagar Metricool por diez marcas. 
+
+Daniel Zacharias:
+Ya están pagando. 
+
+Altavoz 5
+Yo pago, pero- 
+
+Eugenio de Tomaso:
+No, por eso, usar API, usar API creo que tiene Metricool, tiene API. 
+
+Daniel Zacharias:
+No sé, ¿querés mirarlo? Ahora mismo podemos evaluar. 
+
+Eugenio de Tomaso:
+Podemos hacer una evaluación, claro. 
+
+Daniel Zacharias:
+Otros Metricool que tengan una buena API y vos lo que hacés es primero ingestás la data- 
+
+Altavoz 5
+Hype Auditor tiene buena API también. 
+
+Eugenio de Tomaso:
+¿Hype cómo? 
+
+Altavoz 5
+Hype Auditor. 
+
+Daniel Zacharias:
+Ah, me gusta. Y nosotros, y se lo presentás y aparte queda mucho mejor que vos le presentés la data como propia de la plataforma Chirdu y que si le pongas un screenshot de Metricool. 
+
+Eugenio de Tomaso:
+Claro. Mirá, perdón, eh. Metricool en Advanced, que es de cuarenta y tres euros por mes, tiene APIs de... 
+
+Altavoz 5
+Ay, no sé cuál era. 
+
+Eugenio de Tomaso:
+Analytics, eh, hay Instagram, Facebook, TikTok, X, LinkedIn, YouTube, Pinterest, Threads, GMB, no sé qué, Twitch. Podés programar posts, competidores, hashtags en formas. Todo con JSON, con HTTPS, están acá los docs, un rating importante. 
+
+Daniel Zacharias:
+Yo lo que creo que tenemos que hacer, Euge, acá, es lo que, en lo que respecta al prototipo, es hacer el prototipo del portal de clientes. Va a estar sin data real. 
+
+Altavoz 5
+Está bien. 
+
+Eugenio de Tomaso:
+Bueno, sí, cómo lo vería un, digamos que cómo lo vería un cliente. 
+
+Altavoz 5
+Una maqueta. 
+
+Daniel Zacharias:
+Es una-- sí, pero va a estar un poco más funcional. Entonces decís: mirá, cómo lo ve un cliente, entra, qué ve, qué po-podés poner po-- o sea, la idea que el prototipo es que está bien, poco puede ser para mañana, pronto tendrás esta opción, pero no, la idea es qué podría haber en, después en el piloto. La idea apuntemos a lo que sería el piloto, que¿A ustedes se, les gusta? Nos tenemos que sentar a pensar el alcance del piloto y el costo, porque ahí es donde empieza la parte más aburrida barra divertida. 
+
+Eugenio de Tomaso:
+Sí, imaginen, imagínense también ustedes que en vez de mandarle un PDF disparás un mail automático con un link que hacen ahí y van al portal. 
+
+Daniel Zacharias:
+Sí, sí. 
+
+Altavoz 6
+No tengo ni que estar preocupándome el primero de mes estar haciéndolo ya- 
+
+Eugenio de Tomaso:
+Claro. 
+
+Daniel Zacharias:
+Vos lo tenés que igual supervisar, obviamente. 
+
+Altavoz 6
+Aprobar el envío del mail. 
+
+Daniel Zacharias:
+Vos, vos ves que los datos estén bien, ponés armar reporte, ver cómo se ve, listo, aprobado y eso dispara el mail, ya lo, lo hace vis-visible desde el portal, etcétera. Eh, yo apuntaría a eso, más que nada también para ustedes mostrarles la capacidad que tenemos nosotros de armarlo y si va para el lado que quieren, yo creo que igual con lo que charlamos estamos bastante alineados. Em, y después nos ponemos a pensar, si querés, tenemos que juntarnos de nuevo y decir igual ya con esta charla yo creo que tenemos un buen pantallazo de- 
+
+Eugenio de Tomaso:
+Vamos a simular datos. 
+
+Daniel Zacharias:
+Vamos a simular datos y después también tenemos que analizar nosotros, antes o después, no sé, eh, el esfuerzo que puede llevar. O tenemos que ana-- hacer un poquito de análisis de mercados. 
+
+Altavoz 5
+Igual, ¿quieren que demos la contraseña y el usuario de Metricool para hacer el piloto? 
+
+Altavoz 6
+Hacemos eso y le damos acceso a nuestro Instagram, si no, que hagan una prueba con nuestros- 
+
+Altavoz 5
+Con el Shell. 
+
+Altavoz 6
+Claro. 
+
+Eugenio de Tomaso:
+La realidad que para el proto-- mandalo igual, nos, nos adelantamos. Para el prototipo, danos lo de Metricool, lo metemos todo. 
+
+Daniel Zacharias:
+Sí, y bueno, obviamente, los reportes. En realidad- 
+
+Eugenio de Tomaso:
+Los reportes. 
+
+Daniel Zacharias:
+Como te digo, vamos a jugar. 
+
+Altavoz 6
+Estoy pagando cuarenta y tres dólares, pero no me da APIs. [risas] 
+
+Eugenio de Tomaso:
+¿Qué decís? 
+
+Altavoz 6
+Metricool. 
+
+Eugenio de Tomaso:
+Ah, estás pagando cuarenta y tres dólares el advanced. A ver, y qué pa-- ahora apretá actualizar plan a ver qué, cuánta guita te pide. Cuarenta y tres. 
+
+Daniel Zacharias:
+O sea, aunque le dé al plan... 
+
+Eugenio de Tomaso:
+No. 
+
+Altavoz 6
+Yo estoy en starter, pero dice que estoy pagando cuarenta y tres, ¿o no? 
+
+Eugenio de Tomaso:
+No, próximo pago cuarenta y tres. 
+
+Daniel Zacharias:
+No, eso es lo que te saldría. 
+
+Eugenio de Tomaso:
+Si vos aceptás. 
+
+Altavoz 5
+Con las APIs. 
+
+Eugenio de Tomaso:
+Claro, el starter es el de di-dieciséis dólares. 
+
+Altavoz 5
+No, ya había visto antes, pero sí, tiene razón, porque me viene veinte. 
+
+Daniel Zacharias:
+A ver, cambiá. 
+
+Eugenio de Tomaso:
+A cuarenta y tres. 
+
+Daniel Zacharias:
+No, ¿ves? 
+
+Altavoz 5
+Precio final cuarenta y tres dice. 
+
+Eugenio de Tomaso:
+Y pone cambiar plan. 
+
+Daniel Zacharias:
+No, eso es para- 
+
+Eugenio de Tomaso:
+Cambiar plan y ahí elegís. ¿Ves? El, el advanced, hasta quince. A ver, pero- 
+
+Altavoz 6
+Mirá, me tira más guita. Ah, porque tenemos más cosas, me parece. 
+
+Altavoz 5
+¿Cuántas marcas tenemos en total? 
+
+Eugenio de Tomaso:
+Igual, suponete- 
+
+Altavoz 5
+Hagamos la prueba. Pone-- no me pidas en las, en las- 
+
+Eugenio de Tomaso:
+Perdón. Suponete que, suponete que, ¿cuántas marcas tenés vos? 
+
+Altavoz 5
+Eh, Ultracom, Shellmo, TikTok, Ultracom, Shellmo, Instagram, Crown Mustang. 
+
+Eugenio de Tomaso:
+No, marcas en total, porque Ultracom lo vas a usar en distint-- en... 
+
+Altavoz 5
+En total tenemos First Rate, Plataforma Diez, FW. 
+
+Altavoz 6
+¿Brahmi también le damos reportes? 
+
+Altavoz 5
+No, Brahmi está dando de baja. María de Tommaso. A mí me resuelve. Y, eh, ¿qué más tenemos? 
+
+Daniel Zacharias:
+Balance, ¿no, todavía? 
+
+Altavoz 6
+Balance estaría bueno presentarla al final de... 
+
+Altavoz 5
+Al final de campaña estaría ya bueno presentarlo. 
+
+Altavoz 6
+Es una campaña por tres meses con Balance, entonces estaría bueno mandarle resultados. 
+
+Altavoz 5
+Pero la auditora de marketing ya nos está analizando para dejarnos always on, adentro. 
+
+Daniel Zacharias:
+Igual podemos hacer algo- 
+
+Altavoz 5
+¿Pero sabés lo que me pide? 
+
+Daniel Zacharias:
+Caserito para ellos. 
+
+Eugenio de Tomaso:
+Para Balance. 
+
+Daniel Zacharias:
+Sí, te lo pongo acá. 
+
+Altavoz 5
+Estoy haciendo la campaña y me pide hasta género, prenomi-- bueno, la auditoría la hice con Cloud, pero me pide hasta el costo, eh, por engagement, por engagement, ¿entendés? Lo divide cantidad de seguidores, costo por engagement. 
+
+Eugenio de Tomaso:
+¿Qué es costo por engagement? 
+
+Altavoz 5
+Y divide el total de lo que me está cobrando el influencer, eh, dividido la cantidad de seguidores que tiene. 
+
+Altavoz 6
+Y el alcance promedio, algo así. 
+
+Altavoz 5
+Y el alcance promedio. 
+
+Daniel Zacharias:
+Okey. 
+
+Altavoz 5
+Entonces, te da un-- me sale cada clic doscientos dos pesos. 
+
+Eugenio de Tomaso:
+Pero por ejemplo, el, el, el influencer te cobra mil dólares. 
+
+Altavoz 5
+No, te cobra seis palos. 
+
+Eugenio de Tomaso:
+No, ya sé, boluda, pero digo. Te cobra mil dólares el chabón. 
+
+Altavoz 5
+Sí. 
+
+Eugenio de Tomaso:
+Y ahí, ¿qué es? La cantidad de- 
+
+Altavoz 6
+Dejate, ahí está la fórmula, no se lo hizo la mina. En vez de clic, yo no, no entendí un carajo. 
+
+Altavoz 5
+Sí, no entendió un carajo. 
+
+Eugenio de Tomaso:
+Esta le dijo, Clo. 
+
+Altavoz 6
+En la celda abajo. 
+
+Altavoz 5
+Nos cagó a pedos. 
+
+Altavoz 6
+Ahí está la fórmula, no sé si la entendés. [risas] 
+
+Altavoz 5
+Toma, te la paso, te la copio y pego. 
+
+Eugenio de Tomaso:
+Y no, pasale todo a Clo, pasale el Excel a Clo y decile que te, que te diga qué es esa fórmula. 
+
+Daniel Zacharias:
+Me parece que esto lo que me indica es que los reportes van a requerir- 
+
+Eugenio de Tomaso:
+Fórmulas custom. 
+
+Daniel Zacharias:
+Sí, prompteo. Le vas a tener que pedir prompting. Prompting específico. Porque- 
+
+Eugenio de Tomaso:
+Nil que pedía un report builder, un build, un buildeador de reportes, porque capaz que Pirulo quiere con esta fórmula. 
+
+Altavoz 5
+Igual, te quiero decir algo. Esto que ella está sacando no le sirve de nada, porque baja el algoritmo de Instagram o ese, se traba el servidor. Gastó plata al pedo y el influencer no va a hacer nada. No, es información que para números, números. 
+
+Eugenio de Tomaso:
+¿Pero y cómo miden la, la de un influencer, entonces? 
+
+Altavoz 5
+Para mí es todo mentira. 
+
+Eugenio de Tomaso:
+No, pero claro, es que le pagan a Wanda Nara, ponele. ¿Y cómo saben que- 
+
+Altavoz 5
+No, pero Wanda Nara sirve solo para imagen de marca, no tracciona. Primero aprendés trabajando con otras mar-- o sea, vos la probás en una marca que pagó una fortuna y tuvo diez ventas frente a quince millones de seguidores. Listo, te sirve de imagen de marca como Pampita, por ejemplo. 
+
+Eugenio de Tomaso:
+Claro. 
+
+Altavoz 5
+Son personas que no venden. Después tenés los microinfluencers, que esos suelen usar mucho más las UTMs porque no les da vergüenza- 
+
+Daniel Zacharias:
+Me dice: "Clickeá el link de acá abajo". 
+
+Eugenio de Tomaso:
+Claro. Ah, es cliqueá el link y... 
+
+Altavoz 5
+Ay, mirá esto, cada vez que me dice lo mismo y ya está conectado y me dice: "Reconéctate". 
+
+Eugenio de Tomaso:
+Está habilitado, reconéctate. Bueno, entonces, okey. 
+
+Altavoz 5
+Pero bueno, em, para Balance sí me gustaría darle como el final de campaña, que tenga su portal o que durante estos tres meses, dos meses, bueno, los últimos dos meses, vea. 
+
+Daniel Zacharias:
+Vea. No, eso lo podemos hacer, como te digo, lo podemos hacer casero, hardcodeado. Hardcodeado quiere decir que está- 
+
+Altavoz 5
+Para mí es hardcore, como cuando una chica- 
+
+Daniel Zacharias:
+Ojalá. No, quiere decir que está escrito a fijo en una pantalla y que no lo saca una base de datos. No importa, se puede hacer. Eh, yo creo, Euge, que lo que va a necesitar el piloto, ¿no? El prototipo, es...Que vos puedas, eh, básicamente, promptear el, el reporte. Y que vos, cuando digo vos, es ellos. 
+
+Eugenio de Tomaso:
+Él. Que pueda decir- 
+
+Daniel Zacharias:
+Sabés- 
+
+Eugenio de Tomaso:
+A ver, con una es-- si yo dije empezás a delinear, decís: bueno, es una skill. Ta, hay, hay formas. Pero sí, y sí. 
+
+Daniel Zacharias:
+Sí, porque vos querés que lo puedan editar chateándole, no editando un template. 
+
+Eugenio de Tomaso:
+Sí, que haya un Excel con ya toda la data y que le digan: bueno, esto, tri, y tirarme un HTML que sea PDF. 
+
+Daniel Zacharias:
+Un garra, le vamos a dar vos. 
+
+Eugenio de Tomaso:
+Claro. 
+
+Daniel Zacharias:
+Básicamente. [risas] ¿No? Un poquito, un poquito por ahí va. Pero [chasquido de lengua] ¿qué estamos diciendo? Para que entiendan, yo sé que es chino. Vos tenés el portal, decís: OK, quiero que Yelmo, eh, a, o a la mina de Yelmo le gusta ver... No era Yelmo, era... 
+
+Eugenio de Tomaso:
+Emper. 
+
+Daniel Zacharias:
+Eh, que le gusta ver este dato. Vos puedas ir y escribirle al portal, le tenemos que poner un nombre ya, el Chirry Portal, podría ser. 
+
+Eugenio de Tomaso:
+El Chirry Portal. [risas] 
+
+Altavoz 5
+Justo como los chirris. A nosotros ahora nos va a decir: «Nah, llegaron los chirris». 
+
+Daniel Zacharias:
+Bueno, el Chirry Portal. Vas a la parte de administración y le decís a Yelmo, el reporte de Yelmo, le decís: quiero que tenga, eh, una fórmula que muestre el engagement por influencer y que lo muestres en tal parte, en tal slide. 
+
+Eugenio de Tomaso:
+Claro. 
+
+Altavoz 5
+Esta magia. Pago lo que sea. No me importa una puna. 
+
+Eugenio de Tomaso:
+[risas] No digas eso ahora, todavía no presupuestaron, boluda. 
+
+Daniel Zacharias:
+Así se negocia, ¿eh? [risas] No hagas esto con tus clientes. Eh, y pero es que sí, porque si no, no, la idea es que vos tengas cierta libertad para que vos puedas modificar la forma en la cual sin, sin, ni depender de nosotros ni tener un editor de porquería difícil de usar. Em, y nosotros tendremos que armar los reportes de una manera relativamente dinámica cada vez usando el prompting. 
+
+Eugenio de Tomaso:
+Sí, sí, o podemos hacer un prompting más tipo con un, qué harnés, viste que- 
+
+Daniel Zacharias:
+Sí, un poco más encausado. Sí, porque si no cada vez te va a ser distinto. 
+
+Eugenio de Tomaso:
+Claro, que sea, mmm, bueno, eso después, yo creo que eso lo vamos a tener que hacer mucho. El prototipo es como salga y después mucho el lado de Juli y de... 
+
+Daniel Zacharias:
+E-e-es verdad. 
+
+Altavoz 5
+De Tati. Porque ya no, ya solo los miro los reportes y cualquier cosa- 
+
+Daniel Zacharias:
+Yo creo que esto que dije es para el día de mañana. 
+
+Eugenio de Tomaso:
+Sí, obvio. 
+
+Daniel Zacharias:
+No es MP. No es piloto ni el MVP. 
+
+Eugenio de Tomaso:
+El MVP es el piloto, es tipo el mínimo producto viable con el que vamos a salir. 
+
+Daniel Zacharias:
+Bien. 
+
+Eugenio de Tomaso:
+Apar-- vos salís con un mínimo producto viable, que es algo que no te lleve mucha guita, que vos lo puedas sacar al mercado- 
+
+Daniel Zacharias:
+Y no esté complicado para nadie. 
+
+Eugenio de Tomaso:
+Verlo, que tus clientes lo empiecen a usar, ver el engagement, si funciona bien, empezamos a alterar, a evolucionar. 
+
+Altavoz 5
+¿Mi pelo está bien? Qué horror. 
+
+Daniel Zacharias:
+Sí, está bien, no importa. 
+
+Altavoz 5
+Me parece raro que la mucama los debe haber levantado y los debe haber dejado ahí. 
+
+Daniel Zacharias:
+Y por qué, ¿lo querías guardar? [risas] 
+
+Eugenio de Tomaso:
+Parece un perro, boludo. 
+
+Altavoz 5
+No, deben ser mi peine, que capaz yo me lo saqué. Está obviamente preocupada, tiene piojos. 
+
+Eugenio de Tomaso:
+Pará que no les pueden contaminar la charla. 
+
+Daniel Zacharias:
+No, está perfecto. 
+
+Eugenio de Tomaso:
+Bueno, entonces lo que dice Dani es: che, el MVP, nosotros vamos a hacer un prototipo, que es sin datos. Vamos a hacer el piloto, que es el MVP, y después le vamos a decir: bueno, pos-MVP, está todo esto para hacer. 
+
+Daniel Zacharias:
+El, el MVP lo pueden ya presentar a sus clientes. 
+
+Eugenio de Tomaso:
+Sí, el MVP está hecho para eso. 
+
+Daniel Zacharias:
+Solo que va a estar limitado y algunas cosas tal vez están hechas fijas a mano. 
+
+Eugenio de Tomaso:
+Okey. 
+
+Daniel Zacharias:
+Que mañana lo hacés configurable, customizable, como lo quieras llamar. 
+
+Altavoz 5
+¿Dónde lo vas a presentar, no? 
+
+Eugenio de Tomaso:
+Pero vamos a ver. 
+
+Altavoz 5
+No sé. 
+
+Eugenio de Tomaso:
+Si es presentar es arre. [risas] 
+
+Daniel Zacharias:
+No, eh, ustedes pueden hacer tipo todo un, todo un, todo un evento de: mirá, presentamos nuestro portal de clientes, el Chirry Portal, donde hoy vas a poder hacer esto. El día de mañana, ver tus facturas, eh, pagar, qué sé yo. Mi-- la verdad es, es limitless lo que puedan hacer. Navegar por la data, por la información, business intelligence, le mandan así todo- 
+
+Altavoz 5
+A mí el business intelligence es lo que más me interesa. 
+
+Eugenio de Tomaso:
+Sí, obvio. 
+
+Altavoz 5
+A él le importan los reportes porque los tiene que hacer él, pero yo que soy la que tengo que hacer los contenidos y viralizarme- 
+
+Eugenio de Tomaso:
+Porque la sesión es- 
+
+Altavoz 5
+Llegar a la audiencia. 
+
+Eugenio de Tomaso:
+Mirá, yo- 
+
+Altavoz 5
+Ahora audito todo con Cloud, pero me gustaría tener- 
+
+Eugenio de Tomaso:
+Claro. 
+
+Altavoz 5
+Un portal donde tiene toda mi información guardada posta. 
+
+Eugenio de Tomaso:
+Claro. 
+
+Altavoz 5
+Y que las chicas puedan usar ese portal- 
+
+Daniel Zacharias:
+Mmm. 
+
+Altavoz 5
+Para cuando arman el calendario de social media. 
+
+Daniel Zacharias:
+Contame un poquito eso, porque, eh, para entender cómo conjuga con este por-- o sea, no es el portal de cliente. Vos lo que estás hablando es: ya que tengo toda la data- 
+
+Eugenio de Tomaso:
+La data interna. 
+
+Altavoz 5
+Sí. 
+
+Daniel Zacharias:
+Poder trabajar. 
+
+Eugenio de Tomaso:
+Es otro uso de- 
+
+Altavoz 5
+Eso es otro uso, tipo una vez que podemos solucionar el tema de los reportes. 
+
+Eugenio de Tomaso:
+Sí. 
+
+Altavoz 5
+Para mí, el uso segundo más importante es toda esa información que vamos a tener cargada, que nos va a dar información de todo tipo, qué funcionó, qué no funcionó a lo largo del tiempo, poder usarla para generar, eh, calendarios o contenidos- 
+
+Daniel Zacharias:
+Mmm. 
+
+Altavoz 5
+Con, eh... 
+
+Eugenio de Tomaso:
+Más insights. 
+
+Altavoz 5
+Sí, más insights. 
+
+Eugenio de Tomaso:
+Es usar, es usar la info. 
+
+Altavoz 5
+Como dijo él, los mensajes, no sé, los comentarios, sacar un contenido de todos los comentarios. ¿Entendés? Bueno. 
+
+Eugenio de Tomaso:
+Le decís a Claude: che, buscame una idea. Bueno, digo, ahí- 
+
+Daniel Zacharias:
+Qué está buscando la gente. 
+
+Altavoz 5
+Claro, qué anda buscando la-- 
+
+Daniel Zacharias:
+Cuál es la duda. 
+
+Altavoz 5
+Cuál, sí, cuál es el, el contenido más visto de los últimos treinta días para ver si lo podemos replicar para algún cliente y que te diga cómo replicarlo. Para que no pierdan tiempo en virales, por ejemplo. Se pierden mucho tiempo buscando un viral que después lo, te lo copian diez veces. 
+
+Daniel Zacharias:
+Mmm. 
+
+Eugenio de Tomaso:
+¿Viste lo que te pasé lo de Meta? Que vos le subís algo y te va, y te dice la probabilidad de que sea viral o no. 
+
+Altavoz 5
+Sí, ya lo empezaron. Por eso no te dejan con-conectar Cloud, Meta. 
+
+Eugenio de Tomaso:
+Ah, mirá. 
+
+Altavoz 5
+Porque empezó a tener su pro-- como TikTok, que tiene su propia IA. 
+
+Daniel Zacharias:
+Mmm. 
+
+Altavoz 5
+Symphony. 
+
+Eugenio de Tomaso:
+Sí. 
+
+Altavoz 5
+Eeeh, a mí me vendría muy bien esa parte porque es donde más tardo todos los meses. 
+
+Daniel Zacharias:
+Mmm. 
+
+Altavoz 5
+En que las chicas terminan de entender que ese no es el contenido, que tienen que leer más lo que está pasando en la red social. 
+
+Daniel Zacharias:
+Ahí, eh, hay un ri-- mmm. 
+
+Altavoz 5
+Porque con eso, con toda la info... 
+
+Daniel Zacharias:
+Sí, el riesgo que tiene, esto justo lo hablaba con Alex. Eeeh, [chasquido de lengua] bueno, podés delegar tu cabeza. 
+
+Altavoz 5
+No, no. 
+
+Daniel Zacharias:
+Okey. 
+
+Altavoz 5
+Yo la, yo lo uso de colchón. 
+
+Eugenio de Tomaso:
+Termina hablando media hora. 
+
+Altavoz 5
+No, no, yo lo uso de colchón. O sea, lo pienso y hasta mismo le repregunto: yo no sé si esto es seguro lo que vos me estás diciendo. Vos me estás diciendo esto, esto, esto, pero yo lo que aprendí en la facultad no es eso. Y ahí me dice: puede ser, tenés razón. 
+
+Eugenio de Tomaso:
+Sí. 
+
+Altavoz 5
+Y ahí empiezo a pimponear. Pero por lo menos tengo como que la estructura
+
+Daniel Zacharias:
+Sí, lo saco como un punto de partida. 
+
+Eugenio de Tomaso:
+Exacto. O ponele, tengo una campaña, ¿no? Balan, se queda como-- suponemos que se queda como cliente. Y tenemos que hacer la parte dos de esta campaña, que va a tener que ser más awareness. 
+
+Daniel Zacharias:
+Bueno, enlistame los contenidos que más se destacaron, por qué, qué es lo que vio la gente. 
+
+Eugenio de Tomaso:
+No, pero ahí, bueno, yo les voy a contar esto que es lo que estamos haciendo para, para un cliente de... 
+
+Altavoz 5
+La tienda de productos. 
+
+Eugenio de Tomaso:
+No, no, de lo otro, la otra empresa. 
+
+Daniel Zacharias:
+No puedo mencionarla. [risas] 
+
+Eugenio de Tomaso:
+El flaco tiene, el flaco es un-- tiene una empresa de marketing grosa, digamos, en Estados Unidos. 
+
+Altavoz 5
+La aclaración de grosa parece comparativa con... 
+
+Daniel Zacharias:
+Sí, sí, sí, yo también lo sentía. 
+
+Eugenio de Tomaso:
+Ah, ¿sí? Ah, no, no, no, perdón. Bueno, tiene una, tiene una gran... Como con clientes tipo grandes. 
+
+Altavoz 5
+[risas] Sí, esta es. 
+
+Daniel Zacharias:
+Una estructura mayor. 
+
+Eugenio de Tomaso:
+Con mucha gente. El pibe lo que tiene, el flaco tiene, tiene setenta años y dijo: "Che, ahora con la IA- 
+
+Altavoz 5
+Setenta años y todavía tiene una agencia, me da esperanza, boludo. 
+
+Eugenio de Tomaso:
+Dice: "Con toda la info que, que, que tengo yo y el conocimiento del mercado, por qué no un programa que vaya a todas las publicaciones de diario, más de, no de redes sociales, sino más de contenido de web. Extraigo todo, busco las marcas, la competencia de esas marcas, hago un informe y un reporte y le digo: 'Che, durante este mes de tu marca hablaron así'". 
+
+Daniel Zacharias:
+Totalmente. 
+
+Eugenio de Tomaso:
+Y... 
+
+Altavoz 5
+Ah, bueno, para plataforma es 
+
+Eugenio de Tomaso:
+...de tu competencia es esta. Bueno, y entonces le va, con AI le va sugiriendo estrategias. 
+
+Altavoz 5
+Es como un benchmarking de IA que lo hace. 
+
+Eugenio de Tomaso:
+Benchmarking. 
+
+Altavoz 5
+Sí, sí, tenés que entrar todo el día. 
+
+Eugenio de Tomaso:
+Claro, es todo automatizado por AI. Ustedes pueden replicar, empezar a replicar esto en, en redes sociales. Él también lo quiere empezar a llevar a redes sociales. 
+
+Altavoz 5
+Yo lo quiero en redes sociales. 
+
+Eugenio de Tomaso:
+Pero no para hacer contenido, él es para... 
+
+Altavoz 5
+Es para ver el engagement. 
+
+Eugenio de Tomaso:
+Engagement y hacer más RP, ¿no? Relaciones públicas. 
+
+Altavoz 5
+Mi teoría es que es todo mentira. Todo el engagement es todo mentira. 
+
+Eugenio de Tomaso:
+Pero el flaco es lo mismo. Reporte, hace un reporte él y después descubrió que un cliente lo quiere así, dijo: "Listo, hago un builder, un report builder con AI". Y digo: "Bueno, yo quiero que este reporte haga esto, haga esto, haga esto, y vos es como un template de tu reporte que lo guardás". 
+
+Altavoz 5
+Y más sabes que luego cuando te quieran dejar vos tenés toda la información de ellos, eso es hermoso y no se la vas a dar porque tienen que pagar. 
+
+Eugenio de Tomaso:
+Pensá en firmar, hacerles firmar algo. 
+
+Altavoz 5
+Sí, les voy a hacer firmar algo. 
+
+Eugenio de Tomaso:
+O no, o no les hagas firmar nada y si te la pienses, sí. 
+
+Altavoz 5
+No, ya está, ya borré todo. 
+
+Eugenio de Tomaso:
+Claro. 
+
+Altavoz 5
+En el portal, una vez que te vas, se borra todo. 
+
+Eugenio de Tomaso:
+Pero bueno, para mí lo que está bueno del portal es que a usted les da, como, les da un montón de herramientas. Vos vas a poder analizar mejor para futuras campañas, haciendo reportes. 
+
+Daniel Zacharias:
+Totalmente. 
+
+Eugenio de Tomaso:
+Te parás distinto frente a los clientes. Podés decir: "Mirá, nosotros es más científico. Tenemos un portal donde te damos todo el engagement, te hablamos de tópicos". Porque es una boludez. En un reporte diga: "Che, los tópicos más hablados de tu vertical". 
+
+Daniel Zacharias:
+Que tocás el botón tópicos. 
+
+Altavoz 5
+O los hashtags que más funcionaron de tu vertical de pequeños electrodomésticos. 
+
+Eugenio de Tomaso:
+Tal cual. Bueno, eso es lo que está haciendo el pibe. Obviamente que es post MVP, es muy grande lo que hay que hacerle. No, no sé, pero hay que ver por, no sé, por- 
+
+Altavoz 5
+¿Les van a dar formas de pago como su primer cliente? 
+
+Daniel Zacharias:
+¿Cómo? 
+
+Altavoz 5
+¿Les van a dar formas de pago como su primer cliente? 
+
+Eugenio de Tomaso:
+Uy, me manché. Mirá, no sé. 
+
+Altavoz 5
+Igual te quiero decir algo que Belén ya me pidió a gritos su contacto, así que hoy le dije: "Mira, te paso". 
+
+Eugenio de Tomaso:
+¿Es la de Yelmo? 
+
+Altavoz 5
+Sí. Porque a veces lo que quieren... No, porque no nos contestan a nosotros los presupuestos, o no. Tiene problemas con los papeles de aduana para entrar las cosas, porque uno hace las cosas bien y el otro hace las cosas mal. 
+
+Eugenio de Tomaso:
+Impresionante, espectacular. Le vendemos GIDA de vuelta. Nada, ni le decimos nada de esto. Hacemos un GIDA a ellos. Le decimos- 
+
+Daniel Zacharias:
+Pero ellos son importadores directos. 
+
+Altavoz 5
+Ellos traen todo de China. Tienen todo interno, comercial, todo. Tienen problemas de logística. La logística dice una cosa y los papeles dicen otra. 
+
+Eugenio de Tomaso:
+Esa es espectacular. Esa es, tipo, esa es la que nosotros vamos- 
+
+Altavoz 5
+Yo le dije: "Vos no vayas por marketing, para eso estoy yo, a mí me lo hace a mí". 
+
+Daniel Zacharias:
+Hoy me estuvo hablando. 
+
+Altavoz 5
+Te estuvo hablando. 
+
+Eugenio de Tomaso:
+Claro, nosotros lo de marketing que lo deleguen vos. Decile que para todo lo que es producción, importación, logística, warehousing... 
+
+Daniel Zacharias:
+Empezá por eso, porque yo los estoy contactando para marketing, entonces... [risas] No hace falta, no necesitás. 
+
+Eugenio de Tomaso:
+Claro. No, marketing no sean los chitos. Estamos haciendo un portal. 
+
+Daniel Zacharias:
+Bueno, para entender, eh, volviendo un poco al tema del prototipo, porque no quiero tampoco generar expectativas, eh, extremas. Mi propuesta, ah, y acá vamos un poco con esto también, es hacer un prototipo de portal donde simulamos que una perso-- un cliente... Estaría bueno que usemos tal vez de base algún reporte. Si me decís usemos el de Plataforma Diez, vamos con Plataforma Diez. Si me decís vamos con el de Yelmo, vamos con el de Yelmo. 
+
+Altavoz 5
+Pero quién es el que más paga hoy. En total. 
+
+Eugenio de Tomaso:
+Yelmo, pero Yelmo son tres slides. No sé, como ustedes digan. 
+
+Altavoz 5
+No, no, de Plataforma Diez, porque es verdad, porque Belén es re charlable, entiende, no es tan... 
+
+Daniel Zacharias:
+Bueno, hagamos igual, la, eh, está todo hardcodeado. No, no, son datas... 
+
+Eugenio de Tomaso:
+La data es de juguete. 
+
+Daniel Zacharias:
+De juguete. Pero para que entiendas cómo vas... Y la idea es no sobreprometerte, porque yo puedo hacer como todo es de juguete, te puedo poner todos los moños, pero no, la idea es mostrarte a qué apuntaría el prototipo, el piloto. Eh, y hacemos que entre, pueda ver el último re-- pueda ver tal vez un historial de reportes, ver el último. El último ya tiene la compa-- o sea, hagamos que el reporte sea relativamente... 
+
+Altavoz 5
+Ya en este momento los voy a poner en contacto. Me acaba de decir ya mismo. 
+
+Eugenio de Tomaso:
+La de Yelmo. 
+
+Altavoz 5
+Sí. 
+
+Eugenio de Tomaso:
+Ay, me gusta. Descuento. [risas] No, el cinco por ciento ya tienen, así que... 
+
+Altavoz 5
+¿Cómo eran sus mails? 
+
+Eugenio de Tomaso:
+Eugenio@impactia.ai y daniel@impactia.ai. 
+
+Daniel Zacharias:
+O sea, en esta instancia no necesitas el métrico todavía, ¿o sí? 
+
+Eugenio de Tomaso:
+Sí, ahora no. 
+
+Daniel Zacharias:
+¿No, no, no es igual? Porque nosotros... ¿Ya compren de APIs o todavía no? 
+
+Altavoz 5
+¿Cómo es el de Dani? 
+
+Eugenio de Tomaso:
+Compran de APIs. 
+
+Daniel Zacharias:
+Daniel@impactia. 
+
+Eugenio de Tomaso:
+No, no te pregunto, eh, para usar, ¿no? 
+
+Daniel Zacharias:
+¿Sabes por qué compran de APIs? Porque vamos a ver, capaz que gastaste esta vez cuarenta y cinco dóla-- o setenta dólares. 
+
+Altavoz 5
+Escribí bien por si acaso, impactia.ai.
+
+Eugenio de Tomaso:
+No. AI. 
+
+Daniel Zacharias:
+Sabés que cuando dijiste AI dije: "No, es AI". 
+
+Altavoz 5
+Ponelo vos. 
+
+Eugenio de Tomaso:
+Hay que decir- 
+
+Altavoz 5
+Hacé que ella trabaja, como me hacían a mí cuando recién empezaba con la empresa. Mandame el mail, número te lo mandé dieciocho veces. Bueno, mándamelo veinte. Yo tipo... 
+
+Eugenio de Tomaso:
+¿Qué, en un trackín? 
+
+Altavoz 5
+Un trackín. La cosa que me hacía. Mirá, no te la vo-- no la voy a encontrar para-por- 
+
+Daniel Zacharias:
+Poneme @, boluda, que no sé cómo poner @, boluda. 
+
+Altavoz 5
+¿No estás poniendo? Ay, no, yo tampoco. Comando. ¡Ay, no! ¿Cómo se pone @? Me olvidé. 
+
+Daniel Zacharias:
+¿Cambiaste algo, boluda? 
+
+Altavoz 5
+No, acá. @. La flechita. 
+
+Daniel Zacharias:
+Impactia.ai. 
+
+Altavoz 5
+Dijimos los tres chiflados. 
+
+Daniel Zacharias:
+Daniel @, eh, ¿cómo es? Flechita, ¿cuál es? 
+
+Altavoz 5
+Esta flechita. 
+
+Daniel Zacharias:
+¿Esta? 
+
+Altavoz 5
+Sí. Yo se la doy a Justi esa prueba, ¿vale? 
+
+Daniel Zacharias:
+Se llama Shift, la flechita. 
+
+Altavoz 5
+Para mí es flechita. Qué lle-- ¿Vos fuiste a un colegio donde te enseñaban computación? 
+
+Daniel Zacharias:
+No, soy alto. No, bueno, en la facultad no me enseñaban Shift. Dice Shift, el botón. 
+
+Eugenio de Tomaso:
+Si querés, si no, no sé. 
+
+Daniel Zacharias:
+Es que dice Shift. Yo como uso, como uso PC. 
+
+Altavoz 5
+¿Ahí qué asunto le ponemos? A ver, qué asunto importante. 
+
+Daniel Zacharias:
+El futuro está acá. Ah, no. O si no, pone contacto de Impactia. 
+
+Eugenio de Tomaso:
+Welcome to the game. 
+
+Daniel Zacharias:
+Welcome to the game. 
+
+Altavoz 5
+Soluciones IA. 
+
+Daniel Zacharias:
+Sí, lo que quieras. 
+
+Eugenio de Tomaso:
+Che, em... 
+
+Daniel Zacharias:
+Pará. 
+
+Eugenio de Tomaso:
+Lo del tema de, de Metricool. 
+
+Daniel Zacharias:
+No, pará, antes de Metricool. 
+
+Eugenio de Tomaso:
+¿Antes? 
+
+Daniel Zacharias:
+Sí. Em, ¿qué más te-- qué tendría el, el-- ¿qué otra cosa además del, del reporte, ver los últimos equis reportes? Me parece, me-- sí, me parece medio tristón. 
+
+Eugenio de Tomaso:
+Historial de reportes mes a mes o no importa, con, con la cadencia que ustedes tengan, tipo reportes. Y después lo que sí puede llegar a tener es un, una boludez. Cuando yo voy al diagnóstico Maipú, que me hago análisis de sangre durante varias veces, puedo ver cómo evolucionó tu colesterol, ¿me entendés? 
+
+Daniel Zacharias:
+Y pero, ahí se mezcla, claro, es un poco de data analytics de tu, tu info. Que le podríamos poner data analytics, que suena cool, y entrás. El tema es cuánta libertad le vas a querer dar al tipo. 
+
+Eugenio de Tomaso:
+Y yo al, al cliente. 
+
+Altavoz 5
+Yo creo que habría que dividir por red social, tipo quiero ver solo Instagram, por ejemplo. 
+
+Daniel Zacharias:
+Okey. 
+
+Altavoz 5
+Puede ser una opción, un filtro, Instagram. Y puede ser, después elegir ver el alcance, ver estos, el, los comentarios, ver los... No sé, por ejemplo, ¿eso decís? 
+
+Daniel Zacharias:
+Sí. A ver, el tema es, en realidad, tal vez dentro del prototipo tendríamos que tener una estructura de datos de cómo vamos a guardar todo esto. 
+
+Eugenio de Tomaso:
+Sí, porque a nivel tiempo es lo mismo. 
+
+Daniel Zacharias:
+Sí. 
+
+Eugenio de Tomaso:
+Empezar a, a, a brainstormear con Claudio una... 
+
+Daniel Zacharias:
+Si nosotros suponemos que vamos a tener la data que vamos a tener, con eso podemos hacer un prototipo funcional. O sea, la data es de chiste, pero lo que va- 
+
+Eugenio de Tomaso:
+Pero funcional. A ver, yo lo que estoy haciendo, justamente para que no pase lo que le pasa a otra gente que alucina es: hago todo el backend, hago todo el front y después le digo: "Bueno, ahora simulame toda la data", ¿me entendés? Y me simula toda la data. 
+
+Daniel Zacharias:
+Para que no la hardcodee. 
+
+Eugenio de Tomaso:
+Y no la hardcodea, la mete en base la data. 
+
+Daniel Zacharias:
+Está bien. 
+
+Eugenio de Tomaso:
+Y la levantás en base. Entonces ya vos sabés que funciona. 
+
+Daniel Zacharias:
+Y que la estructura de datos... 
+
+Eugenio de Tomaso:
+Que es la que vos más o menos querés usar, después la vas cambiando, pues. 
+
+Daniel Zacharias:
+Sí, bueno, evoluciona. 
+
+Eugenio de Tomaso:
+Evoluciona. Pero podemos hacer eso. 
+
+Daniel Zacharias:
+Un tema técnico, eh... 
+
+Eugenio de Tomaso:
+Y ahora lo que me puedo pensar es: arranquemos con reportes para el MVP. Mi duda es qué los di-- va a diferenciar de Metricool, di-- en el sentido de qué-- por qué no usás Metricool para darle los reportes. 
+
+Daniel Zacharias:
+No, para darle no, por qué no usan ellos Metricool. 
+
+Eugenio de Tomaso:
+Okey. Por qué no usan Metricool. 
+
+Altavoz 5
+Porque les da paja pagar Metricool, porque no quieren descargar la información y porque quieren que el reporte se baje o un Excel o, eh, en time. 
+
+Eugenio de Tomaso:
+Y también porque mezcla orgánico de pago. 
+
+Altavoz 5
+Claro, y orgánico de pago. 
+
+Eugenio de Tomaso:
+Okey. 
+
+Daniel Zacharias:
+Okey. 
+
+Altavoz 5
+Que no sé si ustedes poniendo esa API, no entiendo un carajo de eso, pueden hacer que nos dé la diferencia. 
+
+Daniel Zacharias:
+Tenemos que ver. 
+
+Eugenio de Tomaso:
+A ver. 
+
+Altavoz 5
+Sí, no sé. 
+
+Eugenio de Tomaso:
+Un dato que también le interesa, por ejemplo, a Plataforma Diez es cuán cerca de los OKR estamos. Por ejemplo, para este Q necesitamos alcanzar ochenta mil personas con influencers. ¿Qué porcentaje estamos de alcanzar eso? 
+
+Daniel Zacharias:
+Ah, bueno, ahí tenés que definir los OKR. 
+
+Eugenio de Tomaso:
+Claro. 
+
+Daniel Zacharias:
+¿Cómo definen ellos los OKR? ¿Te lo dicen a vos? 
+
+Eugenio de Tomaso:
+Lo bajan ellos. 
+
+Daniel Zacharias:
+¿Y vos trabajás en base a esos OKR? 
+
+Eugenio de Tomaso:
+Sí. No, sabés que vos podés agarrar y poner los OKR en- 
+
+Daniel Zacharias:
+En el portal. 
+
+Eugenio de Tomaso:
+En el portal vos, en el backend del portal. 
+
+Daniel Zacharias:
+¿Vos quién? ¿Quién sos vos para decirlos? 
+
+Eugenio de Tomaso:
+Cherry en el admin panel, tipo Cherry va a dar de alta un cliente en el portal. Va a decir Plataforma de- 
+
+Daniel Zacharias:
+Hoy en día sí. Eh... ¿Ves? Tenemos que alcanzar ochocientas mil personas. Todavía no hicimos nada con influencers, entonces vamos a hacer cero por ciento en este Q, que recién empezó. TikTok, necesitamos veinte mil vistas, vamos a un seis por ciento. 
+
+Eugenio de Tomaso:
+Plataforma Diez. Súper, ¿no? 
+
+Daniel Zacharias:
+Son bastante, son estrictos, ¿no? 
+
+Eugenio de Tomaso:
+Sí, sí, medio nazis, boludo. Está bueno. 
+
+Daniel Zacharias:
+Dale, quedó grabado. 
+
+Eugenio de Tomaso:
+Pero está bueno porque ustedes pueden- 
+
+Altavoz 5
+Son israelíes, son los-- son dueños, son israelíes los dueños. 
+
+Eugenio de Tomaso:
+Por eso Danny es un... 
+
+Daniel Zacharias:
+Voy yo con la que papo yo. 
+
+Altavoz 5
+Igual, el capo capo es del Opus. [risas] El capo, ¿cómo se llama? 
+
+Eugenio de Tomaso:
+Una mezcla de religiones jodida de ahí. No, pero digo, ¿ustedes nunca intentaron replicar lo de Plataforma Diez en otros clientes? No, porque no, no los marca en OKR, los otros son más... 
+
+Altavoz 5
+Son más light. 
+
+Daniel Zacharias:
+Yo los- 
+
+Eugenio de Tomaso:
+Más hippies. 
+
+Daniel Zacharias:
+En realidad, los OKR, como es solo para un cliente y no es genérico, se podría establecer como una especie de reporte específico para Plataforma Diez tener los OKR. Hasta le puedes decir, eventualmente, que haya data específica del cliente para Plataforma Diez tiene OKR y para el reporte venís y sacás los OKR de acá. Estoy flasheando, ¿no? Pero dentro de la parte de los reportes dinámicos que podemos eventualmente ofrecer. Porque si noAhí ya se va afuera. Acá como es lo que le decía al principio, si son excepciones y de a menos que me digas plataforma es, es el cliente al que tengo que- 
+
+Eugenio de Tomaso:
+Mhm. 
+
+Daniel Zacharias:
+Porque acá jue-- entra ese juego. Me decís: "Acá yo tengo que sorprender a plataforma E, no me importa que sea el único que tiene OKRs, metelo OKRs". Le van-- metemos OKRs. 
+
+Eugenio de Tomaso:
+Bien. 
+
+Daniel Zacharias:
+Pero es distinto a me digas: "Es el único que tiene OKRs". 
+
+Eugenio de Tomaso:
+Okey. 
+
+Daniel Zacharias:
+Y si vos apuntás a no, yo quiero un, quiero un Cherry Portal para branding, para mostrar, eh, para qué sé yo, y los OKRs solo le sirve a plataforma E, no vamos a invertir tiempo en eso, que esto son de esas cosas que vo-vos crees que son sencillas, son bastante más complejas. 
+
+Eugenio de Tomaso:
+Okey. 
+
+Daniel Zacharias:
+Porque implica un concepto nuevo que antes no existía, que es objetivos, comparar contra ese objetivo, qué periodo probás, eh, tenés que modelar los objetivos, quién los carga. Es bastante más complejo también. 
+
+Eugenio de Tomaso:
+Hacerlo sin OKRs. 
+
+Daniel Zacharias:
+A eso voy, pero me decís: "No, quiero OKRs porque plataforma E". Le tenemos que encontrar una vuelta. 
+
+Eugenio de Tomaso:
+Pero lo hacemos en mayo. 
+
+Daniel Zacharias:
+Lo hacemos, exacto. Yo no le metería OKRs en el prototipo ni en el, eh, ni en el MVP, ¿sí? Bueno, em, para entonces, bueno, reportes y- 
+
+Altavoz 5
+Y para el futuro- 
+
+Eugenio de Tomaso:
+Alta de clientes y eso podemos ver si llegamos a hacerle un alta de cliente, que ellos puedan, tengan el, el admin panel. 
+
+Daniel Zacharias:
+No ganan nada. Ellos no ganan nada con eso. Lo hacemos, lo vamos a hacer. Si lo hacen con un Django, tampoco pasa nada. 
+
+Eugenio de Tomaso:
+Por eso, sí, sí, sí. Pero digo- 
+
+Daniel Zacharias:
+Es gratis. 
+
+Eugenio de Tomaso:
+A ver entonces, login, visualización de repo-- vista como si yo fuera un cliente. 
+
+Daniel Zacharias:
+Siempre como un cliente, sí. 
+
+Eugenio de Tomaso:
+Login, visualización de reportes. 
+
+Daniel Zacharias:
+Reportes. Eh, y bueno, tal vez uno de analytics para el cliente que pueda- 
+
+Eugenio de Tomaso:
+Filtrar por red social. 
+
+Daniel Zacharias:
+Jugar un poco con sus datos. 
+
+Eugenio de Tomaso:
+Mmm. 
+
+Daniel Zacharias:
+Que básicamente es que se pueda armar su propio reporte. Que no sé si a ustedes le gu-- le interesaría darle esa posibilidad al cliente. 
+
+Altavoz 5
+No, yo no quiero que tenga esa posibilidad. 
+
+Daniel Zacharias:
+Okey. 
+
+Altavoz 5
+Yo quiero que yo lo armo y después le digo: "Ya lo podés bajar desde tu portal", como que aprieta los botones, este tipo de ti, ti, ti. 
+
+Daniel Zacharias:
+Okey. 
+
+Eugenio de Tomaso:
+No, le llega un mail que diga bájate el Cherry Portal. 
+
+Daniel Zacharias:
+Bueno, entonces tal vez es importante la parte de administración interna para armar el reporte y publicarlo. 
+
+Eugenio de Tomaso:
+Y publican los reportes. 
+
+Daniel Zacharias:
+Va a haber un proceso de reporte en draft que lo publicás y cuando está publicado el cliente lo puede ver. 
+
+Eugenio de Tomaso:
+Sí, eso podemos hacer, usar el admin panel de Django, que se lo puede comprar en precio técnico, después lo vemos. Pero igual estamos hablando ya de- 
+
+Daniel Zacharias:
+De la parte del por- 
+
+Eugenio de Tomaso:
+Del piloto, no del prototipo. 
+
+Daniel Zacharias:
+Sí, sí, sí. El prototipo es para que ustedes vean a ver qué va a ver un cliente. 
+
+Eugenio de Tomaso:
+Perfecto. Eso. Y- 
+
+Daniel Zacharias:
+Podría ser también que voy a ver yo cuando lo-- pero se lo podemos explicar. 
+
+Eugenio de Tomaso:
+No, no. Mirá, lo tiramos y si no, bueno. 
+
+Daniel Zacharias:
+Escúchenme, branding, porque la verdad que si arrancamos lo podemos arrancar bien. ¿Ustedes cómo quieren que se vea? Paleta de colores, usamos su website. 
+
+Altavoz 5
+Ah, mi website. 
+
+Eugenio de Tomaso:
+Ah, el, el portal, no el reporte. 
+
+Daniel Zacharias:
+El portal. 
+
+Eugenio de Tomaso:
+Sí, el portal. 
+
+Altavoz 5
+Eh, tiene que tener los colores de Cherry. 
+
+Eugenio de Tomaso:
+Llevamos como los reportes de Yelmo. 
+
+Altavoz 5
+Sí. 
+
+Daniel Zacharias:
+Okey. Mándanos, mándanos ese reporte y- 
+
+Altavoz 5
+O sea, con un poco menos de información, porque ahí hay demasiadas cosas. 
+
+Eugenio de Tomaso:
+Pero los colores usaron unos-- que la web de ustedes está caída encima, me dijiste. Ya la solucionamos. 
+
+Altavoz 5
+No tenemos web buena. 
+
+Eugenio de Tomaso:
+No, igual la web ustedes hay que hacerla. 
+
+Altavoz 5
+Hay que hacerla. 
+
+Eugenio de Tomaso:
+Eso se los hago yo de onda, que ya hicimos. Entonces ahora no necesitas Metrikul. Ahora vamos a volver. 
+
+Altavoz 5
+Como hermano, buen hermano. 
+
+Daniel Zacharias:
+El tema de Metrikul es, nosotros no, es para Gem. Si querés empezar a investigar un poquito, que investigar es, la-lanzamos algunas consultas importantes de qué información podemos extraer de los sistemas, de los, de las redes sociales hoy por hoy y cuáles de Metrikul, para ya ir dándonos una idea de cómo va a ser tal vez la estru-hasta la estructura de datos que vamos a usar. Me gusta lo que dijiste vos de hacer el backend, frontend y después meterle datos. Eh, la verdad que tiene potencial. También tiene, tiene potencial de irnos a la mierda, ¿no? Es como todo. 
+
+Eugenio de Tomaso:
+Nosotros interna, bueno, ya es más interno, pero nosotros vamos a decir listo, en cinco horas, ¿qué podemos hacer? Y a las cin-- hora cinco, parar. 
+
+Daniel Zacharias:
+Cortamos y esto que hicimos hasta ahora. 
+
+Eugenio de Tomaso:
+Publicamos en GitHub y se lo pasamos. 
+
+Daniel Zacharias:
+El siguiente paso después es un, un co-- sí, hacer un análisis más de estimación. 
+
+Eugenio de Tomaso:
+En base a eso. 
+
+Daniel Zacharias:
+En base a lo que hoy no sabemos que es lo que podemos extraer de Meta, de TikTok. 
+
+Eugenio de Tomaso:
+Exacto. 
+
+Daniel Zacharias:
+Y cuan-- porque esos son muy indescifrables hoy. 
+
+Eugenio de Tomaso:
+Y todo lo que es Metrikul hay que, yo creo, hay que ponérselo a ver. Para mí- Capaz es lo primero que tienen que hacer, cuánto pueden rescatar y cuánto- 
+
+Daniel Zacharias:
+Metrikul- 
+
+Eugenio de Tomaso:
+Para el prototipo no, después vemos, pero el Metrikul sacala, sacanos y pasanos las credenciales. 
+
+Daniel Zacharias:
+Chicos, Metrikul, si, eh, ¿cuán-cuánto estiman ustedes de porcentaje de datos podemos sacar de ahí? No sé si me explico. De toda la fuente, de todo la, el cuerpo de información de datos, ¿cuánto creen que nos va a poder ahorrar Metrikul? Si hubiéramos. 
+
+Eugenio de Tomaso:
+Vamos a ver. 
+
+Daniel Zacharias:
+Te diría un rango al, a metros que querés. 
+
+Eugenio de Tomaso:
+Dejame que chequeo y te digo. Voy a poner acá el último mes. Eh... 
+
+Daniel Zacharias:
+Igual si lo puedo hacer en Metrikul. 
+
+Altavoz 5
+Sí. 
+
+Daniel Zacharias:
+Vamos a hacer nosotros. Pero bueno. 
+
+Eugenio de Tomaso:
+No, pero por lo menos para los primeros meses, que sale sesenta dólares, ya tenemos Metrikul todo armado y una vez que estamos asentados y más o menos empezamos- 
+
+Altavoz 5
+Además, Metrikul ya tiene información de los meses anteriores. 
+
+Eugenio de Tomaso:
+Ah, es más. 
+
+Altavoz 5
+Lo tenemos activo desde el año pasado, desde mitad de año, entonces yo ya tengo todos los reportes ahí. 
+
+Eugenio de Tomaso:
+Eso está buenísimo. Y es Metrikul y es scrapear manualmente, hacer un scraper manual, lo que es orgánico y pum. 
+
+Daniel Zacharias:
+Claro. 
+
+Eugenio de Tomaso:
+Y encima... 
+
+Daniel Zacharias:
+Sí, creo que pueden sacar bastante. Te diría que- 
+
+Altavoz 5
+Hay un montón. 
+
+Daniel Zacharias:
+Em... 
+
+Altavoz 5
+Está dividido por tienda. 
+
+Daniel Zacharias:
+No sé si van a tener los influencers, eso creo que no les aparece, ¿no? 
+
+Eugenio de Tomaso:
+Los influencers, ¿ustedes cómo los sacan? 
+
+Altavoz 5
+Tati sabrá. 
+
+Daniel Zacharias:
+Los saco de, dentro de, como te digo
+
+Altavoz 7
+Como vimos recién. Entro al posteo y veo las... cómo funciona. 
+
+Eugenio de Tomaso:
+Pero que, pero la lista de influencer, ¿que es una campaña? 
+
+Altavoz 5
+Es por mes. Tenemos diez millones de pesos en plataforma de diez, ponele por mes para invertir influencers. 
+
+Eugenio de Tomaso:
+Listo, pero ha-hagamos el proceso. Ustedes tienen diez millones de pesos. 
+
+Altavoz 7
+Por ejemplo, ahí hace una aplicación de dos cuentas. 
+
+Eugenio de Tomaso:
+Contratás al influencer- 
+
+Altavoz 5
+Publica y nos manda sus, eh, sus- 
+
+Altavoz 7
+Esa información yo la pongo como- 
+
+Altavoz 5
+Capturas. 
+
+Altavoz 7
+Aparte. 
+
+Eugenio de Tomaso:
+Está bien, él le manda sus capturas por mail. 
+
+Altavoz 5
+No, se por WhatsApp. 
+
+Daniel Zacharias:
+Esta, esta, perdón, esta data es pública. 
+
+Altavoz 5
+Sí, eso es público. 
+
+Altavoz 7
+Más o menos. O sea, vos ves esto, pero acá entrás y vas a tener el alcance, que no lo tenés ahí. 
+
+Daniel Zacharias:
+Ah, esto, esta es la data que vos querés. 
+
+Altavoz 7
+Sí. 
+
+Altavoz 5
+Igual creo que la levanta, eh, Cloud, fijate. 
+
+Eugenio de Tomaso:
+Pero pará, pará un minuto. La parte de influencer no la tenemos, Dani. Porque influencer es, en vez de ser la cuenta Ultracom, es la cuenta de Dani. 
+
+Daniel Zacharias:
+Es la lista, la lista de influencers. Usted es la... ¿dónde la tiene? 
+
+Altavoz 5
+En un Excel tenemos una lista de influencers. 
+
+Eugenio de Tomaso:
+Tiene que estar en, en el por-- en el backend del portal donde vos puedas subir. 
+
+Daniel Zacharias:
+Sí. 
+
+Eugenio de Tomaso:
+Vos tenés que habilitar una campaña mes a mes y decir: "Bueno, este mes yo voy a tener estos influencers". Lo vas a tener que poner ahí o copiar el- 
+
+Altavoz 5
+Mejor, Florencia empieza a ser ordenada, no tiene excusas. 
+
+Eugenio de Tomaso:
+Claro, dejá para... Hasta los ordena internamente ustedes, pero eso va a tener que-- porque después tenés que ir a buscar esos influencers. 
+
+Altavoz 7
+El posteo que hicieron. 
+
+Eugenio de Tomaso:
+El posteo que mencione. 
+
+Daniel Zacharias:
+Ese es el tema. 
+
+Altavoz 7
+Exacto. 
+
+Daniel Zacharias:
+El posteo específico de Ultracom, que no sé, supongo que más o menos se puede identificar. 
+
+Eugenio de Tomaso:
+O por, por el, el tag del... No el tag, el título del coso. Pero y si no, ¿qué-- cómo hacés si es un video? 
+
+Daniel Zacharias:
+¿Cómo identificás? [risas] No, pero cuando vos vas, vas a Instagram. 
+
+Eugenio de Tomaso:
+Es una historia. 
+
+Daniel Zacharias:
+Y agarrás un influencer que- 
+
+Altavoz 5
+Sí, las historias igual son las que menos me 
+
+Daniel Zacharias:
+¿Cuántos posteos tiene por, por mes? No sé, mil. Tiene tal vez cien. De esos, ¿cómo identificás vos cuál es el que corresponde al que vos le pusiste la pauta? 
+
+Altavoz 5
+Pasan ellos. 
+
+Daniel Zacharias:
+Porque menciona la marca. Bueno, listo. 
+
+Eugenio de Tomaso:
+Lo reconozco porque lo vi. 
+
+Daniel Zacharias:
+Pero es tan sencillo como que es buscar los que mencionan la marca y esos son. 
+
+Eugenio de Tomaso:
+Copiame los links. 
+
+Altavoz 5
+Sí, por lo menos para- 
+
+Daniel Zacharias:
+No, bueno, es para... Vos, el influencer tenés que saber cuál, no tenés que decir. 
+
+Altavoz 7
+Antes de crear el reporte vemos que te-- el contenido correcto. 
+
+Eugenio de Tomaso:
+Bueno, tenemos que ver cómo lo solucionamos. 
+
+Daniel Zacharias:
+Está bien, pero- 
+
+Eugenio de Tomaso:
+Porque si no mencionan la marca en ningún lado de la publicación y está solo mencionada en el video, tenemos-- tiene que haber un humano que vea el video. 
+
+Altavoz 7
+No sé si sucede, pero si eventualmente- 
+
+Daniel Zacharias:
+O sea, le ponen hashtags, tienen los UTM, los links UTM, seguro. Entonces, o no. 
+
+Altavoz 7
+Eso es en stories. 
+
+Eugenio de Tomaso:
+En stories. 
+
+Daniel Zacharias:
+Ah, en stories. 
+
+Altavoz 7
+Las stories duran veinticuatro horas. 
+
+Eugenio de Tomaso:
+Pero tienen hashtag. 
+
+Altavoz 7
+Tienen has-- eh, mencionar, sí, todas las marcas piden que las mencionen. 
+
+Daniel Zacharias:
+Y si no le ponés, ¿cómo hace? Si no, no tiene sentido. Pará, ¿y lo de las stories? ¿Qué hacés? 
+
+Eugenio de Tomaso:
+Según él, estaba hablando en paralelo. 
+
+Altavoz 5
+Las UTM vienen, te las mandan, nos mandan ellos las estadísticas. 
+
+Eugenio de Tomaso:
+Las stories. 
+
+Altavoz 7
+Pero después el alcance de stories, no sé. 
+
+Altavoz 5
+Lo tenemos ahí en Metricool. Metricool tiene el alcance de stories. 
+
+Altavoz 7
+De influencers. 
+
+Eugenio de Tomaso:
+Claro, tenés que poner la cuenta del influencer. 
+
+Altavoz 5
+Lo tenemos en nuestro Insta. 
+
+Eugenio de Tomaso:
+El problema es ese, es cuando no es la cuenta de la marca... 
+
+Altavoz 5
+Bueno, si no empecemos con Metricool de a poco y después, una vez que le mostramos el portal a los clientes, ya le pedimos el acceso. O le digo: Flor va a entrar desde tal lado. 
+
+Altavoz 7
+Claro, pero tal vez en el, en el- 
+
+Eugenio de Tomaso:
+No, boluda. 
+
+Altavoz 7
+MVP le dicen. 
+
+Altavoz 5
+MVP. Como backlog. 
+
+Altavoz 7
+La data de influencer la empezamos a cargar nosotros y después- 
+
+Daniel Zacharias:
+En realidad podemos hacer algo intermedio que nosotros te podemos... A ver, con la información pública podés identificar. Si vos, si vos me decís qué influencer es, yo te identifico cuáles son los post potencialmente los de pauta. Y no sé, te los muestro. O sea, si después hay que entrar, el tema es entrar en el detalle con la cuenta del cliente para poder... No, digo. 
+
+Eugenio de Tomaso:
+No, ni siquiera con la cuenta del cliente, al, al influencer, a la publicación del influencer. 
+
+Daniel Zacharias:
+Claro, vos la da-la data que vos querés extraer, perdón, estamos hablando sin saber. La data que vos querés extraer la ves porque es, no es pública, me decías, cuando entrás. 
+
+Altavoz 7
+Yo estoy logueado, eh, por ejemplo, en Plataforma10 con Partner Influencer y, eh, y Plataforma10. Entonces, tengo acceso a esa información. 
+
+Daniel Zacharias:
+Porque estás con, te estás metiendo con la cuenta de Plataforma10. 
+
+Altavoz 7
+Me estoy metiendo con la cuenta de Plataforma10. 
+
+Daniel Zacharias:
+Ahí está. 
+
+Altavoz 7
+Exacto. 
+
+Daniel Zacharias:
+Entonces, a menos que vos me des acceso con la cuenta de Plataforma10, no va a poder extraer esa información. Pero lo que yo tal vez puedo hacer- 
+
+Altavoz 7
+Voy a poder extraer otra. 
+
+Daniel Zacharias:
+Puedo extraer otra. 
+
+Altavoz 7
+Falta el alcance, nomás. El resto- 
+
+Daniel Zacharias:
+Exacto. El-- puedo extraer otra y te puedo decir: estas son las que están. Entrá, entrá, te mo-- te pongo el link y vos entrás aunque sea a mano. 
+
+Altavoz 7
+Exacto. 
+
+Daniel Zacharias:
+Y lo podés hacer. Bueno, el link no, porque se, se puede hacer desde la PC o te obliga a hacerlo desde el celu. A ver. Viste que Instagram tiene esas cosas. 
+
+Altavoz 5
+Lo hacen a propósito. 
+
+Eugenio de Tomaso:
+Es que te bloquean mucho, como LinkedIn. El peor es LinkedIn. LinkedIn no podés dar nada. 
+
+Daniel Zacharias:
+LinkedIn es, es... 
+
+Eugenio de Tomaso:
+Es una fortaleza. 
+
+Daniel Zacharias:
+Hablando de... 
+
+Eugenio de Tomaso:
+Y hay partners que te venden y, y Twitter va a lo mismo, me decía Nil. Como que dijo: "No, porque Elon vio", ¿viste? Se hace el Elon. 
+
+Daniel Zacharias:
+Ah, con mi amigo Elon. 
+
+Eugenio de Tomaso:
+Claro, como vos decís: "No, Mauricio". 
+
+Daniel Zacharias:
+Habla en primera, en, en first name basis, ¿viste? 
+
+Altavoz 5
+Una clase de Excel le daré, chicos. 
+
+Altavoz 7
+Desde la compu se puede agarrar. 
+
+Daniel Zacharias:
+Bueno. 
+
+Altavoz 7
+O sea, así por ejemplo. 
+
+Eugenio de Tomaso:
+Y esto solo lo ves cuando tenés una cuenta. 
+
+Daniel Zacharias:
+No, es la cuenta del-- claro, porque está logueado con la cuenta del cliente, de Plataforma10, que como están, eh- 
+
+Altavoz 5
+Ay, chicos, Belén nunca responde tan rápido. Me vendría superbién que hagamos una reunión para la semana que viene. ¿Quieren pasarme algunas opciones? Nunca la vi responder tan rápido. Dice: "Tengo muchos puntos de dolor que venir rápido", dijo. 
+
+Eugenio de Tomaso:
+Esto es plot, esto es plot. Y también te va a doler. 
+
+Altavoz 5
+Vas a tener que negociar bastante ahí, porque- 
+
+Eugenio de Tomaso:
+Ah, ¿sí? 
+
+Altavoz 5
+Es medio... 
+
+Eugenio de Tomaso:
+Es medio apartón. 
+
+Altavoz 7
+Empiezan de a poco. Si después de- 
+
+Eugenio de Tomaso:
+Sí, obvio. 
+
+Altavoz 7
+Le vas poniendo el queso de a poco. 
+
+Daniel Zacharias:
+Es que tampoco, es que tampoco nos da el tiempo para poder renderle mucho. 
+
+Altavoz 5
+Eso es, quiero decir, como que Belu te va conociendo y cuando va viendo que, que le gusta lo que hacés, te va... 
+
+Eugenio de Tomaso:
+Como que empezamos así, con cosas chicas. 
+
+Altavoz 7
+Nosotros sí, somos pe-- la verdad que estamos recién arrancando. 
+
+Altavoz 5
+Yo igual no me quiero hacer más grande, pero traemos suerte, ¿o no? 
+
+Daniel Zacharias:
+Cuando cerremos el deal te compras una, una canasta. 
+
+Altavoz 5
+Yo no quiero ni siquiera eso, yo no realmente creo- 
+
+Eugenio de Tomaso:
+No, yo también. 
+
+Daniel Zacharias:
+Ah, ¿las masitas? 
+
+Altavoz 7
+Sí, no, te cagó. Estaba pensando en eso y no. 
+
+Eugenio de Tomaso:
+Ah, prometió masitas. 
+
+Altavoz 5
+Tengo chocolate Basalisa, ¿quieren? 
+
+Daniel Zacharias:
+No, es mucho. Es mucho. 
+
+Altavoz 5
+No, vos no podés, mejor Paula, que tú tienes dieta. 
+
+Altavoz 7
+A ver qué puedo ofrecer. 
+
+Daniel Zacharias:
+No, no, era chiste, era chiste. 
+
+Eugenio de Tomaso:
+Bueno, una, un poco de coca. 
+
+Altavoz 5
+Coca sí te puedo ofrecer, pero trajiste vos. 
+
+Daniel Zacharias:
+No trajiste vos. [risas] 
+
+Altavoz 5
+Ah, tengo barquitos surtidos. 
+
+Altavoz 7
+Hay Melbas. 
+
+Altavoz 5
+Hay Melbas. 
+
+Eugenio de Tomaso:
+Paula compró las... esas de Carrefour, ¿viste? Las que fueron virales. 
+
+Daniel Zacharias:
+Ah, riquísimas. La... ¿Cómo se llama? Bu-- no. 
+
+Eugenio de Tomaso:
+Sí, tiene un son veneno puro, ¿no? 
+
+Daniel Zacharias:
+Sí, porque son ochenta por ciento chocolate, veinte grasa. 
+
+Eugenio de Tomaso:
+Es venenosa de mil maneras. 
+
+Altavoz 5
+Me he olvidado. 
+
+Altavoz 7
+Es demasiada. 
+
+Altavoz 5
+Mantecol este. 
+
+Daniel Zacharias:
+No sé. Qué rico. No, no, no, la verdad. Comemos una- 
+
+Altavoz 5
+Camela y de Brasil pacoquitas. ¿Les gustan las pacoquitas? 
+
+Daniel Zacharias:
+Es como dulce de leche, es como... 
+
+Altavoz 5
+No, estoy comiendo mantecol. 
+
+Altavoz 7
+Mantequilla de maní. 
+
+Altavoz 5
+Mantequilla de maní. 
+
+Daniel Zacharias:
+No, no tengo. Cheta, voy a pausar esto.
+
+
+///////**********************************************************
+
+
+Eugenio de Tomaso:
+Es el, el, la administración de influencers 
+
+Daniel Zacharias:
+Sabés que sí, porque primero hay algunas marcas de tipo plataforma diez que tienen influencers. 
+
+Victoria de Tomaso:
+Eso es otro tema. 
+
+Eugenio de Tomaso:
+No, pero, pero- 
+
+Daniel Zacharias:
+Pero para ganarnos el cliente anualmente- 
+
+Victoria de Tomaso:
+Yo creo que prefiero ganarme un cliente nuevo que después solucionamos el problema de los reportes, no sé. [risas] 
+
+Eugenio de Tomaso:
+Vos preferís que el, el prototipo tenga un, un reporte de influencers. 
+
+Daniel Zacharias:
+Sí, tipo este reporte que, que sacás son todos los influencers que yo elegí para la campaña, de los cuales la marca me va diciendo si le gusta o no y me deja los comentarios. Aprobado, mmm, negociemos. 
+
+Victoria de Tomaso:
+Esto ya sucedió. 
+
+Daniel Zacharias:
+Esto ya sucedió. 
+
+Eugenio de Tomaso:
+Pero- 
+
+Victoria de Tomaso:
+Ahora, el próximo paso sería hacer un reporte de cómo funcionaron esos influencers. 
+
+Julián Montero Ciancio
+Pará, porque también podemos, y acá donde metés la-- te metés la pata en la boca, que el feedback lo pueden hacer en el portal. 
+
+Daniel Zacharias:
+Claro, eso quiero, para no tener que tener reuniones con ellos. 
+
+Eugenio de Tomaso:
+Pero la próxima vez de armar un-- en vez de armar un Excel, no entiendo entonces. Pero ya para Balance, ya fue, ya esto pasó. 
+
+Victoria de Tomaso:
+Esto, esta etapa ya pasó. 
+
+Julián Montero Ciancio
+Pero hay una nueva. 
+
+Victoria de Tomaso:
+Selección de influencers. Ahora, a partir del mes que viene empiezan a publicar los influencers. La campaña dura tres meses, entonces yo dentro de tres meses decirle: «Mira, la campaña funcionó así. ¿Querés que sigamos trabajando juntos?» ¿Entendés? Nosotros logramos estos resultados cuando- 
+
+Daniel Zacharias:
+Entrá a mi portal y fijate todo lo que-- y, y que me decís qué, qué información querés de la campaña. 
+
+Victoria de Tomaso:
+O dos para ir viendo el último mes cómo fue funcionando y mejorarlo, no sé. 
+
+Julián Montero Ciancio
+¿De cuántos influencers hablamos? 
+
+Daniel Zacharias:
+Cuarenta y ocho por mes. 
+
+Eugenio de Tomaso:
+O sea que- 
+
+Daniel Zacharias:
+De tres meses. 
+
+Eugenio de Tomaso:
+Todas las prue-- perdón, todas las pruebas nos conviene hacerlas con Balance. Las pruebas- 
+
+Victoria de Tomaso:
+Pero no tenemos el metricool. 
+
+Daniel Zacharias:
+Pero no lo tenemos el metricool a Balance. 
+
+Eugenio de Tomaso:
+¿Por qué? 
+
+Daniel Zacharias:
+Porque como es cliente nuevo no, no lo usamos. 
+
+Victoria de Tomaso:
+No manejamos la cuenta, tampoco, no... 
+
+Daniel Zacharias:
+Podríamos pedirle el acceso si queremos, sí, hablar con Victoria y decirle: «Estamos haciendo el portal para darte todas las métricas». 
+
+Victoria de Tomaso:
+Me parece muy jugado. 
+
+Daniel Zacharias:
+Es mu-- ella es muy medio desconfiada, es muy como... 
+
+Eugenio de Tomaso:
+Bueno. 
+
+Julián Montero Ciancio
+¿Y cómo se supone que acceden a esta información si no tienen acceso a la cuenta? 
+
+Daniel Zacharias:
+Yo les pa-- les comparto este link de influencers. 
+
+Victoria de Tomaso:
+No, eso lo cargamos nosotros. 
+
+Daniel Zacharias:
+Ah, nosotros vamos a cargar. 
+
+Victoria de Tomaso:
+La chica de influencers le va escribiendo: «Check, cómo funcionó» y- 
+
+Daniel Zacharias:
+Dame las métricas. 
+
+Julián Montero Ciancio
+A cada influencer le escribís? 
+
+Victoria de Tomaso:
+Sí. 
+
+Julián Montero Ciancio
+Bueno, de eso nos zafás. El tema entonces, la data la vas a poner vos en algún lado y después vos la pres-- bueno, vos- 
+
+Eugenio de Tomaso:
+Bueno, ¿le podés mandar a los influencers un link que digan pone mé, poneme la data?- 
+
+Daniel Zacharias:
+No lo van a completar. 
+
+Eugenio de Tomaso:
+¿No lo hacen? Okey. 
+
+Daniel Zacharias:
+Aunque le pagues quince millones. 
+
+Eugenio de Tomaso:
+Mandame un screenshot. Sí. 
+
+Daniel Zacharias:
+Sí, si eso lo hace la representante. 
+
+Julián Montero Ciancio
+No hace falta, son cuarenta y ocho. Te conviene- 
+
+Eugenio de Tomaso:
+Se los manda al cuarenta y ocho. 
+
+Julián Montero Ciancio
+No, te conviene que lo cargue... 
+
+Daniel Zacharias:
+Flor. 
+
+Julián Montero Ciancio
+Flor. 
+
+Eugenio de Tomaso:
+En el portal. 
+
+Julián Montero Ciancio
+Tu objetivo no es ahorrarle labor a Flor, tu objetivo es ganarle la cuenta. 
+
+Victoria de Tomaso:
+En este caso, sí. Ahorrarle la hora- 
+
+Julián Montero Ciancio
+Y toda nuestra impresión está en cómo el cliente interactúa en el portal y no, no ayudarle a Flor a... 
+
+Daniel Zacharias:
+Pero ¿ves? Ella nos pide costo por engagement, todas estas cositas que le podemos pedir a Flor que nos diga qué podemos darle de... Es el Excel que te mandé recién que tiene la- 
+
+Eugenio de Tomaso:
+Ah, es este. Sí, okey. Pero pará. Porque estamos- 
+
+Daniel Zacharias:
+Esto es fase uno. 
+
+Eugenio de Tomaso:
+Porque de repente pivoteamos mal. 
+
+Victoria de Tomaso:
+Sí, se fue del otro lado. 
+
+Eugenio de Tomaso:
+Y fuimos a otro lado. 
+
+Victoria de Tomaso:
+No hay que pensar tan lejos porque- 
+
+Julián Montero Ciancio
+Es otro tipo de reporte. 
+
+Daniel Zacharias:
+Es, es un cliente que paga, tiene plata. 
+
+Eugenio de Tomaso:
+No, está bien, pero digo, e-ellos lo que quieren es: «Tomá, te paso la lista de influencers, yo te los elijo, es la parte de draft. Listo, ya te elegí los veinte influencers que quiero». 
+
+Daniel Zacharias:
+Y te lo dividí en fases de toda la campaña. Vamos a estar en la fase de awareness, que es amplificación de tu marca. Vamos a seguir en una segunda fase, que es de educación, cómo usar tus inversiones y aplicaciones y bla, bla, bla. 
+
+Eugenio de Tomaso:
+Son campañas. 
+
+Daniel Zacharias:
+Sí. 
+
+Eugenio de Tomaso:
+Cada una es una campaña distinta. 
+
+Daniel Zacharias:
+Una fase intermedia que te habla de la evolución y más educación. Hay una mezcla de awareness con validación de la marca y la última fase, que es la de conversión. 
+
+Eugenio de Tomaso:
+Y vos- 
+
+Daniel Zacharias:
+Salimos a buscar a que esos chicos usen Balance. 
+
+Eugenio de Tomaso:
+Vos querés mostrarle en el reporte de Balance las campañas, cada campaña. Awareness, igual nombrás la campaña. 
+
+Julián Montero Ciancio
+Pará, vamos, vamos por pasos. Yo soy, yo soy Juan Balance. 
+
+Eugenio de Tomaso:
+Sí. 
+
+Julián Montero Ciancio
+Entro. ¿Qué querés que vea? 
+
+Victoria de Tomaso:
+Obviamente, se llama Claudio. 
+
+Daniel Zacharias:
+Claudio. 
+
+Eugenio de Tomaso:
+Claudio. 
+
+Julián Montero Ciancio
+Entra Claudio. 
+
+Eugenio de Tomaso:
+Bien. 
+
+Julián Montero Ciancio
+¿Sí? Vos querés que, eh, vos, ¿qué, qué les gustaría-- nosotros les ayudamos en esto, no importa. ¿Qué le gustaría que vea cuando entra al portal? ¿Sus campañas? O ¿cuál es el punto de partida? Campaña Pirulandia, campaña tal de tal produ-- campaña marzo, campaña... 
+
+Victoria de Tomaso:
+Campaña marzo, abril. 
+
+Julián Montero Ciancio
+Después, ¿cada campaña tiene etapas? 
+
+Eugenio de Tomaso:
+No, las etapas- 
+
+Daniel Zacharias:
+Una campaña que está dividida en etapas. 
+
+Julián Montero Ciancio
+Ah. Entonces, las campañas tienen etapas. ¿Cada etapa tiene su reporte? 
+
+Daniel Zacharias:
+No, no los piden al final. 
+
+Victoria de Tomaso:
+Estamos pensando ahora, ¿eh? Pero digo, si cada etapa tiene un objetivo, está bueno que pueda- 
+
+Eugenio de Tomaso:
+Pero si vos querés ir mostrándole de a poco antes de tres meses y decirle: «Esto es lo que tenemos», pues vos querés ir... 
+
+Victoria de Tomaso:
+Exacto. 
+
+Eugenio de Tomaso:
+Bueno, te conviene decírselo al final, porque al final no hay tiempo de que eso lo vea Claudio. 
+
+Victoria de Tomaso:
+Exactamente. 
+
+Eugenio de Tomaso:
+En cambio, si le empezás a decir antes, le llega antes al tipo. 
+
+Victoria de Tomaso:
+Exactamente. 
+
+Julián Montero Ciancio
+Okey. 
+
+Victoria de Tomaso:
+O sea, le vas mostrando, podés hasta mostrarle si querés una vez por quincena. 
+
+Daniel Zacharias:
+Es que no nos van a pedir. 
+
+Victoria de Tomaso:
+Sí, tal vez no, no la conocemos, pero seguramente van a empezar a pedir cómo estuvo funcionando y cómo anda la cosa. 
+
+Eugenio de Tomaso:
+Y vos ahí le decís: «Este está acá». 
+
+Julián Montero Ciancio
+Este está acá. 
+
+Eugenio de Tomaso:
+Y él puede ver, como puede ver periodo, ¿viste? Como un analytics, tipo hoy, los últimos quince... Podemos hacerlo más, menos complejo. 
+
+Victoria de Tomaso:
+Yo, sí, yo, a mí me gusta la estructura, me gusta pensarlo más jerárquicamente. Tenés una campaña, tenés un periodo, perdón, una etapa y dentro de esa etapa podés tal vez tener distintos periodos. Em, porque cada etapa tiene objetivos distintos. 
+
+Eugenio de Tomaso:
+Sí. 
+
+Victoria de Tomaso:
+O sea, son tareas bastante distintas, ¿o no? 
+
+Eugenio de Tomaso:
+Mandale al grupo de Chirre eso. 
+
+Julián Montero Ciancio
+Sí, a ver, es como lo medís. Por ejemplo, la etapa uno, que es de awareness, lo importante es llegar a un alcance de mucha gente. 
+
+Victoria de Tomaso:
+Sí. 
+
+Julián Montero Ciancio
+Si no tuvo likes, no me importa tanto. 
+
+Victoria de Tomaso:
+Okey. 
+
+Julián Montero Ciancio
+La etapa dos, que es de educación, ¿viste? Tenés una duda, no sé qué cosa. Tal vez también nos sigue importando el alcance, porque queremos vender, porque queremos llegar a más gente, pero tal vez nos enfocamos en comentarios, a ver qué dudas hubo o hubo muchos comentarios, no sé, por ejemplo. Di-- no, estoy saraseando casi. Y la última, que es de conversiones
+
+Eugenio de Tomaso:
+No sé cómo medirlo, pero una forma de, no sé, si vos entrás, pico la web. No sé. 
+
+Julián Montero Ciancio
+Okey. Y esta estructura que les dije de cliente, una lista de campañas, cada campaña tiene etapas, ¿se repite más o menos con, con todas las cuentas? De tener campañas, se-- o sea, ¿podríamos- 
+
+Eugenio de Tomaso:
+Sí. 
+
+Daniel Zacharias:
+Hay campañas. 
+
+Julián Montero Ciancio
+Hay campañas en todas las cuentas. 
+
+Daniel Zacharias:
+Todos los meses, eh, cada mes, los clientes cada mes le ponen un nombre a esa campaña. Por ejemplo- 
+
+Julián Montero Ciancio
+Okey. 
+
+Daniel Zacharias:
+«Ideas locas en tu cocina». Por ejemplo, «cuadros inteligentes para la facultad». 
+
+Julián Montero Ciancio
+Me gusta. O sea, agrupan una campa-- dale, la campaña puede ser lo que sea, o por producto, por época, por eventos, el día de la madre, me imagino que todo eso. Bien, entonces lo podemos estructurar [carraspea] un poco así. El cliente puede entrar, elige la campaña, dentro de la campaña puede tener etapas o no, eso podría no importa, que sea que clientes pequeños no tienen etapas para una campaña, tal vez la campaña es- 
+
+Eugenio de Tomaso:
+Esta puede ser una campaña de tres meses. 
+
+Julián Montero Ciancio
+Claro. Bueno, podrías, pero si pensamos en Balance, veamos que puedas elegir por etapa y dentro de cada etapa tenés, ¿qué? Un reporte... 
+
+Eugenio de Tomaso:
+Un reporte. Con las publicaciones de los influencers y cómo fue. Y después una, un, ah, verá, una suma. 
+
+Julián Montero Ciancio
+Sí, mostrar un global y un particular. 
+
+Eugenio de Tomaso:
+Y un por influencer y un te suma todos los influencers de la campaña y te hago el- 
+
+Julián Montero Ciancio
+Sí, como que vos deberías poder navegar un poquito adentro de ese reporte. 
+
+Daniel Zacharias:
+Claro, tipo ver, ponele, la primera fase fue de influencers, estamos hablando, no de posteos en calendario. 
+
+Eugenio de Tomaso:
+Por eso, esto, vos, esto es lo que es solo para influencers, esto de Balance. 
+
+Daniel Zacharias:
+Bueno, sí, a ellos qué, qué les importa los influencers, todo les importa. 
+
+Julián Montero Ciancio
+Pará, y dentro de cada etapa puede tener una parte que sea influencers, otra parte que sea- 
+
+Eugenio de Tomaso:
+Una sola que está. 
+
+Julián Montero Ciancio
+Por posteos, otra parte que es- 
+
+Daniel Zacharias:
+Sí, porque también tenemos posteos que son estos. 
+
+Eugenio de Tomaso:
+Pero me importan más los influencers. 
+
+Daniel Zacharias:
+Pero a Julián le importan los influencers. 
+
+Eugenio de Tomaso:
+A vos te importan más los influencers. 
+
+Julián Montero Ciancio
+Porque también está muy obsesionado. 
+
+Eugenio de Tomaso:
+O sea que dentro de la campaña puede haber origen, podés hacer, eh, publicaciones, influencers. 
+
+Julián Montero Ciancio
+Son como parte de la camp-- o sea, son todos, tal, medios para, a, a llegar a la gente, al final del día es eso. Pero una es, los influencers, el manejo del influencer es distinto. Vos lo que querés ver de la información del influencer es una cosa. En el caso de posteos... O, o, o- 
+
+Eugenio de Tomaso:
+El influencer postea. 
+
+Julián Montero Ciancio
+Siguen siendo posteos al final del día. 
+
+Daniel Zacharias:
+Sí, al final del día todos van a postear o en Instagram o en TikTok. Algunos van a hacer colaboraciones y otros no. 
+
+Eugenio de Tomaso:
+Claro, Dani, la diferencia entre el posteo del influencer y el otro es que el influencer postea desde su cuenta y si Balance, el posteo de Balance es desde la cuenta de Balance. 
+
+Daniel Zacharias:
+Claro, el influencer me manda un, una- 
+
+Julián Montero Ciancio
+Una screenshot. 
+
+Daniel Zacharias:
+No, le estoy explicando a él qué significa que suba el influencer este... Vos tenés tu cuenta de Balance. ¿Qué hace? El influencer sube el contenido y pone, eh, a, a invitar a colaboración. 
+
+Julián Montero Ciancio
+Okey. 
+
+Daniel Zacharias:
+Entonces, pone @Balancecapital. Yo, Balance, Instagram, se me dio, ok, aprobado, pum, apruebo. Entonces, ese posteo está en la cuenta de Balance y en la del influencer. 
+
+Eugenio de Tomaso:
+Está bien. 
+
+Daniel Zacharias:
+Se llama colab. 
+
+Julián Montero Ciancio
+O sea- 
+
+Eugenio de Tomaso:
+Pero no repostea, perdón, no es de un repost. Es el mismo contenido en las dos cuentas. 
+
+Daniel Zacharias:
+El mismo contenido en las dos cuentas, pero siempre amplificado. 
+
+Julián Montero Ciancio
+Okey, entonces es como decís vos, son posteos, solo que algunos son del origen de, del, eeh, influencer, otras son propias de la marca. Okey, sí, está bien, está bien. Pero sí, la data que querés ver es muy distinta, tal vez, ¿no? ¿O no? 
+
+Eugenio de Tomaso:
+Eeh, no sé, para mí es lo mismo, es el mismo- 
+
+Daniel Zacharias:
+Todo está el brief, porque en el brief dice- 
+
+Eugenio de Tomaso:
+Es el mismo medio, hasta es el, la misma entidad, porque es publicación. 
+
+Julián Montero Ciancio
+Ah, sí, bueno, está el tema del feedback, de este influencer me sirve o no me sirve. O sea, algún scoring al influencer le tendrías que poder ofrecer. 
+
+Eugenio de Tomaso:
+En publicaciones, ¿qué scoring usan para decir este influencer es bueno y este no? En post, no en stories, en posteos. 
+
+Daniel Zacharias:
+En posteos y hago una auditoría con Cloud. Primero, para, dos cosas. Primero son los que ya trabajé en otras marcas y funcionaron. 
+
+Julián Montero Ciancio
+No, no, está bien, pero ponele que te traigo un influencer al azar con una publicación y te digo cómo vos sabés- 
+
+Eugenio de Tomaso:
+Si funciona o no funciona. 
+
+Julián Montero Ciancio
+Si está funcionando. 
+
+Daniel Zacharias:
+Y, porque puedo ver la cantidad de views, de comentarios y de guardados o de likes. 
+
+Julián Montero Ciancio
+Pero ¿son proporcionales a algo? A, a tal vez al mismo influencer o en relación a las- 
+
+Eugenio de Tomaso:
+Al costo, al costo que tenga el influencer. 
+
+Daniel Zacharias:
+Claro, y al costo, exactamente. 
+
+Julián Montero Ciancio
+Ah, vos sabés el, cuánto le pagaste a cada influencer. 
+
+Daniel Zacharias:
+Sí. 
+
+Eugenio de Tomaso:
+Ah, pero ellos les pagan. 
+
+Julián Montero Ciancio
+Vos podrías poner esa formulita ahí de: «Mirá, este me, me, me salió-» 
+
+Eugenio de Tomaso:
+Costo por guardado, costo por comentario, de a ver si es ratio. Bueno, está bueno eso. 
+
+Julián Montero Ciancio
+Bueno, entonces, perdón, para resumir. 
+
+Daniel Zacharias:
+Y esto lo audito con Cloud, por último. 
+
+Julián Montero Ciancio
+Entra Claudio. Claudio va y dice: «A ver campaña». Bueno, tiene su lista de campaña. Dentro de la campaña, ahí tiene etapas o no, no importa. Entra esa etapa y tiene poder ver reportes por períodos. La definición de esos períodos lo definen ustedes, no la define Claudio. Entra el período X, que en realidad podría ser más de un período, tal vez quiere ver todo enero, quiere ver... 
+
+Eugenio de Tomaso:
+Es que puede-- nosotros ponemos un período, no, no, no lo vamos a elegir el día, pero digamos el mes, la semana, la quincena y el día. 
+
+Daniel Zacharias:
+Sí, tiene que ser mes, semana, como Tienda Nube. Mes, semana, quincena- 
+
+Eugenio de Tomaso:
+Y hoy. 
+
+Daniel Zacharias:
+Y el día de hoy, nada más. 
+
+Julián Montero Ciancio
+Okey, entonces entrás a la campaña. Etapa, eeh, por, por origen o no, tal vez es un filtro nada más, como decís. No, porque es muy distinta la data que vos querés mostrar si es de influencer. Vas a querer ver... Yo, yo lo separaría. Y en algún momento quieren ver algún reporte que mezcle tanto los post de influencers como los de la marca. 
+
+Eugenio de Tomaso:
+Para mí, para mí son todos post, ya es una, y un tag que es influencer. 
+
+Julián Montero Ciancio
+Está bien, pero, mmm- 
+
+Eugenio de Tomaso:
+Y después lo filtrás así. 
+
+Julián Montero Ciancio
+Pero se trata muy... Está bien, eso es como lo estructurás la data, pero a nivel cómo ellos quieren ver la data, tal vez es muy distinto. O en algún momento quieren ver cuán bien les fue a todos los post sin im... 
+
+Eugenio de Tomaso:
+No, no.
+
+Altavoz 5
+Para mí, influencer por un lado- 
+
+Daniel Zacharias:
+Y Instagram propio por el otro, de ellos, ¿no? 
+
+Altavoz 5
+Sí. 
+
+Daniel Zacharias:
+No, para mí ellos quieren ver las dos cosas: cómo funcionan los influencers y cómo repercutió en su Instagram esa inversión, ¿me entendés? 
+
+Altavoz 5
+Ta bien. Sí, sí, sí. 
+
+Daniel Zacharias:
+Si le trajeron seguidores- 
+
+Altavoz 5
+Okey. 
+
+Daniel Zacharias:
+Comentarios... Yo lo que no encuentro es el brief de abril, donde decía las expectativas de ellos. 
+
+Altavoz 5
+Que son las que a ellos les sirven. 
+
+Daniel Zacharias:
+Exacto. 
+
+Eugenio de Tomaso:
+Sí, todo, sí. Y, mmm, sí. Bueno, y entonces, ¿todavía no tenés, eh, eh, la estructura del reporte que vas eventualmente a querer mostrarle a Balance? 
+
+Altavoz 5
+No, lo vamos a inventar ahora. 
+
+Daniel Zacharias:
+Lo podemos inventar porque la mina es muy exigente y muy ansiosa. Entonces yo no quiero que me rompa las bolas, quiero que- 
+
+Eugenio de Tomaso:
+Usen plataforma diez por lo menos como inspiración, que es lo más [soplido] complejo. Si la mina es rompebolas, dale- 
+
+Daniel Zacharias:
+Sí, si me pidió el costo por engagement. En mi vida un cliente me pide el costo por engagement. Yo tipo- 
+
+Eugenio de Tomaso:
+Costo por engagement es qué definís que es engagement, que puede ser- 
+
+Daniel Zacharias:
+Ella nos pidió que definamos que el engagement es la cantidad de seguidores por la cantidad... ¿Cómo fue que nos dijo? Lo dijo el otro día en el grupo. Ella, ella le pidió a Clau el... Ah, mira, le pregunto a Cl-- a Claudia acá. 
+
+Eugenio de Tomaso:
+Para mí es la cantidad de seguidores dividido la cantidad de interacciones del post. Eso es el engagement. Porque si vos tenés cien millones de seguidores y tuviste mil coment-- mil likes, es una cosa y si tuviste diez mil es otra. 
+
+Daniel Zacharias:
+Costo por el-- CPE de influencer, costo total de la campaña más total de engagement. Mmm, dice que tenés que hacer el costo del influencer, mmm, dividido los likes de un posteo. 
+
+Eugenio de Tomaso:
+Dividido su cantidad de seguidores. 
+
+Daniel Zacharias:
+Dividido cantidad de, ponele, comentarios que tiene ese posteo. Na, medio raro lo que te nos tiene- 
+
+Eugenio de Tomaso:
+Lo que quiere decir, si vos tenés diez seguidores y te pusieron like dos, es mucho más alto que el que tiene un millón y- 
+
+Altavoz 5
+Un millón y... Claro, es eso, eh. 
+
+Eugenio de Tomaso:
+Lo hace relacio-- relativo a los seguidores que tiene ese, ese influencer. 
+
+Altavoz 5
+En sentido. Es como el puntaje en, en los reviews de, de Mercado Libre. 
+
+Eugenio de Tomaso:
+Igual, no entiendo por qué no la hace solo relativa a cuánto le pagó. 
+
+Daniel Zacharias:
+No sé. Yo-- a mí nunca me pasó que me lo pidan así. Yo le dije: "Bueno, te lo hago", pero a, a mí... 
+
+Eugenio de Tomaso:
+Porque eso implica que cua-- que si un tipo tiene cien, cien seguidores y tuvo veinte interacciones, o sea que tiene un engagement del veinte por ciento, vos cuanto más guita le ponés te rinde más. 
+
+Daniel Zacharias:
+Claro, eso- 
+
+Eugenio de Tomaso:
+No, podés pronosticar cuál va a ser su alcance. 
+
+Daniel Zacharias:
+Ah, pero- 
+
+Eugenio de Tomaso:
+Exacto. 
+
+Daniel Zacharias:
+Y cuánto te sale su alcance. 
+
+Eugenio de Tomaso:
+Y cuánto te sale por- 
+
+Daniel Zacharias:
+Por persona, digamos, ¿me entendés? 
+
+Eugenio de Tomaso:
+Claro. 
+
+Daniel Zacharias:
+Eso es lo, eso es lo que quiere prever sabiendo que el algoritmo puede estar a favor- 
+
+Eugenio de Tomaso:
+No, y un costo por engagement está bien porque dice: "Che, este está bueno igual, eh, está bueno ese- El costo te-- sí, pará. Todo esto es cuánto le pagué o cuánto me pide. O sea- 
+
+Altavoz 5
+Cuánto le pagué. 
+
+Daniel Zacharias:
+O sea, cuánto le, le, que, nos pide. 
+
+Eugenio de Tomaso:
+Cuánto nos pide. 
+
+Daniel Zacharias:
+Y en base a eso lo negociamos. Por ejemplo, hoy tenemos reunión porque no sé, eh, hay una que nos pidió once millones y dijo: "No, por once millones quiero dos posteos mínimo". 
+
+Eugenio de Tomaso:
+Okey. 
+
+Daniel Zacharias:
+Entonces ahí vos dividís. 
+
+Eugenio de Tomaso:
+Once palos pide. ¿Quién es la mina? 
+
+Daniel Zacharias:
+Es una periodista de Fórmula 1. Lo que pasa es que estamos buscando mucho nicho de qué consumen los varones y son muy pocas cuentas las que consumen. Son-- es muy caro el consumo de varones, el clic del hombre versus el clic de la mujer. Siempre es mucho más caro. Entonces, eh, hay cuentas de mujeres periodistas que llegan a muchos hombres que tienen credibilidad. 
+
+Eugenio de Tomaso:
+Eso está bu-- claro, el tran, el, el, el tranbrio- 
+
+Daniel Zacharias:
+En estos lugares los odiamos. 
+
+Eugenio de Tomaso:
+Ya la van, ya el chabón satura, boludo. 
+
+Daniel Zacharias:
+No, y la novia es una tarada, pobre. 
+
+Eugenio de Tomaso:
+Pero pará, entonces ahí ustedes también soñando, ¿no? Digo, imaginate que vos vas a Balance y vos tenés un sistemita, me estoy yendo a la mierda, pero para que quede en el audio, que le pones el seguidor, el influencer, le ponés @pirulo y te trae la cantidad de influencers, te hace un análisis de sus posteos y te da el enga-- y te da una métrica. Dice: "Eh, este tipo tiene-- postea". Y te di-- ¿y sabés qué puede ser también? Que podés entrenar a Clo, le podés decir: "A ver qué pensás, la cantidad de mujeres y hombres que tienen entre sus seguidores". 
+
+Daniel Zacharias:
+Ya me hace eso el otro día Clo, mirá. 
+
+Altavoz 5
+Mostrale lo que nos está- 
+
+Eugenio de Tomaso:
+Ah, o sea que lo hiciste con Clo ese análisis. 
+
+Daniel Zacharias:
+Sí. 
+
+Eugenio de Tomaso:
+Igual ustedes, ¿laburo con influencers tienen todo el tiempo? 
+
+Daniel Zacharias:
+Todo el tiempo, todo el tiempo. 
+
+Eugenio de Tomaso:
+Ah, bueno, o sea que le sirve también. 
+
+Altavoz 5
+Con todos los clientes, sí, sí. 
+
+Eugenio de Tomaso:
+Ese tipo de máquina en el portal, ¿no? Como esta de futuro. 
+
+Daniel Zacharias:
+Además, quiero bajarle el costo. 
+
+Altavoz 5
+Sí, sí, a futuro, a futuro. 
+
+Daniel Zacharias:
+Tipo, quiero bajarle el costo a futuro y ganar más plata yo y que- 
+
+Eugenio de Tomaso:
+No, porque esto, este ida y vuelta de influencer y todo- 
+
+Daniel Zacharias:
+No, y a Florencia la marea, después no le da el cerebro porque- 
+
+Altavoz 5
+Y vos se que le tenías que mandar. 
+
+Daniel Zacharias:
+El brief con los OKR. 
+
+Eugenio de Tomaso:
+Che, y ustedes, de curioso, ¿có-có-cómo le cobran al influencer? ¿Es proporcional a cuánto le paga-- es como una comisión de cuánto le paga la marca? 
+
+Daniel Zacharias:
+No, algunas agencias, eh, van, te dicen: "Hola Lore, ¿vos sos la representante de Flor?" "Sí". "¿Cuánto sale Flor para este posteo?" "Cinco millones". "Bueno, sumale un 10 % para mí, para la agencia". ¿Qué pasa? Nosotros no lo hacemos y le cobramos más caro al cliente, porque si yo le pongo el 10 % a todos esos influencers, termino gastando más en ganancias, en ingresos brutos, en bla. Entonces hay un porcentaje de un 5 % que pierdo, pero gano en no tener problemas con Arca. 
+
+Eugenio de Tomaso:
+Está bien, pero igual el modelo es un porcentaje. 
+
+Daniel Zacharias:
+Sí, sí. 
+
+Eugenio de Tomaso:
+Termina siendo un porcentaje. Lo que le pagues al influencer va para mí. 
+
+Daniel Zacharias:
+Exacto. 
+
+Eugenio de Tomaso:
+Por ejemplo, hacé-- dividí lo que, lo que te cobran todos los influencers sobre lo que le cobraste vos a Balance. 
+
+Daniel Zacharias:
+Uh, no, me voy a re deprimir. 
+
+Eugenio de Tomaso:
+Ah, ¿no es un porcentaje de eso, boluda? 
+
+Daniel Zacharias:
+No, no lo hicimos. No, porque vos encima hay ciertos fees que te lo ponen según la marca, no es que todas cobran lo mismo para todas las marcas. Como es Balance, esas inversiones es arriesgado para algunos. 
+
+Altavoz 5
+Pero eran setenta y nueve millones y nosotros somos nueve millones. 
+
+Daniel Zacharias:
+Once terminamos. 
+
+Eugenio de Tomaso:
+Ah, bueno, está bien. O sea que un... 
+
+Altavoz 5
+Más de un 10. 
+
+Daniel Zacharias:
+Que de ese once millones, Florencia se lleva un X por la campaña. 
+
+Eugenio de Tomaso:
+¿Quién es Florencia? 
+
+Daniel Zacharias:
+La de-- la líder de influencers de Chili Peppers, pero como esto era algo por fuera, porque no te cobran
+
+Eugenio de Tomaso:
+Un extra 
+
+Daniel Zacharias:
+Un extra 
+
+Eugenio de Tomaso:
+¿Ella se lleva guita? Pero no es- 
+
+Daniel Zacharias:
+Trescientos mil. Eso se da. Te lo doy. Le dije: con tal de que lo hagas y no rompas las bolas. 
+
+Eugenio de Tomaso:
+¿Pero y qué hace ella? Habla con los influencers. 
+
+Daniel Zacharias:
+Sí, obvio, hace la peor parte, pobre. 
+
+Eugenio de Tomaso:
+Tiene que contra-- contactar a todos, que todos publiquen, que reciban el brief, que lo hablen. 
+
+Daniel Zacharias:
+Que, que ir y venir con las correcciones. 
+
+Eugenio de Tomaso:
+Eso también es un... Si vos un sistemita ordena, boludo. Yo, es, es mi teoría. Un sistemita- 
+
+Julián Montero Ciancio
+Pero entonces, ¿cómo mejorarían ustedes sus ingresos en base a...? Esa es la parte que me perdí. O sea, ¿cómo es que le-- básicamente cobrándole más a las marcas o...? 
+
+Eugenio de Tomaso:
+Yo creo que tal vez no es que le cobramos más directamente, pero ganamos horas de no estar armando este Excel, de estar buscando, auditando, no sé qué. Ganás horas para otra cosa y ganás plata para otra cosa. Y vos pensás que tener un sistemita así tan poco implicaría que vos lo-- le cobres más. 
+
+Julián Montero Ciancio
+Sí. 
+
+Eugenio de Tomaso:
+Porque estás mejorando tu servicio. Entonces, más valor agregado a tu servicio. 
+
+Daniel Zacharias:
+Eso seguramente. Eso es lo primero que cuando voy a principio de año, llevo las métricas, todo lo que hicimos y bla, bla, bla. Y además estás usando esto. Bueno, esto ya tiene este costo nuestro servicio como agencia. 
+
+Julián Montero Ciancio
+Ustedes tienen como un ros-- una, una lista de influencers de, que trabajan con ustedes, ¿no? Que trabajan con ustedes. 
+
+Daniel Zacharias:
+Sí, casi siempre hay algunos que son los fijos, porque trabajan bien. 
+
+Eugenio de Tomaso:
+¿Preguntás si existe esa lista? 
+
+Julián Montero Ciancio
+Y si, y claro, en un momento le decís: es como si ustedes fueran representantes de influencers y los clientes podrían decir: "Che, qué, qué, a qué influencers representás, quiero elegir algunos". Y vos ofrecérselos como un, un, un marketplace de influencers. 
+
+Eugenio de Tomaso:
+No así, pero sí, porque con este laburamos, te recomiendo este porque siempre cumple, este es un cuelgue, eh, no sé. 
+
+Daniel Zacharias:
+O este si vas a pagar mucho, igual tené paciencia porque sube cuando quiere. 
+
+Eugenio de Tomaso:
+Ah, no es que el chabón no, no es que el chabón se comprometa a subir, él te sube como quiere encima al influencer. 
+
+Daniel Zacharias:
+Vos le decís que tiene que subir el once, pero el once capaz se tomó un vuelo y no te lo puede subir. Así que después tenemos que reprogramar cuando sube. 
+
+Eugenio de Tomaso:
+Puede, puede pasar. 
+
+Daniel Zacharias:
+Aunque te pague diez millones. 
+
+Eugenio de Tomaso:
+¿Y vos chabones que no han, tipo cobraron y nunca publicaron? 
+
+Daniel Zacharias:
+No, no, no. 
+
+Eugenio de Tomaso:
+Tal vez publican cualquier cosa, pero publican. 
+
+Julián Montero Ciancio
+Y se queman y... 
+
+Daniel Zacharias:
+Y se queman y nunca más los vuelven a contratar. Igual yo para Balance, eh, los, las mandé a todas, que una vez que hagan el off, firmen el... 
+
+Eugenio de Tomaso:
+Para que no vuelvan a contratar ese influencer. Qué bueno hacer un... como decís vos, no sé, un Glassdoor de influencers. Este influencer es muy bueno y- 
+
+Julián Montero Ciancio
+Es que me imaginaba algo así. 
+
+Daniel Zacharias:
+Existe, Hype Auditor. Lo que pasa con Hype Auditor es que funciona afuera. En Argentina, los chabones acá no ponen su, su información. 
+
+Eugenio de Tomaso:
+Claro, además es de datos. 
+
+Daniel Zacharias:
+Sí. 
+
+Eugenio de Tomaso:
+No hay una bajada humana de repente si cumplió. 
+
+Daniel Zacharias:
+El influencer, el influencer no se encarga de, o sea, son estrellas todos, ¿entendés? 
+
+Julián Montero Ciancio
+Okey. 
+
+Eugenio de Tomaso:
+O sea, tienen un... 
+
+Daniel Zacharias:
+Tienen un, un representante que- 
+
+Eugenio de Tomaso:
+Perdón, boludo, no te-- 
+
+Daniel Zacharias:
+En vez de tomar eso. 
+
+Julián Montero Ciancio
+Pará que yo me refres-- me refresco. ¿Me das un poquito de coca? Te sirvo un poquito. 
+
+Daniel Zacharias:
+Sí, gracias. [risas] 
+
+Julián Montero Ciancio
+Bueno, no importa. Estaba, estaba divagando. 
+
+Eugenio de Tomaso:
+No, pero, pero yo sé a lo que apuntás. Ellos- 
+
+Julián Montero Ciancio
+Podrían pre-- cl-- mostrar la lista de sus influencers. 
+
+Eugenio de Tomaso:
+No, y podrían empezar a, a, a hacer un sistema de todo su trabajo que es, che, una base de datos de influencers. Cada vez que contratás un inf-- un CRM de influen-- no sé, digo, porque eso es más dato y más dato es más fundamentos para cuando vos vas a vender tus servicios. 
+
+Julián Montero Ciancio
+Sí, y vos, ustedes también ven cuáles de sus influencers funcionan mejor, les da mejor retorno a ustedes. Mirá, Pedrito influencer nos trajo, eh, quince palos el año pasado, ¿me entendés? Y, ah, lo tenemos que usar más. 
+
+Eugenio de Tomaso:
+Sí. Y la, y la audi-- y la parte de auditoría también eso es muy automatizable. 
+
+Daniel Zacharias:
+Sí. 
+
+Eugenio de Tomaso:
+Porque es Cloud, cada... Hacemos un, una gente que cada X cantidad de tiempo audite la arroba del- 
+
+Daniel Zacharias:
+Y a veces cuando tengo dudas de, de que no sé en qué... Acá, correo personal, cómo le costó. Ah, fase de campaña. 
+
+Eugenio de Tomaso:
+Buenas tardes, Chili Peppers. Ah, qué grande. Tenés tu Cloud de Chili Peppers. 
+
+Daniel Zacharias:
+Fase de campaña para perfil. Acá. Cuando tengo dudas digo: "Che, no sé, ¿la pongo en, en awareness o en conversión? Porque esto, esto". Y entonces él me dice: "No, dividámoslo en awareness, porque según la información que yo tengo..." "No, pero ¿vos estás seguro? Porque yo también estuve en una fase de" 
+
+Eugenio de Tomaso:
+¿Y qué hace? ¿Va, va al perfil? 
+
+Daniel Zacharias:
+Analiza Hype Auditor, el perfil, saca información de todos lados según el nombre de esa cuenta. ¿Ves? Yo te recomiendo esto. 
+
+Eugenio de Tomaso:
+Fase-- pero pará. Florencia Anderson, doscientos treinta y cuatro mil seguidores en Instagram. A ver, abrile el Instagram, a ver si es verdad. A veces, ojo, boluda, a veces Cloud alucina. 
+
+Daniel Zacharias:
+Yo le pongo un Excel. 
+
+Julián Montero Ciancio
+No digas eso, que me lo va a transcribir mal. 
+
+Daniel Zacharias:
+Doscientos treinta y seis. Mirá, tiene más. 
+
+Eugenio de Tomaso:
+Bien, bien Cloud. 
+
+Daniel Zacharias:
+Esta es re perfil alto, re balance, pero bueno, nos quiere cobrar once palos. Y como nos quiere cobrar once palos- 
+
+Eugenio de Tomaso:
+¿Y cuánto? Y doscientos, boluda, la guita que se mueve. 
+
+Daniel Zacharias:
+Se hacen casas. Stephanie Demmer- 
+
+Eugenio de Tomaso:
+Ah, sí, me contó 
+
+Daniel Zacharias:
+...el otro día con, eh, contaba que sigue facturando por una foto que hizo cuando tenía once años. 
+
+Eugenio de Tomaso:
+Me contó el arquitecto, él le hizo una casa a un candel influencer y que sí, que... 
+
+Daniel Zacharias:
+Bueno, y yo las audito. Por ejemplo, este Excel también lo hicimos todo y le dijimos: "Bueno, Cloud, eh..." Primero le dijimos al chat que nos dé un prompt y en Cloud lo usamos y dijimos: "Bueno, necesitamos que audites todos estos influencers y nos digas, nos justifiques por qué sirve para esta campaña que te estamos diciendo, eh, cuál es su público, esto, esto y esto". Y nos bajó toda la información. Acá el cliente tiene, ¿ves? Cuál es el mejor formato que le funciona... 
+
+Eugenio de Tomaso:
+No, para mí, a ver, está bien. Es mucha herramienta para ustedes, pero, pero lo que está bueno del portal, eh, es que los ordena de cara al cliente y, y la parte, y lo que tenemos que tratar de hacer, digo, a futuro con este portal, que tiene que tener otro nombre, porque no es un portal, es un sistema de gestión de ustedes. 
+
+Daniel Zacharias:
+Yo tengo mi propia, o sea- 
+
+Eugenio de Tomaso:
+El portal es lo que ven los clientes, pero lo que hay atrás tiene que ser el behind the mind, no sé. 
+
+Daniel Zacharias:
+Se llama Pop You Creators, mi lado de influencers. Siempre lo presento así. 
+
+Eugenio de Tomaso:
+¿Cómo? Pop... 
+
+Daniel Zacharias:
+Pop You Creators by Chili Peppers. 
+
+Eugenio de Tomaso:
+Bueno.Está bien, pero tu sistema de ustedes interno tienen que- 
+
+Daniel Zacharias:
+No, es un horror nuestro sistema interno 
+
+Eugenio de Tomaso:
+No, por eso te digo, como este Excel, como- 
+
+Daniel Zacharias:
+Como un Monday deee... 
+
+Eugenio de Tomaso:
+La base de datos de influencers, de campañas, que ustedes empiecen a tener cosas que antes era imposible que las tuvieran. 
+
+Daniel Zacharias:
+Tengo todo en un Excel, o sea, yo te lo doy, subilo donde quieras. 
+
+Eugenio de Tomaso:
+No, pero digo, antes-- hay un montón de información que antes de la era AI era imposible recabarla, analizarla, procesarla. 
+
+Daniel Zacharias:
+Ay, sí. 
+
+Eugenio de Tomaso:
+Que hoy lo pueden hacer y bueno, y eso es una... 
+
+Daniel Zacharias:
+Y la realidad no es que no te pueden... Yo les decía a las chicas que no tengan miedo, porque la realidad es que Balance, por ejemplo, tienen empleados y todo y sigue necesitando una agencia porque sus empleados trabajan cosas always on de la marca, de todos los meses. Nosotros tenemos que hacer lo, lo que sea distinto, ¿entendés? 
+
+Eugenio de Tomaso:
+Bueno. 
+
+Daniel Zacharias:
+No, es que sí, porque- 
+
+Julián Montero Ciancio
+Me imagino la charla, todos tipo, tipo de, de loco. 
+
+Daniel Zacharias:
+Es un capo el dueño. A mí me cayó rebién el dueño de... Era un Jaime, pero un poco más educado. 
+
+Eugenio de Tomaso:
+Sí, sí. 
+
+Daniel Zacharias:
+Me dice: "Bueno, ¿y vos dónde guardás tu plata?" Y digo: "En negro. Mi papá falleció y tengo toda plata en negro". Tu papá es un héroe. No sé cómo es, pero es un héroe, me decía. 
+
+Julián Montero Ciancio
+[ríendo] Tu papá es un héroe. 
+
+Daniel Zacharias:
+Me dijo: "Tenés que ponerlo ahora con la inocencia fiscal. Yo entiendo que ustedes no entienden nada de esto, así que yo quiero generarle confianza a los jóvenes". Y él decía eso, que quiere que-- porque los que le invierten a ellos están por morir algunos. 
+
+Eugenio de Tomaso:
+Claro, sí, Balance es muy tradicional. 
+
+Daniel Zacharias:
+Entonces él me dice: "Bueno, seamos los- 
+
+Eugenio de Tomaso:
+Es que Cocos, el, el- 
+
+Daniel Zacharias:
+Se lo comió. 
+
+Eugenio de Tomaso:
+Y Cocos es lo joven. 
+
+Daniel Zacharias:
+Bueno, yo me rodeé algunos perfiles de Cocos. Le dije: "Pagales el anual para que sigan con vos". 
+
+Eugenio de Tomaso:
+Pero tienen que cambiarle, el tipo no es- 
+
+Daniel Zacharias:
+Sí, cambiaron la gráfica, todo. Mirá. Eh, Juli, mmm, Tati, Tati. 
+
+Eugenio de Tomaso:
+Así me deprime Balance. Yo una vez tuve un tiempo Balance, después la cerré, creo. O fue, eh, la otra, eh, ¿cómo se llama la otra grande? 
+
+Daniel Zacharias:
+No, yo solo tuve Mercado Pago y nunca más. ¿Ves? 
+
+Eugenio de Tomaso:
+Ah, ¿cómo se llama la que empieza con A? La Lic esa, eh, ah, no me sale. 
+
+Daniel Zacharias:
+Lemon, yo tenía un Lemon. 
+
+Eugenio de Tomaso:
+Vos tenés-- las grandes son, eran Balance y otra más. 
+
+Daniel Zacharias:
+Mirá, ¿ves? Estos. 
+
+Eugenio de Tomaso:
+Balance es nombre muy de seguro, boluda. 
+
+Daniel Zacharias:
+No, lo que empezamos a hacer es, por ejemplo, hicimos un contenido que está buenísimo, el diccionario del ahorrista, ¿no? Para el que no sabe nada, porque yo les digo, acuérdense que le están hablando a gente que no entiende nada. Entonces, hacemos esto. Términos que usas sin saber que tienen un nombre. Macetismo financiero, técnica de enterrar dólares en macetas esperando que suba de valor, altamente vulnerable, dolarismo defensivo, comprar dólares y no hacer nada. 
+
+Eugenio de Tomaso:
+Está buena la campaña. ¿Y eso cómo lo hiciste? ¿Con Claudia? 
+
+Julián Montero Ciancio
+Cajoneo crónico. 
+
+Daniel Zacharias:
+Eh, no, la idea del diccionario fue nuestra. 
+
+Eugenio de Tomaso:
+Lo que quieren hacer es como que la gente deje de guardar la guita bajo el colchón. 
+
+Daniel Zacharias:
+Exacto, y se vaya a Balance. 
+
+Eugenio de Tomaso:
+¿Y no tenés el colchonismo? 
+
+Daniel Zacharias:
+No, porque lo hizo Banco Provincia o Banco Nación, entonces no lo hicimos. 
+
+Julián Montero Ciancio
+El maceteo nunca había escuchado lo del maceteo. 
+
+Eugenio de Tomaso:
+No. 
+
+Daniel Zacharias:
+Julián se lo comió lo de la maceta. 
+
+Eugenio de Tomaso:
+Ah, pensé que eran términos comunes. 
+
+Daniel Zacharias:
+Y canutismo. Canutismo es el segundo diccionario que vamos a hacer. 
+
+Eugenio de Tomaso:
+Ah, es como medio... 
+
+Julián Montero Ciancio
+Es un chiste. 
+
+Eugenio de Tomaso:
+Es medio comédico. Comédico, okey. 
+
+Daniel Zacharias:
+Y después, ponele, no sé, tipo... Está muy bueno. Para mí, ojalá que no nos maten en Twitter. A mí me da miedo que nos maten en Twitter, nada más. 
+
+Eugenio de Tomaso:
+¿Por qué? 
+
+Daniel Zacharias:
+Eh, porque en Twitter siempre te matan con estas cosas. 
+
+Eugenio de Tomaso:
+Ah, pero ella es muy... 
+
+Daniel Zacharias:
+Ah, está Matu Jano. Te conté que actuó. 
+
+Eugenio de Tomaso:
+¿Quién? 
+
+Daniel Zacharias:
+El sobrino de Rochi. Fue parte de la campaña, le pagamos. 
+
+Eugenio de Tomaso:
+¿Y cómo lo encontraste? 
+
+Daniel Zacharias:
+Y porque necesitábamos un rugby y me acordé de él. 
+
+Eugenio de Tomaso:
+Qué gracioso. 
+
+Daniel Zacharias:
+Y le pagamos como trescientos mil pesos. 
+
+Eugenio de Tomaso:
+No me contó nada, boluda. 
+
+Daniel Zacharias:
+Es tipo experto en Balance. 
+
+Eugenio de Tomaso:
+¿Y quién? Pero solo para fotos. 
+
+Daniel Zacharias:
+Foto y video, lo tenés que ver actuando. 
+
+Eugenio de Tomaso:
+¿En serio? 
+
+Daniel Zacharias:
+Sí. 
+
+Eugenio de Tomaso:
+¿Y qué? A ver, rugby. 
+
+Daniel Zacharias:
+Es que son todos rugbiers. 
+
+Eugenio de Tomaso:
+¿Pero y cómo lo-- cómo se te ocur-- te acordaste? 
+
+Daniel Zacharias:
+Y porque nos faltaba un rugby, era un rugby, un rugby no conseguimos en ningún lado y le digo: "El sobrino de Rosario", le digo. Y me pasó el teléfono y lo convencí. 
+
+Eugenio de Tomaso:
+Mirá qué bien, boluda. 
+
+Daniel Zacharias:
+Ves, tipo paso a paso para dejar de ahorrar y empezar a invertir. Porque la campaña es pasar de a-- de ahorrista a inversor. 
+
+Eugenio de Tomaso:
+Esto es la planificación. Tienen un montón de cosas para hacer. 
+
+Julián Montero Ciancio
+Si maneja sus inversiones según lo que desea- 
+
+Daniel Zacharias:
+Esa todavía no salió. 
+
+Eugenio de Tomaso:
+[ríendo] Mala.
+
+Transcribe audio a texto en segundos
+Sube un archivo de audio y la IA se encarga del resto. Nuestra herramienta de transcripción convierte automáticamente la voz en texto preciso y editable que puedes descargar o compartir.
+
+Upload your audio
+Sube tu audio
+Arrastra y suelta un archivo o selecciónalo desde tu dispositivo. Se admiten todos los formatos de audio principales, incluidos los que subas desde tu dispositivo o la nube.
+
+Edit your transcript
+Edita tu transcripción
+Haz clic en cualquier palabra para cortar, corregir o dar formato. Las marcas de tiempo por palabra facilitan corregir errores o añadir notas.
+
+Export your transcript
+Exporta tu transcripción
+Descarga en varios formatos: TXT, PDF, DOCX, JSON, SRT o VTT. Listo para editar, compartir o publicar.
+
+Compatibilidad con muchos formatos
+Transcribe audio sin esfuerzo
+Nuestro modelo de Voz a Texto admite una amplia variedad de formatos de audio, así puedes transcribir podcasts, reuniones, entrevistas y más sin complicaciones.
+
+Transcribe audio effortlessly
+Transcripciones rápidas y precisas
+Transcripciones precisas y rápidas
+Transcribe audio con precisión insuperable usando Scribe, nuestro modelo de Voz a Texto de última generación. Pensado para la velocidad y la precisión, ofrece resultados detallados con identificación de hablantes para cualquier tipo de contenido.
+
+Fast, accurate transcripts
+Por qué usar el conversor de audio a texto de ElevenLabs
+Transcribir es fácil con Voz a Texto de ElevenLabs. Ya sea para crear subtítulos, contenido optimizado para SEO o extraer ideas de reuniones, nuestro modelo ofrece resultados precisos en 99 idiomas. Sube podcasts, entrevistas o webinars y recibe transcripciones estructuradas con identificación de hablantes, marcas de tiempo y etiquetas de eventos de audio.
+
+Lightning fast transcription
+Transcripción ultrarrápida
+Obtén transcripciones precisas en segundos, incluso para archivos de audio largos. Nuestra IA procesa el contenido al instante, así aprovechas mejor tu tiempo.
+
+Speaker labeling
+Identificación de hablantes
+Detecta y etiqueta automáticamente cada hablante, facilitando la lectura y el uso de las transcripciones.
+
+Split & Merge Segments
+Divide y une segmentos
+Usa 'ajustar segmentos' para editar partes concretas de tu transcripción. Divide o une segmentos para afinar el texto o asignar hablantes correctamente.
+
+Audio event tagging
+Etiquetado de eventos de audio
+Etiqueta sonidos que no sean voz, como risas o aplausos, para transcripciones que reflejan todo el contexto y matices.
+
+High accuracy
+Edita haciendo clic en las palabras
+Utiliza marcas de tiempo por palabra para convertir audio a texto directamente desde la transcripción. Corta más rápido, corrige errores al instante y agiliza tu workflow.
+
+Go beyond words
+Ve más allá de las palabras
+Etiqueta sonidos no verbales, como risas o aplausos, para captar todo el contexto. Consigue transcripciones más atractivas que reflejan el tono real de tu contenido.
+
+Diapositiva anterior
+Siguiente diapositiva
+Rompe barreras de idioma con IA
+Transcribe audio al instante en 99 idiomas. Llega a nuevas audiencias, aumenta la interacción global y escala tu contenido sin esfuerzo extra.
+
+Break language barriers with AI
+Un archivo de audio. Infinitos formatos.
+Convierte una sola grabación en posts de blog, guiones de podcast y clips cortos. Nuestras transcripciones con IA te ayudan a reutilizar contenido rápido, sin tener que reescribir a mano.
+
+One audio file. Infinite formats.
+Haz tu contenido localizable
+Convierte voz en texto indexado para mejorar la visibilidad en Google, YouTube y más. Optimiza automáticamente tu contenido de audio para buscadores.
+
+Make your content searchable
+Llega a cualquier oyente, en cualquier lugar
+Genera transcripciones precisas y sincronizadas automáticamente. Haz que tu contenido de audio sea accesible para quienes escuchan en distintos entornos o tienen dificultades auditivas.
+
+Reach every listener, everywhere
+Formatos de exportación
+TXT Icon
+Transcribe audio a TXT
+DOCX Icon
+Transcribe audio a DOCX
+SRT Icon
+Transcribe audio a SRT
+PDF Icon
+Transcribe audio a PDF
+JSON Icon
+Transcribe audio a JSON
+HTML Icon
+Transcribe audio a HTML
+VTT Icon
+Transcribe audio a VTT
+Desarrolladores
+Integra ElevenLabs Scribe
+Integra fácilmente el modelo de Voz a Texto más preciso del mundo en tu aplicación.
+Empieza con ejemplos pensados para desarrolladores que muestran diarización, marcas de tiempo por carácter y etiquetado de eventos de audio para transcripciones precisas y estructuradas.
+
+EMPEZAR RÁPIDO
+Referencia de la API de Voz a Texto
+Preguntas frecuentes
+
+¿Qué formatos de audio se pueden transcribir?
+
+¿Cuánto tarda el proceso de transcripción?
+
+¿Puedo editar la transcripción después de generarla?
+
+¿Por qué estas transcripciones son mejores que otras herramientas?
+
+¿Qué opciones de exportación hay disponibles?
+Quizá te interese
+VOZ A TEXTO
+VÍDEO A TEXTO
+MP4 A TEXTO
+MP3 A TEXTO
+GENERADOR DE TRANSCRIPCIONES DE YOUTUBE
+GENERADOR DE TRANSCRIPCIONES DE INSTAGRAM
+GENERADOR DE TRANSCRIPCIONES DE TIKTOK
+GENERADOR DE SUBTÍTULOS
+GENERADOR DE CAPTIONS
+Traduce audio online
+Crea con el audio IA de la más alta calidad
+
+Contacta con Ventas
+Regístrate
+Spanish
+
+Español
+ElevenCreative
+
+Texto a Voz
+Texto a Voz
+Cambiador de Voz
+Efectos de Sonido
+Clonar Voz IA
+Limpiar Audio
+Crear Música con IA
+Proyectos
+Diseño de Voz
+Generador de Voz IA
+Generador de Imágenes IA
+Generador de Vídeo IA
+ElevenAgents
+
+Agentes de voz
+IA conversacional
+Integraciones
+Telecomunicaciones
+Servicios financieros
+Sanidad
+Tecnología
+Retail y e-commerce
+Soporte al cliente
+ElevenAPI
+
+Referencia de la API
+API de Agents
+API de Doblaje
+Texto a Voz API
+Voz a Texto API
+API de Efectos de Sonido
+API de Música
+Clave API
+Recursos
+
+Blog
+Iconic Marketplace
+Programa de impacto
+Ayudas para startups
+Centro de ayuda
+Webinars
+Documentación
+Empresas
+Centro de confianza
+India
+Redes sociales
+
+X
+LinkedIn
+GitHub
+YouTube
+Discord
+TikTok
+Instagram
+Facebook
+Reddit
+Compañía
+
+Sobre nosotros
+Trabaja con nosotros
+Seguridad
+Marca y dossier de prensa
+Ley de Servicios Digitales de la UE (DSA)
+ElevenLabs Summit
+Términos
+Privacidad
+Política de Esclavitud Moderna
+Aviso CCPA
+Política EU-US DPF
+Transparencia IA
+Configuración de cookies
+

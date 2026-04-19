@@ -1,0 +1,13 @@
+{
+  "name": "chirri-portal",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Root scripts for Chirri Portal test battery — see TESTING.md.",
+  "scripts": {
+    "test": "npm run test:battery",
+    "test:unit": "docker compose exec -T -e DJANGO_SETTINGS_MODULE=config.settings.test backend pytest tests/",
+    "test:e2e:smoke": "npm --prefix frontend run test:e2e:smoke",
+    "test:e2e:all": "npm --prefix frontend run test:e2e:all",
+    "test:battery": "bash scripts/run_test_battery.sh"
+  }
+}
