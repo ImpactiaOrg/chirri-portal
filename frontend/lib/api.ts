@@ -78,6 +78,39 @@ export type CampaignDto = {
   last_published_at: string | null;
 };
 
+export type CampaignReportRowDto = {
+  id: number;
+  title: string;
+  display_title: string;
+  kind: "INFLUENCER" | "GENERAL" | "QUINCENAL" | "MENSUAL" | "CIERRE_ETAPA";
+  period_start: string;
+  period_end: string;
+  published_at: string;
+};
+
+export type StageWithReportsDto = {
+  id: number;
+  order: number;
+  kind: "AWARENESS" | "EDUCATION" | "VALIDATION" | "CONVERSION" | "ONGOING" | "OTHER";
+  name: string;
+  description: string;
+  start_date: string | null;
+  end_date: string | null;
+  reports: CampaignReportRowDto[];
+};
+
+export type CampaignDetailDto = {
+  id: number;
+  brand_name: string;
+  name: string;
+  brief: string;
+  status: "ACTIVE" | "FINISHED" | "PAUSED";
+  start_date: string | null;
+  end_date: string | null;
+  is_ongoing_operation: boolean;
+  stages_with_reports: StageWithReportsDto[];
+};
+
 export type ReportMetricDto = {
   network: Network;
   source_type: SourceType;
