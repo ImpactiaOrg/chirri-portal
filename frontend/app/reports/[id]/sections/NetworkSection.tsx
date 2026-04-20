@@ -1,9 +1,7 @@
-import type { ReportDto } from "@/lib/api";
+import type { Network, ReportDto } from "@/lib/api";
 import { metricsByNetwork } from "@/lib/aggregations";
 import { hasMetrics } from "@/lib/has-data";
 import MetricRow from "../components/MetricRow";
-
-type Network = "INSTAGRAM" | "TIKTOK" | "X";
 
 const LABELS: Record<Network, string> = {
   INSTAGRAM: "Instagram",
