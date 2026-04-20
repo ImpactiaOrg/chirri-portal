@@ -110,3 +110,13 @@ def test_onelink_attribution_orders_by_downloads_desc(balanz_published_report):
         .values_list("influencer_handle", flat=True)
     )
     assert handles == ["@high", "@low"]
+
+
+from django.contrib import admin as django_admin
+from apps.reports.models import TopContent, BrandFollowerSnapshot, OneLinkAttribution
+
+
+def test_admin_registers_new_models():
+    assert django_admin.site.is_registered(TopContent)
+    assert django_admin.site.is_registered(BrandFollowerSnapshot)
+    assert django_admin.site.is_registered(OneLinkAttribution)
