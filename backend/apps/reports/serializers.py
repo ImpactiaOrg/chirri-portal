@@ -1,6 +1,12 @@
 from rest_framework import serializers
 
-from .models import Report, ReportMetric
+from .models import (
+    Report, ReportMetric,
+    TopContent, OneLinkAttribution,
+)
+from .services.aggregations import (
+    build_q1_rollup, build_yoy, build_follower_snapshots,
+)
 
 
 class ReportMetricSerializer(serializers.ModelSerializer):
@@ -9,20 +15,57 @@ class ReportMetricSerializer(serializers.ModelSerializer):
         fields = ("network", "source_type", "metric_name", "value", "period_comparison")
 
 
+class TopContentSerializer(serializers.ModelSerializer):
+    thumbnail_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TopContent
+        fields = (
+            "kind", "network", "source_type", "rank", "handle",
+            "caption", "thumbnail_url", "post_url", "metrics",
+        )
+
+    def get_thumbnail_url(self, obj) -> str | None:
+        return obj.thumbnail.url if obj.thumbnail else None
+
+
+class OneLinkAttributionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OneLinkAttribution
+        fields = ("influencer_handle", "clicks", "app_downloads")
+
+
 class ReportDetailSerializer(serializers.ModelSerializer):
     stage_name = serializers.CharField(source="stage.name", read_only=True)
     stage_id = serializers.IntegerField(source="stage.id", read_only=True)
     campaign_name = serializers.CharField(source="stage.campaign.name", read_only=True)
     campaign_id = serializers.IntegerField(source="stage.campaign.id", read_only=True)
-    metrics = ReportMetricSerializer(many=True, read_only=True)
+    brand_name = serializers.CharField(source="stage.campaign.brand.name", read_only=True)
     display_title = serializers.CharField(read_only=True)
+    metrics = ReportMetricSerializer(many=True, read_only=True)
+    top_content = TopContentSerializer(many=True, read_only=True)
+    onelink = OneLinkAttributionSerializer(many=True, read_only=True)
+    follower_snapshots = serializers.SerializerMethodField()
+    q1_rollup = serializers.SerializerMethodField()
+    yoy = serializers.SerializerMethodField()
 
     class Meta:
         model = Report
         fields = (
             "id", "kind", "period_start", "period_end",
-            "title", "display_title", "status", "published_at", "conclusions_text",
+            "title", "display_title", "status", "published_at",
+            "intro_text", "conclusions_text",
             "stage_id", "stage_name",
-            "campaign_id", "campaign_name",
-            "metrics",
+            "campaign_id", "campaign_name", "brand_name",
+            "metrics", "top_content", "onelink",
+            "follower_snapshots", "q1_rollup", "yoy",
         )
+
+    def get_follower_snapshots(self, obj):
+        return build_follower_snapshots(obj)
+
+    def get_q1_rollup(self, obj):
+        return build_q1_rollup(obj)
+
+    def get_yoy(self, obj):
+        return build_yoy(obj)
