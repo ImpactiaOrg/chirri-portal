@@ -3,7 +3,7 @@
 **Linear:** DEV-52
 **Date:** 2026-04-20
 **Author:** Daniel Zacharias (via Claude)
-**Status:** Design
+**Status:** Done — 2026-04-20
 
 ## Contexto
 

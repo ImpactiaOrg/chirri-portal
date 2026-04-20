@@ -1,5 +1,7 @@
 # Report Viewer `/reports/[id]` Implementation Plan
 
+**Status:** Done — 2026-04-20
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build the core piloto screen — a rich report viewer at `/reports/[id]` that replaces Chirri's Google Slides reports with a Balanz-branded portal page rendered from Django data.
