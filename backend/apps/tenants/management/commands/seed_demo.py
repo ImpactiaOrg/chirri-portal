@@ -7,13 +7,21 @@ Usage:
 """
 from datetime import date, datetime, timezone
 from decimal import Decimal
+from pathlib import Path
 
+from django.core.files import File
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from apps.campaigns.models import Campaign, NarrativeLine, Stage
 from apps.influencers.models import CampaignInfluencer, Influencer
-from apps.reports.models import Report, ReportMetric
+from apps.reports.models import (
+    BrandFollowerSnapshot,
+    OneLinkAttribution,
+    Report,
+    ReportMetric,
+    TopContent,
+)
 from apps.tenants.models import Brand, Client
 from apps.users.models import ClientUser
 
@@ -43,6 +51,7 @@ class Command(BaseCommand):
         narrative_lines = self._seed_narrative_lines(campaigns["ahorrista-inversor"])
         influencers = self._seed_influencers(campaigns["ahorrista-inversor"], stages, narrative_lines)
         self._seed_reports(stages)
+        self._seed_report_viewer_fixtures(brand)
 
         self.stdout.write(self.style.SUCCESS("\n✓ Demo data loaded."))
         self.stdout.write(f"  Client: {client.name}")
@@ -338,3 +347,85 @@ class Command(BaseCommand):
                     value=Decimal(str(value)),
                     period_comparison=delta,
                 )
+
+    def _seed_report_viewer_fixtures(self, brand: Brand) -> None:
+        """Populate the Report Viewer fixtures (TopContent, OneLink, FollowerSnapshots).
+
+        Applies to every published report tied at the latest period_start so the
+        viewer has renderable data regardless of tie-breaking. Idempotent via
+        delete-then-create for per-report fixtures and update_or_create for
+        brand-level snapshots.
+        """
+        fixtures = Path(__file__).parent / "fixtures"
+
+        latest = (
+            Report.objects.filter(status=Report.Status.PUBLISHED)
+            .order_by("-period_start")
+            .first()
+        )
+        if latest is None:
+            return
+
+        target_reports = Report.objects.filter(
+            status=Report.Status.PUBLISHED,
+            period_start=latest.period_start,
+        )
+
+        intro = (
+            "Cerramos un mes con crecimiento sostenido en alcance orgánico y un pico "
+            "de downloads vía influencers. Acá va el detalle."
+        )
+
+        top_content_specs = [
+            ("", "placeholder_post_1.jpg"),
+            ("", "placeholder_post_2.jpg"),
+            ("@pasaje.en.mano", "placeholder_creator_1.jpg"),
+        ]
+        onelink_specs = [
+            ("@pasaje.en.mano", 1200, 180),
+            ("@financierapopular", 800, 95),
+            ("@pymes_ar", 400, 30),
+        ]
+
+        for report in target_reports:
+            report.intro_text = intro
+            report.save(update_fields=["intro_text"])
+
+            # Delete-then-create for idempotency (rerun must not duplicate).
+            TopContent.objects.filter(report=report).delete()
+            OneLinkAttribution.objects.filter(report=report).delete()
+
+            for i, (handle, fname) in enumerate(top_content_specs, start=1):
+                tc = TopContent(
+                    report=report,
+                    kind=TopContent.Kind.CREATOR if handle else TopContent.Kind.POST,
+                    network=ReportMetric.Network.INSTAGRAM,
+                    source_type=(
+                        ReportMetric.SourceType.INFLUENCER if handle
+                        else ReportMetric.SourceType.ORGANIC
+                    ),
+                    rank=i,
+                    handle=handle,
+                    caption=f"Contenido destacado #{i}",
+                    metrics={"likes": 500 * i, "reach": 10000 * i, "er": 3.5 + i * 0.4},
+                )
+                with open(fixtures / fname, "rb") as fh:
+                    tc.thumbnail.save(fname, File(fh), save=False)
+                tc.save()
+
+            for handle, clicks, downloads in onelink_specs:
+                OneLinkAttribution.objects.create(
+                    report=report,
+                    influencer_handle=handle,
+                    clicks=clicks,
+                    app_downloads=downloads,
+                )
+
+        # Brand-level snapshots: one per month, keyed by (brand, network, as_of).
+        for month, count in [(1, 99_500), (2, 104_568), (3, 107_072)]:
+            BrandFollowerSnapshot.objects.update_or_create(
+                brand=brand,
+                network=ReportMetric.Network.INSTAGRAM,
+                as_of=date(latest.period_start.year, month, 28),
+                defaults={"followers_count": count},
+            )
