@@ -1,10 +1,13 @@
 import os
+import secrets
 from datetime import timedelta
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-SECRET_KEY = os.environ.get("SECRET_KEY", "dev-insecure-change-me")
+# Si DJANGO_SECRET_KEY no está en el environment, generamos una random por run.
+# En prod la settings correspondiente hace fail-fast si falta (ver production.py).
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY") or secrets.token_urlsafe(64)
 DEBUG = False
 ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")]
 

@@ -1,4 +1,14 @@
+import os
+
+from django.core.exceptions import ImproperlyConfigured
+
 from .base import *  # noqa: F401,F403
+
+if not os.environ.get("DJANGO_SECRET_KEY"):
+    raise ImproperlyConfigured(
+        "DJANGO_SECRET_KEY debe estar seteado en producción — "
+        "el fallback random de base.py rotaría sesiones y JWT en cada restart."
+    )
 
 DEBUG = False
 

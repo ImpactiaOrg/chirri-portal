@@ -2,7 +2,8 @@
 from .base import *  # noqa: F401,F403
 
 DEBUG = False
-SECRET_KEY = "test-secret-key"
+# Key de ≥32 bytes para que SimpleJWT (HMAC-SHA256, RFC 7518) no tire warnings.
+SECRET_KEY = "test-secret-key-must-be-at-least-32-bytes-to-satisfy-rfc-7518"
 
 DATABASES = {
     "default": {
