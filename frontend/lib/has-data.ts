@@ -1,6 +1,4 @@
-import type { ReportDto } from "./api";
-
-type Network = "INSTAGRAM" | "TIKTOK" | "X";
+import type { Network, ReportDto } from "./api";
 
 export function hasMetrics(report: ReportDto, network: Network): boolean {
   return report.metrics.some((m) => m.network === network);

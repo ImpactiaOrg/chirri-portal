@@ -1,7 +1,4 @@
-import type { ReportDto, ReportMetricDto } from "./api";
-
-type Network = "INSTAGRAM" | "TIKTOK" | "X";
-type SourceType = "ORGANIC" | "INFLUENCER" | "PAID";
+import type { Network, ReportDto, ReportMetricDto, SourceType } from "./api";
 
 export function metricsByNetwork(
   report: ReportDto,

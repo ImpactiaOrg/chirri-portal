@@ -31,6 +31,9 @@ export class ApiError extends Error {
   }
 }
 
+export type Network = "INSTAGRAM" | "TIKTOK" | "X";
+export type SourceType = "ORGANIC" | "INFLUENCER" | "PAID";
+
 export type ClientUserDto = {
   id: number;
   email: string;
@@ -76,8 +79,8 @@ export type CampaignDto = {
 };
 
 export type ReportMetricDto = {
-  network: "INSTAGRAM" | "TIKTOK" | "X";
-  source_type: "ORGANIC" | "INFLUENCER" | "PAID";
+  network: Network;
+  source_type: SourceType;
   metric_name: string;
   value: string;
   period_comparison: string | null;
@@ -85,8 +88,8 @@ export type ReportMetricDto = {
 
 export type TopContentDto = {
   kind: "POST" | "CREATOR";
-  network: "INSTAGRAM" | "TIKTOK" | "X";
-  source_type: "ORGANIC" | "INFLUENCER" | "PAID";
+  network: Network;
+  source_type: SourceType;
   rank: number;
   handle: string;
   caption: string;
@@ -111,14 +114,14 @@ export type Q1RollupDto = {
   months: string[];
   rows: Array<{
     metric: string;
-    network: "INSTAGRAM" | "TIKTOK" | "X";
+    network: Network;
     values: Array<number | null>;
   }>;
 };
 
 export type YoyRowDto = {
-  metric: "reach" | "er" | string;
-  network: "INSTAGRAM" | "TIKTOK" | "X";
+  metric: "reach" | "er";
+  network: Network;
   current: number;
   year_ago: number;
 };
