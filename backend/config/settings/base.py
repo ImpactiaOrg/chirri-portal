@@ -2,6 +2,7 @@ import os
 import secrets
 from datetime import timedelta
 from pathlib import Path
+from urllib.parse import urlparse
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -110,7 +111,7 @@ if USE_R2:
     AWS_S3_SECRET_ACCESS_KEY = os.environ["R2_SECRET_ACCESS_KEY"]
     AWS_S3_ENDPOINT_URL = os.environ["R2_ENDPOINT_URL"]
     AWS_STORAGE_BUCKET_NAME = os.environ.get("R2_BUCKET_NAME", "chirri-media")
-    AWS_S3_CUSTOM_DOMAIN = os.environ["R2_PUBLIC_URL"].replace("https://", "").rstrip("/")
+    AWS_S3_CUSTOM_DOMAIN = urlparse(os.environ["R2_PUBLIC_URL"]).netloc
     AWS_DEFAULT_ACL = None
     AWS_QUERYSTRING_AUTH = False
 else:

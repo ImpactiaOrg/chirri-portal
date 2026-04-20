@@ -51,8 +51,14 @@ jobs:
       - name: Wait for deploy to stabilise
         run: |
           for i in {1..30}; do
-            curl -fsS "${{ secrets.DEPLOY_URL }}/api/health/" && break || sleep 5
+            if curl -fsS "${{ secrets.DEPLOY_URL }}/api/health/"; then
+              echo "health check passed after $i attempts"
+              exit 0
+            fi
+            sleep 5
           done
+          echo "health check never passed after 30 attempts" >&2
+          exit 1
       - name: Run post-deploy smoke against DEPLOY_URL
         working-directory: frontend
         env:
