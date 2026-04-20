@@ -114,3 +114,21 @@ class TopContent(models.Model):
 
     def __str__(self):
         return f"{self.report_id} · {self.kind}/{self.network} #{self.rank}"
+
+
+class BrandFollowerSnapshot(models.Model):
+    brand = models.ForeignKey(
+        "tenants.Brand",
+        on_delete=models.CASCADE,
+        related_name="follower_snapshots",
+    )
+    network = models.CharField(max_length=16, choices=ReportMetric.Network.choices)
+    as_of = models.DateField()
+    followers_count = models.PositiveIntegerField()
+
+    class Meta:
+        unique_together = [("brand", "network", "as_of")]
+        ordering = ["-as_of"]
+
+    def __str__(self):
+        return f"{self.brand_id}/{self.network} @ {self.as_of}: {self.followers_count}"

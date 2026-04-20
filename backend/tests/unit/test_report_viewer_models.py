@@ -72,3 +72,24 @@ def test_top_content_orders_by_report_kind_network_rank(balanz_published_report)
     )
     ranks = list(TopContent.objects.values_list("rank", flat=True))
     assert ranks == [1, 2]
+
+
+from datetime import date
+from django.db import IntegrityError
+from apps.reports.models import BrandFollowerSnapshot
+
+
+def test_follower_snapshot_enforces_unique_brand_network_date(balanz_brand):
+    BrandFollowerSnapshot.objects.create(
+        brand=balanz_brand,
+        network=ReportMetric.Network.INSTAGRAM,
+        as_of=date(2026, 2, 28),
+        followers_count=104568,
+    )
+    with pytest.raises(IntegrityError):
+        BrandFollowerSnapshot.objects.create(
+            brand=balanz_brand,
+            network=ReportMetric.Network.INSTAGRAM,
+            as_of=date(2026, 2, 28),
+            followers_count=999,
+        )
