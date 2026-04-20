@@ -1,0 +1,53 @@
+{
+  "last_scan": "2026-04-20",
+  "overall_grade": "B",
+  "previous_grade": null,
+  "trending": null,
+  "scanned_domains": [
+    "backend/apps/campaigns",
+    "frontend/app/campaigns"
+  ],
+  "domains": {
+    "backend/apps/campaigns": {
+      "tests": "A",
+      "dry": "A",
+      "boundaries": "A",
+      "docs_complexity": "A",
+      "principles": "A",
+      "patterns": "A",
+      "security": "A",
+      "git_health": "A",
+      "testability": "A",
+      "observability": "B",
+      "frontend": null,
+      "hygiene": "A",
+      "ci_cd": "B",
+      "overall": "B"
+    },
+    "frontend/app/campaigns": {
+      "tests": "B",
+      "dry": "C",
+      "boundaries": "A",
+      "docs_complexity": "A",
+      "principles": "A",
+      "patterns": "A",
+      "security": "A",
+      "git_health": "A",
+      "testability": "A",
+      "observability": "B",
+      "frontend": "C",
+      "hygiene": "A",
+      "ci_cd": "B",
+      "overall": "B"
+    }
+  },
+  "tech_debt": {
+    "todo": 0,
+    "fixme": 0,
+    "hack": 0,
+    "total": 0
+  },
+  "history": [
+    {"date": "2026-04-20", "overall": "B", "trend": null}
+  ]
+}
