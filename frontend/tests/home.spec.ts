@@ -54,6 +54,20 @@ test.describe("Home smoke", () => {
     expect(freshAccess, "middleware must set a new access cookie").toBeTruthy();
   });
 
+  test("campaigns list page renders active and archived sections", async ({ page }) => {
+    const errors = trackConsoleErrors(page);
+
+    await login(page);
+    await page.goto("/campaigns");
+
+    await expect(page.getByRole("heading", { name: /campañas\./i })).toBeVisible();
+    await expect(page.getByText(/ACTIVAS ·/)).toBeVisible();
+    await expect(page.getByText(/ARCHIVO ·/)).toBeVisible();
+    await expect(page.getByText(/de ahorrista a inversor/i).first()).toBeVisible();
+
+    expect(errors, `console/page errors on /campaigns:\n${errors.join("\n")}`).toEqual([]);
+  });
+
   test("invalid refresh cookie falls through to /login", async ({ page, context }) => {
     // Garbage refresh token — the refresh call fails, middleware clears both
     // cookies, and /home redirects to /login as expected.
