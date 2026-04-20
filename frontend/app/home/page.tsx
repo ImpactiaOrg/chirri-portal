@@ -2,21 +2,12 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { apiFetch, type CampaignDto, type PagedResponse, type ReportDto } from "@/lib/api";
 import { getAccessToken, getCurrentUser } from "@/lib/auth";
+import { formatMonthYear } from "@/lib/format";
 import TopBar from "@/components/top-bar";
-
-const MONTHS_ES = [
-  "enero", "febrero", "marzo", "abril", "mayo", "junio",
-  "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
-];
 
 function firstName(full: string, fallback: string): string {
   const first = full.trim().split(/\s+/)[0];
   return (first || fallback).toLowerCase();
-}
-
-function formatMonthYear(iso: string): { month: string; year: string } {
-  const d = new Date(iso);
-  return { month: MONTHS_ES[d.getUTCMonth()], year: String(d.getUTCFullYear()) };
 }
 
 function sumReach(report: ReportDto | null): number {
