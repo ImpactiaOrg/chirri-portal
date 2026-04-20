@@ -27,6 +27,10 @@ class Report(models.Model):
     status = models.CharField(max_length=12, choices=Status.choices, default=Status.DRAFT)
     published_at = models.DateTimeField(null=True, blank=True)
     conclusions_text = models.TextField(blank=True)
+    intro_text = models.TextField(
+        blank=True,
+        help_text="Intro textual al principio del reporte (separada de conclusions_text).",
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
