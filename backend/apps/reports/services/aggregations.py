@@ -16,6 +16,23 @@ def _quarter_of(month: int) -> tuple[int, int]:
     return start, start + 2
 
 
+def _find_organic_metric(
+    metrics, metric_name: str, network: str
+) -> ReportMetric | None:
+    """Return the ORGANIC metric matching (name, network) from a prefetched queryset, or None.
+
+    Iterates in-memory so the caller should pass a prefetched manager (e.g. `r.metrics.all()`)
+    to avoid N+1.
+    """
+    return next(
+        (m for m in metrics
+         if m.metric_name == metric_name
+         and m.network == network
+         and m.source_type == ReportMetric.SourceType.ORGANIC),
+        None,
+    )
+
+
 def build_q1_rollup(report: Report) -> dict[str, Any] | None:
     quarter_start, quarter_end = _quarter_of(report.period_start.month)
     year = report.period_start.year
@@ -48,12 +65,7 @@ def build_q1_rollup(report: Report) -> dict[str, Any] | None:
     for metric_name, network in sorted(keys):
         values: list[float | None] = []
         for r in reports:
-            match = next(
-                (m for m in r.metrics.all()
-                 if m.metric_name == metric_name and m.network == network
-                 and m.source_type == ReportMetric.SourceType.ORGANIC),
-                None,
-            )
+            match = _find_organic_metric(r.metrics.all(), metric_name, network)
             values.append(float(match.value) if match else None)
         rows.append({"metric": metric_name, "network": network, "values": values})
 
@@ -86,12 +98,7 @@ def build_yoy(report: Report) -> list[dict[str, Any]] | None:
             continue
         if m.source_type != ReportMetric.SourceType.ORGANIC:
             continue
-        match = next(
-            (p for p in prior.metrics.all()
-             if p.metric_name == m.metric_name and p.network == m.network
-             and p.source_type == ReportMetric.SourceType.ORGANIC),
-            None,
-        )
+        match = _find_organic_metric(prior.metrics.all(), m.metric_name, m.network)
         if match is None:
             continue
         rows.append({

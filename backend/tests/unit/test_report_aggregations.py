@@ -40,10 +40,10 @@ def test_build_q1_rollup_returns_three_months_for_march(balanz_stage):
     assert reach_row["values"] == [100000.0, 200000.0, 300000.0]
 
 
-def test_build_q1_rollup_with_only_one_report_returns_empty_rows(balanz_stage):
+def test_build_q1_rollup_with_only_one_report_returns_none(balanz_stage):
     mar = _make_monthly_report(balanz_stage, 3, 300000)
     rollup = build_q1_rollup(mar)
-    assert rollup is None or len(rollup["rows"]) == 0 or rollup["months"] == ["marzo"]
+    assert rollup is None
 
 
 def test_build_yoy_finds_prior_year_report(balanz_stage):
