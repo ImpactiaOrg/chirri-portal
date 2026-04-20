@@ -1,6 +1,7 @@
 from django.db import models
 
 from apps.campaigns.models import Stage
+from .validators import validate_image_mimetype, validate_image_size
 
 
 class Report(models.Model):
@@ -85,3 +86,31 @@ class ReportMetric(models.Model):
 
     def __str__(self):
         return f"{self.report} · {self.network}/{self.source_type}/{self.metric_name}={self.value}"
+
+
+class TopContent(models.Model):
+    class Kind(models.TextChoices):
+        POST = "POST", "Post destacado"
+        CREATOR = "CREATOR", "Creator destacado"
+
+    report = models.ForeignKey(Report, on_delete=models.CASCADE, related_name="top_content")
+    kind = models.CharField(max_length=16, choices=Kind.choices)
+    network = models.CharField(max_length=16, choices=ReportMetric.Network.choices)
+    source_type = models.CharField(max_length=16, choices=ReportMetric.SourceType.choices)
+    rank = models.PositiveIntegerField(help_text="1-based ordering within (kind, network).")
+    handle = models.CharField(max_length=120, blank=True)
+    caption = models.TextField(blank=True)
+    thumbnail = models.ImageField(
+        upload_to="top_content/%Y/%m/",
+        blank=True,
+        validators=[validate_image_size, validate_image_mimetype],
+    )
+    post_url = models.URLField(blank=True)
+    metrics = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        ordering = ["report", "kind", "network", "rank"]
+        indexes = [models.Index(fields=["report", "kind"])]
+
+    def __str__(self):
+        return f"{self.report_id} · {self.kind}/{self.network} #{self.rank}"
