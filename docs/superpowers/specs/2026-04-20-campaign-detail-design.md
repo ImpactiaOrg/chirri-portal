@@ -1,6 +1,6 @@
 ---
 Ticket: DEV-86
-Status: Design
+Status: Design (entropy-aware enriched 2026-04-20)
 Date: 2026-04-20
 Owner: Daniel Zacharias
 Related: DEV-52 (report viewer), DEV-79 (campaigns list), DEV-104 (draft preview follow-up)
@@ -42,6 +42,25 @@ Out of scope (tickets separados):
   - `StageBlock.tsx` — 1 stage: nombre, período, descripción, lista de reportes (o empty state).
 - Tipos nuevos en `frontend/lib/api.ts`: `CampaignReportRowDto`, `StageWithReportsDto`, `CampaignDetailDto`.
 - No se introducen nuevos componentes cross-feature — breadcrumb y top bar se reutilizan del patrón actual.
+
+### Complejidad y documentación (dim 4)
+
+Presupuesto de tamaño por archivo:
+- `page.tsx` ≤ 60 líneas.
+- Cada section (`CampaignHeader`, `StagesTimeline`, `StageBlock`) ≤ 120 líneas. Si alguna supera 200, dividir (ej. mover a sub-componente `ReportRow`).
+- `CampaignDetailSerializer` + helpers ≤ 80 líneas en `serializers.py`. Si `serializers.py` total supera 300, dividir por archivo (`serializers/campaign_list.py` + `serializers/campaign_detail.py`).
+- `views.py` de campaigns ≤ 150 líneas. Si crece, mover viewsets a archivos separados.
+
+Documentación de interfaces públicas:
+- JSDoc en tipos exportados de `frontend/lib/api.ts` (qué representa cada campo, si es opcional).
+- Docstring Python en `CampaignDetailSerializer` describiendo la shape nested y la razón del prefetch explícito (evitar N+1).
+- `README.md` sección "Rutas del portal" incluye `/campaigns/[id]` + una línea descriptiva.
+
+### Patterns aplicados (dim 6)
+
+- **Serializer polimórfico por acción** (`get_serializer_class`): patrón estándar DRF. Justificado: list y detail tienen shape distinta y queremos evitar pagar el prefetch de reports en listados.
+- **Presentational components**: sections son server components puros — reciben props, retornan JSX, no tienen estado ni efectos. Evita el antipattern "god component".
+- **No circular deps**: sections importan tipos de `@/lib/api` y utilidades de `@/lib/format`. No importan de `page.tsx`. No hay inheritance; composición vía children-through-props.
 
 ## 4. Contratos de datos
 
@@ -163,6 +182,26 @@ Archivo nuevo: `frontend/tests/campaigns.spec.ts` (o append al existente de camp
 2. `report row navigates to report page` — click primer report → URL `/reports/\d+$` → h1 del reporte visible.
 3. `unknown campaign id returns 404` — GET `/campaigns/999999` → Next 404 page.
 
+### Testability (dim 9)
+
+- Backend serializer recibe instance via DRF (inyección estándar), no instancia modelos dentro del método. Los tests usan `APIClient` + factories/seed — sin mocks de DB (política de proyecto: integration tests contra Postgres real).
+- Frontend sections son puras (props → JSX). Testables por inspección de markup en Playwright sin necesidad de mocks. No hay hooks que requieran `render()` de testing-library para este ticket.
+- `apiFetch` es el único side-effect I/O del server component; se mockea via Playwright network interception si hiciera falta para tests aislados (no se necesita en este ticket — E2E full stack alcanza).
+
+### Frontend quality (dim 11)
+
+- **Design tokens**: colores vía `var(--chirri-*)` (pink, black, muted, mint, mint-deep, yellow-soft). Tipografía vía clase `font-display`. Pills vía `.pill`, `.pill-mint`, `.pill-white`, `.status-approved`. Sin hex hardcodeado.
+- **Semantic HTML**: `<main>`, `<nav>` para breadcrumb, `<ol>` para timeline de stages (hay orden), `<ul>` para reports dentro de cada stage, `<h1>` para nombre campaña, `<h3>` para nombres de stage.
+- **Accesibilidad**:
+  - Links de reports usan `<Link>` (anchor real, keyboard navigable).
+  - Pill de estado incluye `aria-label="Estado: activa"` porque el `●` es decorativo.
+  - `notFound()` devuelve la page 404 estándar de Next (ya accesible).
+  - Contraste: texto negro sobre pink ≥ 7:1 (ya validado en DEV-79).
+- **Performance**: sin imágenes nuevas, sin bundles client nuevos. Todo server-rendered. No se necesita virtualization — máximo esperado: ~5 stages × ~10 reports = 50 rows.
+- **State management**: no hay estado — 100% server component. No Context, no Zustand, no hooks.
+- **Responsive**: `.page` class ya tiene max-width y paddings responsivos. Grid del StageBlock: flex-column en mobile (default), posibles columnas en desktop vía media query si la copy lo justifica — pero por YAGNI, mantener flex-column siempre en v1.
+- **i18n**: todos los strings en español hardcoded (consistente con el resto del portal; i18n es un ticket futuro no-Chirri).
+
 ## 7. Principios aplicados
 
 - **P2 SRP**: cada section tiene una responsabilidad (header ≠ timeline ≠ stage ≠ report row).
@@ -187,11 +226,26 @@ Archivo nuevo: `frontend/tests/campaigns.spec.ts` (o append al existente de camp
 - Input validation: el id llega como path param; DRF lo convierte a int o devuelve 404. Sin body input.
 - No secrets nuevos, no variables de entorno nuevas.
 
-## 10. CI/CD
+## 9.5 Git health (dim 8)
 
-- `test.yml` (backend + frontend + e2e-smoke) cubre los nuevos tests automáticamente (pytest corre todo `backend/apps/*/tests`, Playwright corre todos los `*.spec.ts` bajo `frontend/tests`).
-- `deploy.yml` post_deploy_smoke ya corre `--grep "Report viewer|Home smoke"` — actualizar para incluir `|Campaign detail`.
-- No hay cambios de infra ni secrets.
+- **Ownership**: `@dzacharias` como owner del ticket. Review: opt-in (repo de 1-2 personas). Si entra un segundo dev, agregar `CODEOWNERS` entry para `backend/apps/campaigns/` + `frontend/app/campaigns/`.
+- **Commit strategy**: atomic commits, uno por task del plan. Mensaje en conventional commits (`feat:`, `test:`, `docs:`, `refactor:`). Cada commit pasa pytest + lint.
+- **Branch**: commits directo a `development` (política del proyecto según CLAUDE.md — `development` es branch de deploy; `main` es production). Sin PR forzado.
+- **No bottleneck de conocimiento**: spec + plan quedan en el repo como documentación permanente del feature. Cualquier dev nuevo puede retomar leyendo `docs/superpowers/specs/2026-04-20-campaign-detail-design.md` + código.
+
+## 10. CI/CD (pipeline 5 etapas)
+
+1. **PR gate** (`.github/workflows/test.yml`): lint (ruff + eslint) + typecheck (mypy + tsc) + unit tests (pytest backend + jest/tsc frontend) + E2E smoke Playwright. Required check para merge a `main` y `development`.
+2. **Build**: SHA-pinned Docker images para backend + frontend vía deploy.yml. Tag: `${{ github.sha }}`, nunca `:latest`.
+3. **Branch → env mapping**:
+   - `development` → staging/prod Hetzner (según política del proyecto; actualmente deploy.yml escucha push a `development`).
+   - `main` → reservado para production-ready cuts (no deploy automático hoy; manual merge desde `development`).
+4. **Post-deploy smoke** (`deploy.yml` job `post_deploy_smoke`): corre Playwright con `PLAYWRIGHT_BASE_URL=${{ secrets.DEPLOY_URL }}` contra la URL deployada. Filtro: `--grep "Report viewer|Home smoke|Campaign detail"` (actualizar el grep actual para incluir el nuevo spec). Curl `/api/health/` primero como precheck.
+5. **Rollback**: `git revert <merge-commit>` en `development` → push → deploy automático revierte a la imagen anterior (las imágenes SHA-pinned en Hetzner registry quedan disponibles). Ver sección 12.
+
+Secrets usados: `DEPLOY_URL`, credenciales SSH Hetzner (ya existentes). No se introducen secrets nuevos — `docs/ENV.md` no cambia.
+
+No hay cambios de infra.
 
 ## 11. Repo hygiene
 
