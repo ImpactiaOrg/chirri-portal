@@ -12,8 +12,10 @@ export default function CampaignRowArchived({ campaign }: Props) {
     campaign.end_date,
     campaign.is_ongoing_operation,
   );
-  const lastReport = formatReportDate(campaign.last_published_at);
   const reportCount = campaign.published_report_count;
+  const lastReport = campaign.last_published_at
+    ? formatReportDate(campaign.last_published_at)
+    : null;
   const briefShort = campaign.brief.length > 80
     ? `${campaign.brief.slice(0, 80)}…`
     : campaign.brief;
@@ -58,7 +60,7 @@ export default function CampaignRowArchived({ campaign }: Props) {
       <div style={{ fontSize: 12, fontWeight: 700 }}>{period}</div>
       <div style={{ fontSize: 12, fontWeight: 700 }}>{reportCount} reportes</div>
       <div style={{ fontSize: 11, fontWeight: 600, color: "var(--chirri-muted)" }}>
-        último {lastReport}
+        {lastReport ? `último ${lastReport}` : ""}
       </div>
       <div style={{ textAlign: "right", fontWeight: 800, fontSize: 12, textDecoration: "underline" }}>
         Abrir →

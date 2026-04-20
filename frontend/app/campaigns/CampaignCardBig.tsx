@@ -4,8 +4,8 @@ import { formatPeriod, formatReportDate } from "@/lib/format";
 
 const PALETTE = [
   "var(--chirri-mint)",
-  "var(--chirri-peach)",
-  "var(--chirri-lilac)",
+  "var(--chirri-yellow-soft)",
+  "var(--chirri-mint-deep)",
 ];
 
 type Props = {
@@ -20,8 +20,10 @@ export default function CampaignCardBig({ campaign, colorIndex }: Props) {
     campaign.end_date,
     campaign.is_ongoing_operation,
   );
-  const lastReport = formatReportDate(campaign.last_published_at);
   const reportCount = campaign.published_report_count;
+  const lastReport = campaign.last_published_at
+    ? formatReportDate(campaign.last_published_at)
+    : null;
 
   return (
     <Link
@@ -63,7 +65,7 @@ export default function CampaignCardBig({ campaign, colorIndex }: Props) {
         </p>
         <div style={{ display: "flex", gap: 28, marginTop: 18, fontSize: 12, fontWeight: 700 }}>
           <span>{reportCount} reportes</span>
-          <span>· último {lastReport}</span>
+          {lastReport && <span>· último {lastReport}</span>}
         </div>
       </div>
       <div style={{ textAlign: "right" }}>
