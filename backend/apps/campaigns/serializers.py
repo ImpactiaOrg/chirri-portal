@@ -36,6 +36,8 @@ class CampaignReportRowSerializer(serializers.ModelSerializer):
     and top_content into a list view.
     """
 
+    display_title = serializers.CharField(read_only=True)
+
     class Meta:
         model = Report
         fields = (
