@@ -1,7 +1,9 @@
 import logging
 
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
+from rest_framework.exceptions import NotFound
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -66,7 +68,7 @@ class ReportDetailView(RetrieveAPIView):
     def get_object(self):
         try:
             obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
-        except Exception:
+        except (Http404, NotFound):
             logger.warning(
                 "report_access_denied",
                 extra={

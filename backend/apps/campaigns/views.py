@@ -1,7 +1,9 @@
 import logging
 
 from django.db.models import Count, Max, Prefetch, Q
+from django.http import Http404
 from rest_framework import permissions, viewsets
+from rest_framework.exceptions import NotFound
 
 from apps.reports.models import Report
 
@@ -30,10 +32,8 @@ class CampaignViewSet(viewsets.ReadOnlyModelViewSet):
                 .filter(status=Report.Status.PUBLISHED)
                 .order_by("-published_at")
             )
-            stages_qs = (
-                Stage.objects
-                .order_by("order")
-                .prefetch_related(Prefetch("reports", queryset=published_reports))
+            stages_qs = Stage.objects.prefetch_related(
+                Prefetch("reports", queryset=published_reports)
             )
             return (
                 Campaign.objects
@@ -58,7 +58,7 @@ class CampaignViewSet(viewsets.ReadOnlyModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         try:
             response = super().retrieve(request, *args, **kwargs)
-        except Exception:
+        except (Http404, NotFound):
             logger.warning(
                 "campaign_detail_access_denied",
                 extra={
