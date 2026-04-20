@@ -83,6 +83,46 @@ export type ReportMetricDto = {
   period_comparison: string | null;
 };
 
+export type TopContentDto = {
+  kind: "POST" | "CREATOR";
+  network: "INSTAGRAM" | "TIKTOK" | "X";
+  source_type: "ORGANIC" | "INFLUENCER" | "PAID";
+  rank: number;
+  handle: string;
+  caption: string;
+  thumbnail_url: string | null;
+  post_url: string;
+  metrics: Record<string, number>;
+};
+
+export type OneLinkAttributionDto = {
+  influencer_handle: string;
+  clicks: number;
+  app_downloads: number;
+};
+
+export type FollowerSnapshotPoint = {
+  month: string;
+  as_of: string;
+  count: number;
+};
+
+export type Q1RollupDto = {
+  months: string[];
+  rows: Array<{
+    metric: string;
+    network: "INSTAGRAM" | "TIKTOK" | "X";
+    values: Array<number | null>;
+  }>;
+};
+
+export type YoyRowDto = {
+  metric: "reach" | "er" | string;
+  network: "INSTAGRAM" | "TIKTOK" | "X";
+  current: number;
+  year_ago: number;
+};
+
 export type ReportDto = {
   id: number;
   kind: "INFLUENCER" | "GENERAL" | "QUINCENAL" | "MENSUAL" | "CIERRE_ETAPA";
@@ -92,12 +132,19 @@ export type ReportDto = {
   display_title: string;
   status: "DRAFT" | "PUBLISHED";
   published_at: string | null;
+  intro_text: string;
   conclusions_text: string;
   stage_id: number;
   stage_name: string;
   campaign_id: number;
   campaign_name: string;
+  brand_name: string;
   metrics: ReportMetricDto[];
+  top_content: TopContentDto[];
+  onelink: OneLinkAttributionDto[];
+  follower_snapshots: Record<string, FollowerSnapshotPoint[]>;
+  q1_rollup: Q1RollupDto | null;
+  yoy: YoyRowDto[] | null;
 };
 
 export type PagedResponse<T> = { count: number; next: string | null; previous: string | null; results: T[] };
