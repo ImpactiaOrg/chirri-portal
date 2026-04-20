@@ -25,7 +25,8 @@ def test_report_detail_avoids_nplus1(authed_balanz, balanz_published_report):
     with CaptureQueriesContext(connection) as ctx:
         res = authed_balanz.get(f"/api/reports/{balanz_published_report.pk}/")
     assert res.status_code == 200
-    # auth + main + prefetch_related(metrics) + prefetch_related(top_content) +
-    # prefetch_related(onelink) + aggregations (q1/yoy/snapshots queries).
-    # Upper bound is generous — the point is no query per row.
-    assert len(ctx.captured_queries) < 20, f"too many queries: {len(ctx.captured_queries)}"
+    # Query budget: auth lookup + main report + select_related joins (stage/campaign/brand) +
+    # prefetch_related x3 (metrics, top_content, onelink) + aggregations (q1 + yoy + snapshots).
+    # Tight enough to fail if a row-scoped query slips in (N+1 on 20 rows would push us past 15).
+    n = len(ctx.captured_queries)
+    assert n <= 12, f"too many queries: {n}"

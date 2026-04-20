@@ -8,7 +8,11 @@ test.describe("Campaign detail smoke", () => {
     await login(page);
 
     await page.goto("/campaigns");
-    await page.getByRole("link", { name: /abrir/i }).first().click();
+    // Scope to the ACTIVAS section so we never accidentally open an archived row.
+    const activeSection = page
+      .locator("section")
+      .filter({ has: page.getByText(/activas ·/i) });
+    await activeSection.getByRole("link").first().click();
 
     await expect(page).toHaveURL(/\/campaigns\/\d+$/);
 
@@ -26,7 +30,11 @@ test.describe("Campaign detail smoke", () => {
   test("report row navigates to /reports/<id>", async ({ page }) => {
     await login(page);
     await page.goto("/campaigns");
-    await page.getByRole("link", { name: /abrir/i }).first().click();
+    // Scope to the ACTIVAS section so we never accidentally open an archived row.
+    const activeSection = page
+      .locator("section")
+      .filter({ has: page.getByText(/activas ·/i) });
+    await activeSection.getByRole("link").first().click();
     await expect(page).toHaveURL(/\/campaigns\/\d+$/);
 
     await page.locator('a[href^="/reports/"]').first().click();
@@ -43,7 +51,11 @@ test.describe("Campaign detail smoke", () => {
   test("keyboard navigation: Tab reaches first report link and Enter opens it", async ({ page }) => {
     await login(page);
     await page.goto("/campaigns");
-    await page.getByRole("link", { name: /abrir/i }).first().click();
+    // Scope to the ACTIVAS section so we never accidentally open an archived row.
+    const activeSection = page
+      .locator("section")
+      .filter({ has: page.getByText(/activas ·/i) });
+    await activeSection.getByRole("link").first().click();
     await expect(page).toHaveURL(/\/campaigns\/\d+$/);
 
     const firstReport = page.locator('a[href^="/reports/"]').first();
