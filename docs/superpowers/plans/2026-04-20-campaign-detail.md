@@ -326,7 +326,19 @@ class CampaignViewSet(viewsets.ReadOnlyModelViewSet):
         )
 
     def retrieve(self, request, *args, **kwargs):
-        response = super().retrieve(request, *args, **kwargs)
+        try:
+            response = super().retrieve(request, *args, **kwargs)
+        except Exception:
+            logger.warning(
+                "campaign_detail_access_denied",
+                extra={
+                    "campaign_id": kwargs.get("pk"),
+                    "user_id": getattr(request.user, "id", None),
+                    "client_id": getattr(request.user, "client_id", None),
+                    "reason": "not_found_or_scoped_out",
+                },
+            )
+            raise
         logger.info(
             "campaign_detail_served",
             extra={
@@ -872,6 +884,27 @@ test.describe("Campaign detail smoke", () => {
 });
 ```
 
+- [ ] **Step 1.5: Add keyboard navigation assertion**
+
+Append this test inside the same `test.describe(...)` block to lock in a11y:
+
+```ts
+  test("keyboard navigation: Tab reaches first report link and Enter opens it", async ({ page }) => {
+    await login(page);
+    await page.goto("/campaigns");
+    await page.getByRole("link", { name: /abrir/i }).first().click();
+    await expect(page).toHaveURL(/\/campaigns\/\d+$/);
+
+    // Focus first report anchor via keyboard.
+    const firstReport = page.locator('a[href^="/reports/"]').first();
+    await firstReport.focus();
+    await expect(firstReport).toBeFocused();
+
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/\/reports\/\d+$/);
+  });
+```
+
 - [ ] **Step 2: Run the E2E tests**
 
 ```bash
@@ -921,6 +954,19 @@ In `frontend/package.json`, replace the `test:e2e:smoke` script value so it also
 ```json
 "test:e2e:smoke": "playwright test tests/home.spec.ts tests/reports.spec.ts tests/campaigns.spec.ts --reporter=line"
 ```
+
+- [ ] **Step 3.5: Verify deploy.yml post_deploy_smoke uses the deployed URL**
+
+Open `.github/workflows/deploy.yml` and confirm the `post_deploy_smoke` job sets:
+
+```yaml
+env:
+  PLAYWRIGHT_BASE_URL: ${{ secrets.DEPLOY_URL }}
+```
+
+and NOT `http://localhost:3000`. If the env is missing or wrong, add/fix it. The smoke must hit the deployed URL — per entropy dim 13 and Impactia pipeline stage 4, localhost-based post-deploy smoke doesn't count.
+
+If `secrets.DEPLOY_URL` is not configured in GitHub repo settings, create a follow-up task to add it (the smoke job will fail loudly otherwise — which is the correct failure mode).
 
 - [ ] **Step 4: Run full smoke locally**
 
@@ -1005,3 +1051,12 @@ git commit -m "docs: archive DEV-86 spec + plan as Done"
 **2. Placeholder scan:** No TBD/TODO/"similar to"/"handle edge cases". Every code step has complete code blocks.
 
 **3. Type consistency:** `CampaignDetailDto.stages_with_reports` used identically in Tasks 3, 6, 7. `StageWithReportsDto` and `CampaignReportRowDto` referenced identically everywhere. Backend serializer field name `stages_with_reports` matches frontend DTO field name.
+
+**4. Principles applied across tasks:**
+- **P2 SRP**: Task 1 splits serializers into three focused classes. Task 4/5/6 split UI into three single-purpose sections.
+- **P3 DRY**: Task 4/5 reuse `formatPeriod` / `formatReportDate`; Task 1 reuses `conftest.py` fixtures.
+- **P5 DIP**: Task 2 viewset receives user via DRF request; Task 7 page receives `campaign` via `apiFetch` — no direct model access.
+- **P6 Minimal Surface Area**: Task 2 adds one new endpoint action (retrieve) — no new URL patterns. Task 3 adds types only where the server actually returns them.
+- **P9 Fail Fast**: Task 1 tests force 404 on cross-tenant / draft / orphan / unknown — no silent `[]`.
+- **P10 Simplicity**: single endpoint, single fetch in the page, no client state, no hooks.
+
