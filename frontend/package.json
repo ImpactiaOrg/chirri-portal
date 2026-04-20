@@ -8,7 +8,7 @@
     "start": "next start -p 3000",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test:e2e:smoke": "playwright test tests/home.spec.ts --reporter=line",
+    "test:e2e:smoke": "playwright test tests/home.spec.ts tests/reports.spec.ts --reporter=line",
     "test:e2e:all": "playwright test --reporter=line"
   },
   "dependencies": {
