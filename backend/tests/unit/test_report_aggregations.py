@@ -3,7 +3,7 @@ from datetime import date
 import pytest
 
 from apps.reports.models import Report, ReportMetric
-from apps.reports.services.aggregations import build_q1_rollup
+from apps.reports.services.aggregations import build_q1_rollup, build_yoy
 
 pytestmark = pytest.mark.django_db
 
@@ -40,3 +40,43 @@ def test_build_q1_rollup_with_only_one_report_returns_empty_rows(balanz_stage):
     mar = _make_monthly_report(balanz_stage, 3, 300000)
     rollup = build_q1_rollup(mar)
     assert rollup is None or len(rollup["rows"]) == 0 or rollup["months"] == ["marzo"]
+
+
+def test_build_yoy_finds_prior_year_report(balanz_stage):
+    prev = Report.objects.create(
+        stage=balanz_stage,
+        kind=Report.Kind.MENSUAL,
+        period_start=date(2025, 3, 1),
+        period_end=date(2025, 3, 31),
+        status=Report.Status.PUBLISHED,
+    )
+    ReportMetric.objects.create(
+        report=prev,
+        network=ReportMetric.Network.INSTAGRAM,
+        source_type=ReportMetric.SourceType.ORGANIC,
+        metric_name="er",
+        value=3.0,
+    )
+    cur = Report.objects.create(
+        stage=balanz_stage,
+        kind=Report.Kind.MENSUAL,
+        period_start=date(2026, 3, 1),
+        period_end=date(2026, 3, 31),
+        status=Report.Status.PUBLISHED,
+    )
+    ReportMetric.objects.create(
+        report=cur,
+        network=ReportMetric.Network.INSTAGRAM,
+        source_type=ReportMetric.SourceType.ORGANIC,
+        metric_name="er",
+        value=4.5,
+    )
+    yoy = build_yoy(cur)
+    assert yoy is not None
+    er_row = next(r for r in yoy if r["metric"] == "er" and r["network"] == "INSTAGRAM")
+    assert float(er_row["current"]) == 4.5
+    assert float(er_row["year_ago"]) == 3.0
+
+
+def test_build_yoy_without_prior_returns_none(balanz_published_report):
+    assert build_yoy(balanz_published_report) is None
