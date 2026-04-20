@@ -57,4 +57,4 @@ jobs:
         working-directory: frontend
         env:
           PLAYWRIGHT_BASE_URL: ${{ secrets.DEPLOY_URL }}
-        run: npx playwright test --grep "Report viewer|Home smoke"
+        run: npx playwright test --grep "Report viewer|Home smoke|Campaign detail" --reporter=line

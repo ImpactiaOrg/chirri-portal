@@ -56,7 +56,11 @@ El seed carga el Client Balanz, 3 campañas (1 activa + 2 terminadas), 4 stages,
 **Para producción:** cargar Client, Brand, Campaign, Stage y ClientUser desde `/admin`.
 
 ### Rutas del portal
-- `/login`, `/home`, `/campaigns`, `/campaigns/[id]`, `/reports/[id]`
+- `/login` — acceso al portal
+- `/home` — dashboard principal
+- `/campaigns` — listado de campañas
+- `/campaigns/[id]` — detalle de campaña con stages timeline y reportes por etapa
+- `/reports/[id]` — detalle de reporte con métricas y análisis
 
 ### Env vars nuevas (R2)
 Ver `docs/ENV.md`. En dev dejá `USE_R2` unset — se usa filesystem local.
