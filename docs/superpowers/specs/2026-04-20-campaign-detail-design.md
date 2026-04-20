@@ -1,6 +1,6 @@
 ---
 Ticket: DEV-86
-Status: Design (entropy-aware enriched 2026-04-20)
+Status: Done — 2026-04-20
 Date: 2026-04-20
 Owner: Daniel Zacharias
 Related: DEV-52 (report viewer), DEV-79 (campaigns list), DEV-104 (draft preview follow-up)

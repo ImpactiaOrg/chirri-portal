@@ -12,6 +12,8 @@
 
 ---
 
+**Status:** Done — 2026-04-20
+
 ## File Structure
 
 **Backend:**
