@@ -31,4 +31,43 @@ test.describe("Home smoke", () => {
     await page.click('button.logout-btn');
     await expect(page).toHaveURL(/\/login$/);
   });
+
+  test("expired access cookie is silently refreshed by middleware", async ({ page, context }) => {
+    // Log in to obtain both cookies, then drop ONLY the access cookie to
+    // simulate the access token having expired. A valid refresh cookie
+    // remains — the middleware should swap in a fresh access transparently.
+    await login(page);
+    const before = await context.cookies();
+    const refresh = before.find((c) => c.name === "chirri_refresh");
+    expect(refresh, "refresh cookie must exist after login").toBeTruthy();
+
+    const kept = before.filter((c) => c.name !== "chirri_access");
+    await context.clearCookies();
+    await context.addCookies(kept);
+
+    await page.goto("/home");
+    await expect(page).toHaveURL(/\/home$/);
+    await expect(page.getByText(/buen día/i)).toBeVisible();
+
+    const after = await context.cookies();
+    const freshAccess = after.find((c) => c.name === "chirri_access");
+    expect(freshAccess, "middleware must set a new access cookie").toBeTruthy();
+  });
+
+  test("invalid refresh cookie falls through to /login", async ({ page, context }) => {
+    // Garbage refresh token — the refresh call fails, middleware clears both
+    // cookies, and /home redirects to /login as expected.
+    await context.clearCookies();
+    await context.addCookies([
+      {
+        name: "chirri_refresh",
+        value: "not-a-valid-jwt",
+        domain: "localhost",
+        path: "/",
+      },
+    ]);
+
+    await page.goto("/home");
+    await expect(page).toHaveURL(/\/login$/);
+  });
 });
