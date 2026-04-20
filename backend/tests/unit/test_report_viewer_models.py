@@ -93,3 +93,20 @@ def test_follower_snapshot_enforces_unique_brand_network_date(balanz_brand):
             as_of=date(2026, 2, 28),
             followers_count=999,
         )
+
+
+from apps.reports.models import OneLinkAttribution
+
+
+def test_onelink_attribution_orders_by_downloads_desc(balanz_published_report):
+    OneLinkAttribution.objects.create(
+        report=balanz_published_report, influencer_handle="@low", clicks=10, app_downloads=2,
+    )
+    OneLinkAttribution.objects.create(
+        report=balanz_published_report, influencer_handle="@high", clicks=100, app_downloads=50,
+    )
+    handles = list(
+        OneLinkAttribution.objects.filter(report=balanz_published_report)
+        .values_list("influencer_handle", flat=True)
+    )
+    assert handles == ["@high", "@low"]

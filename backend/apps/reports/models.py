@@ -132,3 +132,17 @@ class BrandFollowerSnapshot(models.Model):
 
     def __str__(self):
         return f"{self.brand_id}/{self.network} @ {self.as_of}: {self.followers_count}"
+
+
+class OneLinkAttribution(models.Model):
+    report = models.ForeignKey(Report, on_delete=models.CASCADE, related_name="onelink")
+    influencer_handle = models.CharField(max_length=120)
+    clicks = models.PositiveIntegerField(default=0)
+    app_downloads = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["report", "-app_downloads"]
+        indexes = [models.Index(fields=["report"])]
+
+    def __str__(self):
+        return f"{self.report_id} · {self.influencer_handle}: {self.app_downloads}d/{self.clicks}c"
