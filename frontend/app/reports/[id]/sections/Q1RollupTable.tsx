@@ -16,8 +16,8 @@ export default function Q1RollupTable({ report }: { report: ReportDto }) {
         <thead>
           <tr style={{ borderBottom: "2px solid var(--chirri-black)" }}>
             <th scope="col" style={{ textAlign: "left", padding: "10px 12px" }}>Métrica</th>
-            {rollup.months.map((m) => (
-              <th key={m} scope="col" style={{ textAlign: "right", padding: "10px 12px" }}>
+            {rollup.months.map((m, i) => (
+              <th key={i} scope="col" style={{ textAlign: "right", padding: "10px 12px" }}>
                 {m}
               </th>
             ))}
