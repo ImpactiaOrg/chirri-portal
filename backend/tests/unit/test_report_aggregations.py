@@ -2,8 +2,12 @@ from datetime import date
 
 import pytest
 
-from apps.reports.models import Report, ReportMetric
-from apps.reports.services.aggregations import build_q1_rollup, build_yoy
+from apps.reports.models import BrandFollowerSnapshot, Report, ReportMetric
+from apps.reports.services.aggregations import (
+    build_follower_snapshots,
+    build_q1_rollup,
+    build_yoy,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -80,3 +84,30 @@ def test_build_yoy_finds_prior_year_report(balanz_stage):
 
 def test_build_yoy_without_prior_returns_none(balanz_published_report):
     assert build_yoy(balanz_published_report) is None
+
+
+def test_follower_snapshots_grouped_by_network(balanz_brand, balanz_stage):
+    r = Report.objects.create(
+        stage=balanz_stage,
+        kind=Report.Kind.MENSUAL,
+        period_start=date(2026, 3, 1),
+        period_end=date(2026, 3, 31),
+        status=Report.Status.PUBLISHED,
+    )
+    for m, c in [(1, 100000), (2, 104568), (3, 107072)]:
+        BrandFollowerSnapshot.objects.create(
+            brand=balanz_brand,
+            network=ReportMetric.Network.INSTAGRAM,
+            as_of=date(2026, m, 28),
+            followers_count=c,
+        )
+    BrandFollowerSnapshot.objects.create(
+        brand=balanz_brand,
+        network=ReportMetric.Network.TIKTOK,
+        as_of=date(2026, 3, 28),
+        followers_count=50000,
+    )
+    snaps = build_follower_snapshots(r)
+    assert len(snaps["INSTAGRAM"]) == 3
+    assert snaps["INSTAGRAM"][-1]["count"] == 107072
+    assert len(snaps["TIKTOK"]) == 1

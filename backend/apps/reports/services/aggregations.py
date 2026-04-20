@@ -101,3 +101,23 @@ def build_yoy(report: Report) -> list[dict[str, Any]] | None:
             "year_ago": float(match.value),
         })
     return rows or None
+
+
+def build_follower_snapshots(report: Report) -> dict[str, list[dict[str, Any]]]:
+    lo = report.period_start - timedelta(days=90)
+    hi = report.period_end
+    brand_id = report.stage.campaign.brand_id
+
+    result: dict[str, list[dict[str, Any]]] = {}
+    qs = (
+        BrandFollowerSnapshot.objects
+        .filter(brand_id=brand_id, as_of__gte=lo, as_of__lte=hi)
+        .order_by("as_of")
+    )
+    for s in qs:
+        result.setdefault(s.network, []).append({
+            "month": MONTHS_ES[s.as_of.month - 1],
+            "as_of": s.as_of.isoformat(),
+            "count": s.followers_count,
+        })
+    return result
