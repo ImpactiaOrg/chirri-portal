@@ -15,17 +15,19 @@ import sys
 import textwrap
 
 
-def _run_with_env(env: dict[str, str]) -> subprocess.CompletedProcess[str]:
-    script = textwrap.dedent(
-        """
+def _run_with_env(
+    env: dict[str, str],
+    script: str = 'from config.settings import production; print("OK")',
+) -> subprocess.CompletedProcess[str]:
+    full = textwrap.dedent(
+        f"""
         import django
         django.setup = lambda: None
-        from config.settings import production  # noqa: F401
-        print("OK")
+        {script}
         """
     )
     return subprocess.run(
-        [sys.executable, "-c", script],
+        [sys.executable, "-c", full],
         env=env,
         capture_output=True,
         text=True,
@@ -49,3 +51,28 @@ def test_production_boots_with_explicit_secret_key():
     result = _run_with_env(env)
     assert result.returncode == 0, result.stderr
     assert result.stdout.strip() == "OK"
+
+
+def test_allowed_hosts_reads_django_allowed_hosts_env(tmp_path, monkeypatch):
+    """Regresión DEV-77: base.py leía 'ALLOWED_HOSTS' (no 'DJANGO_ALLOWED_HOSTS'),
+    así que el valor de .env.example nunca se aplicaba y en prod se caía al
+    default 'localhost,127.0.0.1' — un deploy a chirri.impactia.ai daba
+    DisallowedHost."""
+    env = {
+        **os.environ,
+        "DJANGO_SECRET_KEY": "explicit-prod-key-from-env",
+        "DJANGO_ALLOWED_HOSTS": "chirri.impactia.ai,staging.example.com",
+    }
+    env.pop("ALLOWED_HOSTS", None)
+    result = _run_with_env(
+        env,
+        script=(
+            "from config.settings import production; "
+            "print(','.join(production.ALLOWED_HOSTS))"
+        ),
+    )
+    assert result.returncode == 0, result.stderr
+    hosts = result.stdout.strip()
+    assert "chirri.impactia.ai" in hosts
+    assert "staging.example.com" in hosts
+    assert "localhost" not in hosts
