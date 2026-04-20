@@ -55,6 +55,12 @@ El seed carga el Client Balanz, 3 campañas (1 activa + 2 terminadas), 4 stages,
 
 **Para producción:** cargar Client, Brand, Campaign, Stage y ClientUser desde `/admin`.
 
+### Rutas del portal
+- `/login`, `/home`, `/campaigns`, `/campaigns/[id]`, `/reports/[id]`
+
+### Env vars nuevas (R2)
+Ver `docs/ENV.md`. En dev dejá `USE_R2` unset — se usa filesystem local.
+
 ### Endpoints de auth
 
 - `POST /api/auth/login/` → `{ access, refresh, user }`
@@ -81,6 +87,11 @@ cd frontend && npm run typecheck && npm run build
 ```
 
 CI corre ambos en cada push/PR a `main` y `development` (`.github/workflows/test.yml`).
+
+## Rollback
+1. `git revert <bad-sha>` o `git reset --hard <good-sha>` en `development`.
+2. Push — `deploy.yml` redespliega la imagen previa (pineada por SHA, no `:latest`).
+3. Si hay que rollback de migración: `docker compose exec backend python manage.py migrate reports <prev>`. Las migraciones DEV-52 son aditivas (campos/modelos nuevos); el rollback no pierde datos de columnas existentes.
 
 ## Documentación
 
