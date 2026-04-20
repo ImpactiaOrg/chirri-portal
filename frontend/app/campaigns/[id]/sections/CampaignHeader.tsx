@@ -1,15 +1,7 @@
 import Link from "next/link";
 import type { CampaignDetailDto } from "@/lib/api";
 import { formatPeriod } from "@/lib/format";
-
-const STATUS_PILL: Record<
-  CampaignDetailDto["status"],
-  { label: string; className: string }
-> = {
-  ACTIVE: { label: "ACTIVA", className: "status status-approved" },
-  FINISHED: { label: "TERMINADA", className: "status status-archived" },
-  PAUSED: { label: "PAUSADA", className: "status status-paused" },
-};
+import { statusPillFor } from "@/lib/campaign-view";
 
 type Props = {
   campaign: CampaignDetailDto;
@@ -22,7 +14,7 @@ export default function CampaignHeader({ campaign, clientName }: Props) {
     campaign.end_date,
     campaign.is_ongoing_operation,
   );
-  const pill = STATUS_PILL[campaign.status];
+  const pill = statusPillFor(campaign);
 
   return (
     <header style={{ marginBottom: 40 }}>
@@ -32,18 +24,7 @@ export default function CampaignHeader({ campaign, clientName }: Props) {
           campañas
         </Link>
       </nav>
-      <h1
-        className="font-display"
-        style={{
-          fontSize: 96,
-          lineHeight: 0.9,
-          letterSpacing: "-0.03em",
-          margin: "8px 0 0",
-          textTransform: "lowercase",
-        }}
-      >
-        {campaign.name.toLowerCase()}
-      </h1>
+      <h1 className="display-xl">{campaign.name.toLowerCase()}</h1>
       <div style={{ display: "flex", gap: 14, alignItems: "center", marginTop: 14 }}>
         <span className={pill.className} aria-label={`Estado: ${pill.label.toLowerCase()}`}>
           ● {pill.label}

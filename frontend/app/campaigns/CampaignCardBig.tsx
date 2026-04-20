@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { CampaignDto } from "@/lib/api";
 import { formatPeriod, formatReportDate } from "@/lib/format";
+import { statusPillFor } from "@/lib/campaign-view";
 
 const PALETTE = [
   "var(--chirri-mint)",
@@ -24,6 +25,7 @@ export default function CampaignCardBig({ campaign, colorIndex }: Props) {
   const lastReport = campaign.last_published_at
     ? formatReportDate(campaign.last_published_at)
     : null;
+  const pill = statusPillFor(campaign);
 
   return (
     <Link
@@ -45,7 +47,12 @@ export default function CampaignCardBig({ campaign, colorIndex }: Props) {
     >
       <div style={{ position: "relative" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-          <span className="status status-approved">● ACTIVA</span>
+          <span
+            className={pill.className}
+            aria-label={`Estado: ${pill.label.toLowerCase()}`}
+          >
+            ● {pill.label}
+          </span>
           <span style={{ fontSize: 12, fontWeight: 700 }}>{period}</span>
         </div>
         <h2

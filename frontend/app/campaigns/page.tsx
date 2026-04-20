@@ -37,18 +37,7 @@ export default async function CampaignsPage() {
           <div className="eyebrow">
             Chirri Portal · {user.client?.name ?? "—"}
           </div>
-          <h1
-            className="font-display"
-            style={{
-              fontSize: 96,
-              lineHeight: 0.9,
-              letterSpacing: "-0.03em",
-              margin: "8px 0 0",
-              textTransform: "lowercase",
-            }}
-          >
-            campañas.
-          </h1>
+          <h1 className="display-xl">campañas.</h1>
           <p
             style={{
               fontSize: 16,
