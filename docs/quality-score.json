@@ -1,11 +1,13 @@
 {
   "last_scan": "2026-04-20",
   "overall_grade": "B",
-  "previous_grade": null,
-  "trending": null,
+  "previous_grade": "B",
+  "trending": "=",
   "scanned_domains": [
     "backend/apps/campaigns",
-    "frontend/app/campaigns"
+    "frontend/app/campaigns",
+    "backend/apps/reports",
+    "frontend/app/reports"
   ],
   "domains": {
     "backend/apps/campaigns": {
@@ -39,6 +41,38 @@
       "hygiene": "A",
       "ci_cd": "B",
       "overall": "B"
+    },
+    "backend/apps/reports": {
+      "tests": "A",
+      "dry": "A",
+      "boundaries": "A",
+      "docs_complexity": "A",
+      "principles": "A",
+      "patterns": "A",
+      "security": "A",
+      "git_health": "A",
+      "testability": "A",
+      "observability": "B",
+      "frontend": null,
+      "hygiene": "A",
+      "ci_cd": "B",
+      "overall": "B"
+    },
+    "frontend/app/reports": {
+      "tests": "A",
+      "dry": "C",
+      "boundaries": "A",
+      "docs_complexity": "A",
+      "principles": "A",
+      "patterns": "A",
+      "security": "A",
+      "git_health": "A",
+      "testability": "A",
+      "observability": "B",
+      "frontend": "C",
+      "hygiene": "A",
+      "ci_cd": "B",
+      "overall": "B"
     }
   },
   "tech_debt": {
@@ -48,6 +82,7 @@
     "total": 0
   },
   "history": [
-    {"date": "2026-04-20", "overall": "B", "trend": null}
+    {"date": "2026-04-20", "overall": "B", "trend": null, "note": "first scan, campaigns only"},
+    {"date": "2026-04-20", "overall": "B", "trend": "=", "note": "reports domain added"}
   ]
 }
