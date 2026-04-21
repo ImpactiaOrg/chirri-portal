@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .models import (
-    Report, ReportMetric,
+    Report, ReportMetric, ReportBlock,
     TopContent, OneLinkAttribution,
 )
 from .services.aggregations import (
@@ -35,6 +35,17 @@ class OneLinkAttributionSerializer(serializers.ModelSerializer):
         fields = ("influencer_handle", "clicks", "app_downloads")
 
 
+class ReportBlockSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ReportBlock
+        fields = ("id", "type", "order", "config", "image_url")
+
+    def get_image_url(self, obj) -> str | None:
+        return obj.image.url if obj.image else None
+
+
 class ReportDetailSerializer(serializers.ModelSerializer):
     stage_name = serializers.CharField(source="stage.name", read_only=True)
     stage_id = serializers.IntegerField(source="stage.id", read_only=True)
@@ -48,6 +59,8 @@ class ReportDetailSerializer(serializers.ModelSerializer):
     follower_snapshots = serializers.SerializerMethodField()
     q1_rollup = serializers.SerializerMethodField()
     yoy = serializers.SerializerMethodField()
+    blocks = ReportBlockSerializer(many=True, read_only=True)
+    original_pdf_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Report
@@ -59,6 +72,7 @@ class ReportDetailSerializer(serializers.ModelSerializer):
             "campaign_id", "campaign_name", "brand_name",
             "metrics", "top_content", "onelink",
             "follower_snapshots", "q1_rollup", "yoy",
+            "blocks", "original_pdf_url",
         )
 
     def get_follower_snapshots(self, obj):
@@ -69,3 +83,6 @@ class ReportDetailSerializer(serializers.ModelSerializer):
 
     def get_yoy(self, obj):
         return build_yoy(obj)
+
+    def get_original_pdf_url(self, obj) -> str | None:
+        return obj.original_pdf.url if obj.original_pdf else None
