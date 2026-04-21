@@ -84,8 +84,8 @@ function renderQ1(report: ReportDto) {
       <thead>
         <tr>
           <th scope="col" style={{ textAlign: "left", padding: "8px 12px" }}>Métrica</th>
-          {q.months.map((m) => (
-            <th key={m} scope="col" style={{ textAlign: "right", padding: "8px 12px" }}>{m}</th>
+          {q.months.map((m, i) => (
+            <th key={i} scope="col" style={{ textAlign: "right", padding: "8px 12px" }}>{m}</th>
           ))}
         </tr>
       </thead>
