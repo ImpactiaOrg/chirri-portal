@@ -47,6 +47,9 @@ def validate_kpi_grid_config(config: dict) -> None:
             ]})
 
 
+ALLOWED_METRICS_TABLE_FILTER_KEYS = {"network", "source_type", "has_comparison"}
+
+
 def validate_metrics_table_config(config: dict) -> None:
     source = config.get("source")
     if source not in ALLOWED_METRICS_SOURCES:
@@ -56,12 +59,24 @@ def validate_metrics_table_config(config: dict) -> None:
     flt = config.get("filter", {})
     if not isinstance(flt, dict):
         raise ValidationError({"config": ["filter debe ser objeto"]})
+    unknown = set(flt.keys()) - ALLOWED_METRICS_TABLE_FILTER_KEYS
+    if unknown:
+        raise ValidationError({"config": [
+            f"filter keys desconocidas: {sorted(unknown)}"
+        ]})
     network = flt.get("network")
     if network is not None and network not in ALLOWED_NETWORKS:
         raise ValidationError({"config": [f"network desconocido: {network}"]})
     stype = flt.get("source_type")
     if stype is not None and stype not in ALLOWED_SOURCE_TYPES:
         raise ValidationError({"config": [f"source_type desconocido: {stype}"]})
+    has_comparison = flt.get("has_comparison")
+    # Allow None (absent/null) or bool. Reject strings like "yes" that would
+    # otherwise be truthy in the frontend.
+    if has_comparison is not None and not isinstance(has_comparison, bool):
+        raise ValidationError({"config": [
+            "filter.has_comparison debe ser boolean"
+        ]})
 
 
 def validate_top_content_config(config: dict) -> None:

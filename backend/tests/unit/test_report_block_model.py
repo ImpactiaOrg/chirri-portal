@@ -1,6 +1,5 @@
 import pytest
 from django.core.exceptions import ValidationError
-from django.db.utils import IntegrityError
 
 from apps.reports.models import Report, ReportBlock
 
@@ -19,11 +18,16 @@ def test_create_report_block(balanz_published_report):
 
 
 def test_unique_order_per_report(balanz_published_report):
+    # save() now calls full_clean() (see ReportBlock.save), which surfaces
+    # the UniqueConstraint violation as a ValidationError at the Python
+    # layer before hitting the DB IntegrityError. This is the intended
+    # behavior — Django validates unique_together / UniqueConstraint inside
+    # Model.validate_unique, which full_clean() runs.
     ReportBlock.objects.create(
         report=balanz_published_report, type="KPI_GRID", order=1,
         config={"tiles": [{"label": "R", "source": "reach_total"}]},
     )
-    with pytest.raises(IntegrityError):
+    with pytest.raises(ValidationError):
         ReportBlock.objects.create(
             report=balanz_published_report, type="KPI_GRID", order=1,
             config={"tiles": [{"label": "R", "source": "reach_total"}]},

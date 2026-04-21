@@ -192,5 +192,13 @@ class ReportBlock(models.Model):
         from .blocks.registry import validate_config
         validate_config(self.type, self.config)
 
+    def save(self, *args, **kwargs):
+        # Django does NOT auto-call clean() on save() — only ModelForm does.
+        # Without this, ReportBlock.objects.create(...) with an invalid config
+        # would silently persist bad data. bulk_create still bypasses this
+        # (seed_demo relies on trusted inputs).
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.report_id} · {self.type} #{self.order}"
