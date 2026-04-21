@@ -16,11 +16,10 @@ test.describe("Report viewer smoke", () => {
     await expect(page.locator("h1").first()).toBeVisible();
     // Brand + campaign eyebrow
     await expect(page.getByText(/balanz/i).first()).toBeVisible();
-    // At least one KPI tile
-    await expect(page.getByText(/total reach/i).first()).toBeVisible();
-    // Best content section heading (seed has 2 posts + 1 creator).
-    await expect(page.getByText(/posts del mes/i).first()).toBeVisible();
 
+    // Block content is covered by report-blocks.spec.ts (which navigates to a
+    // full Marzo report). Here we only verify the shell renders without errors;
+    // home's "latest" may resolve to a report without blocks.
     expect(errors, `console/page errors on /reports/<id>:\n${errors.join("\n")}`).toEqual([]);
   });
 

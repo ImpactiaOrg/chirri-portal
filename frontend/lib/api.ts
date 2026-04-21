@@ -159,6 +159,22 @@ export type YoyRowDto = {
   year_ago: number;
 };
 
+export type ReportBlockType =
+  | "TEXT_IMAGE"
+  | "KPI_GRID"
+  | "METRICS_TABLE"
+  | "TOP_CONTENT"
+  | "ATTRIBUTION_TABLE"
+  | "CHART";
+
+export type ReportBlockDto = {
+  id: number;
+  type: ReportBlockType;
+  order: number;
+  config: Record<string, unknown>;
+  image_url: string | null;
+};
+
 export type ReportDto = {
   id: number;
   kind: "INFLUENCER" | "GENERAL" | "QUINCENAL" | "MENSUAL" | "CIERRE_ETAPA";
@@ -181,6 +197,8 @@ export type ReportDto = {
   follower_snapshots: Record<string, FollowerSnapshotPoint[]>;
   q1_rollup: Q1RollupDto | null;
   yoy: YoyRowDto[] | null;
+  blocks: ReportBlockDto[];
+  original_pdf_url: string | null;
 };
 
 export type PagedResponse<T> = { count: number; next: string | null; previous: string | null; results: T[] };

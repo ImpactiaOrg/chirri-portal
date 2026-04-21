@@ -13,6 +13,7 @@ DEBUG = False
 ALLOWED_HOSTS = [h.strip() for h in os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")]
 
 INSTALLED_APPS = [
+    "adminsortable2",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

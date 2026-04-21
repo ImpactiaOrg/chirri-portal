@@ -17,3 +17,22 @@ def validate_image_mimetype(file) -> None:
         raise ValidationError(
             f"Formato no permitido ({mimetype}). Use JPEG, PNG o WebP."
         )
+
+
+MAX_PDF_SIZE_BYTES = 20 * 1024 * 1024
+ALLOWED_PDF_MIMETYPES = {"application/pdf"}
+
+
+def validate_pdf_size(file) -> None:
+    if file.size > MAX_PDF_SIZE_BYTES:
+        raise ValidationError(
+            f"El PDF excede el tamaño máximo de {MAX_PDF_SIZE_BYTES // (1024 * 1024)} MB."
+        )
+
+
+def validate_pdf_mimetype(file) -> None:
+    mimetype = getattr(file, "content_type", None)
+    if mimetype not in ALLOWED_PDF_MIMETYPES:
+        raise ValidationError(
+            f"Formato no permitido ({mimetype}). Solo se aceptan PDFs."
+        )

@@ -20,6 +20,24 @@ export default function HeaderSection({ report }: { report: ReportDto }) {
       <p style={{ fontSize: 14, color: "var(--chirri-muted)", marginTop: 8 }}>
         Etapa: {report.stage_name} · Publicado: {formatReportDate(report.published_at)}
       </p>
+      {report.original_pdf_url && (
+        <a
+          href={report.original_pdf_url}
+          download
+          aria-label="Descargar PDF original"
+          style={{
+            display: "inline-block",
+            marginTop: 12,
+            padding: "8px 16px",
+            border: "1px solid var(--chirri-black)",
+            borderRadius: 999,
+            fontSize: 14,
+            textDecoration: "none",
+          }}
+        >
+          Descargar PDF
+        </a>
+      )}
     </section>
   );
 }

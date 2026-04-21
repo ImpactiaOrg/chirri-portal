@@ -71,6 +71,28 @@ Ver `docs/ENV.md`. En dev dejá `USE_R2` unset — se usa filesystem local.
 - `POST /api/auth/refresh/` → `{ access }`
 - `GET  /api/auth/me/` → usuario + cliente + brands
 
+## Reportes
+
+Cada `Report` tiene una base fija (título, período, intro, conclusiones, `original_pdf` opcional)
+y una lista ordenada de `ReportBlock`. Los bloques definen qué se muestra y en qué orden; la data
+viene del `Report` agregado. Tipos soportados en fase 1:
+
+| Tipo               | Cuándo usarlo                                              |
+|--------------------|------------------------------------------------------------|
+| `TEXT_IMAGE`       | Bloque narrativo con título, texto multi-columna e imagen. |
+| `KPI_GRID`         | Tarjetas de KPIs (reach total / orgánico / influencer).    |
+| `METRICS_TABLE`    | Tabla filtrable de métricas, YoY o Q1 rollup.              |
+| `TOP_CONTENT`      | Grid de mejores posts o creators.                          |
+| `ATTRIBUTION_TABLE`| Tabla de OneLink (clicks + descargas por influencer).      |
+| `CHART`            | Bar chart de follower snapshots por red.                   |
+
+Los bloques se crean desde Django admin (reordenables con drag-drop) o vía `seed_demo`.
+Tras mergear DEV-105 en prod, correr una vez:
+
+    docker compose exec backend python manage.py seed_demo --wipe
+
+para regenerar los reportes demo con bloques.
+
 ## Deploy
 
 Push a `development` dispara `.github/workflows/deploy.yml` que se conecta por SSH a Hetzner y corre `docker compose -f docker-compose.prod.yml up -d --build` + migraciones + collectstatic.

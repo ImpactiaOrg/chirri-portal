@@ -62,7 +62,7 @@ class ReportDetailView(RetrieveAPIView):
                 status=Report.Status.PUBLISHED,
             )
             .select_related("stage", "stage__campaign", "stage__campaign__brand")
-            .prefetch_related("metrics", "top_content", "onelink")
+            .prefetch_related("metrics", "top_content", "onelink", "blocks")
         )
 
     def get_object(self):

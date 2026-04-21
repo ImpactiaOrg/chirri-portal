@@ -19,6 +19,7 @@ from apps.reports.models import (
     BrandFollowerSnapshot,
     OneLinkAttribution,
     Report,
+    ReportBlock,
     ReportMetric,
     TopContent,
 )
@@ -348,6 +349,14 @@ class Command(BaseCommand):
                     period_comparison=delta,
                 )
 
+            if (
+                kind == Report.Kind.GENERAL
+                and stage.kind in {Stage.Kind.EDUCATION, Stage.Kind.VALIDATION}
+                and start.month == 3
+            ):
+                report.blocks.all().delete()
+                _seed_blocks_for_full_report(report)
+
     def _seed_report_viewer_fixtures(self, brand: Brand) -> None:
         """Populate the Report Viewer fixtures (TopContent, OneLink, FollowerSnapshots).
 
@@ -429,3 +438,50 @@ class Command(BaseCommand):
                 as_of=date(latest.period_start.year, month, 28),
                 defaults={"followers_count": count},
             )
+
+
+def _seed_blocks_for_full_report(report):
+    ReportBlock.objects.bulk_create([
+        ReportBlock(report=report, order=1, type=ReportBlock.Type.KPI_GRID, config={
+            "tiles": [
+                {"label": "Reach total", "source": "reach_total"},
+                {"label": "Reach orgánico", "source": "reach_organic"},
+                {"label": "Reach influencer", "source": "reach_influencer"},
+            ],
+        }),
+        ReportBlock(report=report, order=2, type=ReportBlock.Type.METRICS_TABLE, config={
+            "title": "Mes a mes", "source": "metrics",
+            "filter": {"has_comparison": True},
+        }),
+        ReportBlock(report=report, order=3, type=ReportBlock.Type.METRICS_TABLE, config={
+            "title": "Year over year", "source": "yoy", "filter": {},
+        }),
+        ReportBlock(report=report, order=4, type=ReportBlock.Type.METRICS_TABLE, config={
+            "title": "Instagram", "source": "metrics",
+            "filter": {"network": "INSTAGRAM"},
+        }),
+        ReportBlock(report=report, order=5, type=ReportBlock.Type.METRICS_TABLE, config={
+            "title": "TikTok", "source": "metrics",
+            "filter": {"network": "TIKTOK"},
+        }),
+        ReportBlock(report=report, order=6, type=ReportBlock.Type.METRICS_TABLE, config={
+            "title": "X / Twitter", "source": "metrics",
+            "filter": {"network": "X"},
+        }),
+        ReportBlock(report=report, order=7, type=ReportBlock.Type.TOP_CONTENT, config={
+            "title": "Posts del mes", "kind": "POST", "limit": 6,
+        }),
+        ReportBlock(report=report, order=8, type=ReportBlock.Type.TOP_CONTENT, config={
+            "title": "Creators del mes", "kind": "CREATOR", "limit": 6,
+        }),
+        ReportBlock(report=report, order=9, type=ReportBlock.Type.ATTRIBUTION_TABLE, config={
+            "show_total": True,
+        }),
+        ReportBlock(report=report, order=10, type=ReportBlock.Type.CHART, config={
+            "title": "Followers", "source": "follower_snapshots",
+            "group_by": "network", "chart_type": "bar",
+        }),
+        ReportBlock(report=report, order=11, type=ReportBlock.Type.METRICS_TABLE, config={
+            "title": "Q1 rollup", "source": "q1_rollup", "filter": {},
+        }),
+    ])

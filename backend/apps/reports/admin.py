@@ -1,7 +1,8 @@
+from adminsortable2.admin import SortableAdminBase, SortableInlineAdminMixin
 from django.contrib import admin
 
 from .models import (
-    Report, ReportMetric,
+    Report, ReportMetric, ReportBlock,
     TopContent, BrandFollowerSnapshot, OneLinkAttribution,
 )
 
@@ -11,12 +12,45 @@ class ReportMetricInline(admin.TabularInline):
     extra = 0
 
 
+class TopContentInline(admin.StackedInline):
+    model = TopContent
+    extra = 0
+    fields = ("kind", "network", "source_type", "rank", "handle", "caption", "thumbnail", "post_url", "metrics")
+
+
+class OneLinkAttributionInline(admin.TabularInline):
+    model = OneLinkAttribution
+    extra = 0
+
+
+class ReportBlockInline(SortableInlineAdminMixin, admin.StackedInline):
+    model = ReportBlock
+    extra = 0
+    fields = ("type", "config", "image")
+    # order es gestionado por SortableInlineAdminMixin automáticamente
+
+
 @admin.register(Report)
-class ReportAdmin(admin.ModelAdmin):
+class ReportAdmin(SortableAdminBase, admin.ModelAdmin):
     list_display = ("display_title", "stage", "kind", "period_start", "period_end", "status", "published_at")
     list_filter = ("status", "kind", "stage__campaign__brand")
     search_fields = ("title", "stage__name", "stage__campaign__name")
-    inlines = [ReportMetricInline]
+    inlines = [
+        ReportMetricInline,
+        TopContentInline,
+        OneLinkAttributionInline,
+        ReportBlockInline,
+    ]
+    fieldsets = (
+        (None, {
+            "fields": (
+                "stage", "kind", "period_start", "period_end",
+                "title", "status", "published_at",
+                "intro_text", "conclusions_text",
+                "original_pdf",
+            ),
+        }),
+    )
     actions = ["publish_reports"]
 
     @admin.action(description="Publicar reportes seleccionados")
