@@ -52,3 +52,24 @@ def test_metrics_table_rejects_has_comparison_non_bool():
             "source": "metrics",
             "filter": {"has_comparison": "yes"},
         })
+
+
+def test_text_image_accepts_image_alt_string():
+    """TEXT_IMAGE must whitelist an optional `image_alt` string so editorial
+    images can carry accessible alt text instead of the empty-alt decorative
+    contract. Flagged in PR review for DEV-105."""
+    validate_config("TEXT_IMAGE", {
+        "columns": 1,
+        "image_position": "top",
+        "image_alt": "A screenshot of the dashboard",
+    })
+
+
+def test_text_image_rejects_non_string_image_alt():
+    """`image_alt` must be a string when present — reject ints, dicts, etc."""
+    with pytest.raises(ValidationError):
+        validate_config("TEXT_IMAGE", {
+            "columns": 1,
+            "image_position": "top",
+            "image_alt": 42,
+        })

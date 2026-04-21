@@ -5,6 +5,7 @@ type TextImageConfig = {
   text?: string;
   columns: 1 | 2 | 3;
   image_position: "left" | "right" | "top";
+  image_alt?: string;
 };
 
 export default function TextImageBlock({ block }: { block: ReportBlockDto }) {
@@ -41,7 +42,7 @@ export default function TextImageBlock({ block }: { block: ReportBlockDto }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={block.image_url!}
-            alt=""
+            alt={cfg.image_alt ?? cfg.title ?? ""}
             style={{ maxWidth: hasText ? "50%" : "100%", borderRadius: 8 }}
           />
         )}

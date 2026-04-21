@@ -1,12 +1,5 @@
 import type { Network, ReportDto, ReportMetricDto, SourceType } from "./api";
 
-export function metricsByNetwork(
-  report: ReportDto,
-  network: Network,
-): ReportMetricDto[] {
-  return report.metrics.filter((m) => m.network === network);
-}
-
 export function metricsBySource(
   report: ReportDto,
   network: Network,

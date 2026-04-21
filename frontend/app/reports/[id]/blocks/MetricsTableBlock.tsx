@@ -20,7 +20,7 @@ function renderMetricsRows(report: ReportDto, filter: Filter) {
   const rows = report.metrics.filter((m) => {
     if (filter.network && m.network !== filter.network) return false;
     if (filter.source_type && m.source_type !== filter.source_type) return false;
-    if (filter.has_comparison && m.period_comparison === null) return false;
+    if (filter.has_comparison === true && m.period_comparison === null) return false;
     return true;
   });
   if (rows.length === 0) return null;

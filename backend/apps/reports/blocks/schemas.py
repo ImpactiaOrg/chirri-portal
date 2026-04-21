@@ -30,6 +30,9 @@ def validate_text_image_config(config: dict) -> None:
         raise ValidationError({"config": [
             f"image_position debe ser una de {sorted(ALLOWED_IMAGE_POSITIONS)}"
         ]})
+    image_alt = config.get("image_alt")
+    if image_alt is not None and not isinstance(image_alt, str):
+        raise ValidationError({"config": ["image_alt debe ser string"]})
 
 
 def validate_kpi_grid_config(config: dict) -> None:
@@ -83,7 +86,7 @@ def validate_top_content_config(config: dict) -> None:
     kind = config.get("kind")
     if kind not in ALLOWED_TOP_CONTENT_KINDS:
         raise ValidationError({"config": [
-            f"kind debe ser POST o CREATOR"
+            "kind debe ser POST o CREATOR"
         ]})
     lim = config.get("limit", 6)
     if not isinstance(lim, int) or lim < 1 or lim > 20:
