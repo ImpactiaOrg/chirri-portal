@@ -78,7 +78,10 @@ export default async function HomePage() {
             </p>
           </div>
           {latest?.conclusions_text && (
-            <div className="chirri-note" style={{ maxWidth: 360 }}>
+            <div
+              className="chirri-note"
+              style={{ maxWidth: 360, background: "var(--chirri-mint)" }}
+            >
               {latest.conclusions_text}
               <span className="sig">— CHIRRI</span>
             </div>
