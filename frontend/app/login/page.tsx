@@ -1,10 +1,13 @@
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import { getCurrentUser } from "@/lib/auth";
 import LoginForm from "./login-form";
 
-export default function LoginPage() {
-  const token = cookies().get("chirri_access")?.value;
-  if (token) redirect("/home");
+export default async function LoginPage() {
+  // Validate the user actually exists, not just that a cookie is present.
+  // A leftover token pointing to a wiped user would otherwise redirect
+  // to /home which redirects back → infinite loop. Seen after seed_demo --wipe.
+  const user = await getCurrentUser();
+  if (user) redirect("/home");
 
   return (
     <div className="login-stage">
