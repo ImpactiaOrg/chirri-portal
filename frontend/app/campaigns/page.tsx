@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { apiFetch, type CampaignDto, type PagedResponse } from "@/lib/api";
 import { getAccessToken, getCurrentUser } from "@/lib/auth";
 import TopBar from "@/components/top-bar";
+import Breadcrumb from "@/components/breadcrumb";
+import { campaignsListCrumbs } from "@/lib/breadcrumbs";
 import CampaignCardBig from "./CampaignCardBig";
 import CampaignRowArchived from "./CampaignRowArchived";
 
@@ -32,11 +34,9 @@ export default async function CampaignsPage() {
   return (
     <>
       <TopBar user={user} active="campaigns" />
+      <Breadcrumb crumbs={campaignsListCrumbs(user)} />
       <main className="page page-wide" style={{ background: "var(--chirri-pink)" }}>
         <section style={{ marginBottom: 40 }}>
-          <div className="eyebrow">
-            Chirri Portal · {user.client?.name ?? "—"}
-          </div>
           <h1 className="display-xl">campañas.</h1>
           <p
             style={{
@@ -53,7 +53,7 @@ export default async function CampaignsPage() {
 
         <section style={{ marginBottom: 48 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
-            <span className="pill pill-mint">ACTIVAS · {active.length}</span>
+            <span className="pill-title mint">ACTIVAS · {active.length}</span>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {active.map((c, i) => (
@@ -70,7 +70,7 @@ export default async function CampaignsPage() {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
-            <span className="pill pill-white">ARCHIVO · {archived.length}</span>
+            <span className="pill-title white">ARCHIVO · {archived.length}</span>
             <span style={{ fontSize: 12, fontWeight: 600, color: "var(--chirri-muted)" }}>
               Campañas terminadas
             </span>

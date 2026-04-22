@@ -2,9 +2,12 @@ import { notFound, redirect } from "next/navigation";
 import { apiFetch, ApiError, type CampaignDetailDto } from "@/lib/api";
 import { getAccessToken, getCurrentUser } from "@/lib/auth";
 import TopBar from "@/components/top-bar";
+import Breadcrumb from "@/components/breadcrumb";
+import { campaignDetailCrumbs } from "@/lib/breadcrumbs";
 
 import CampaignHeader from "./sections/CampaignHeader";
 import StagesTimeline from "./sections/StagesTimeline";
+import StagesTracker from "./sections/StagesTracker";
 
 export default async function CampaignDetailPage({
   params,
@@ -27,8 +30,13 @@ export default async function CampaignDetailPage({
   return (
     <>
       <TopBar user={user} active="campaigns" />
-      <main className="page page-wide" style={{ background: "var(--chirri-pink)" }}>
-        <CampaignHeader campaign={campaign} clientName={user.client?.name ?? "—"} />
+      <Breadcrumb crumbs={campaignDetailCrumbs(user, campaign.brand_name, campaign.name)} />
+      <main
+        className="page page-wide"
+        style={{ background: "var(--chirri-yellow)", minHeight: "100vh" }}
+      >
+        <CampaignHeader campaign={campaign} />
+        <StagesTracker stages={campaign.stages_with_reports} />
         <StagesTimeline stages={campaign.stages_with_reports} />
       </main>
     </>
