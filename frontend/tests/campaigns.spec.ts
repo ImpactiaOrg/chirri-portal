@@ -21,6 +21,11 @@ test.describe("Campaign detail smoke", () => {
     await expect(page.locator("h3").first()).toBeVisible();
     await expect(page.locator('a[href^="/reports/"]').first()).toBeVisible();
 
+    // "ÚLTIMO" pill marks the single most recent published report in the campaign.
+    // Expect exactly one when the campaign has at least one report row.
+    const latestPill = page.getByText("ÚLTIMO", { exact: true });
+    await expect(latestPill).toHaveCount(1);
+
     expect(
       errors,
       `console/page errors on /campaigns/<id>:\n${errors.join("\n")}`,

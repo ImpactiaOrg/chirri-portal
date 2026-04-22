@@ -1,6 +1,6 @@
 import logging
 
-from django.db.models import Count, Max, Prefetch, Q
+from django.db.models import Count, Max, Prefetch, Q, Sum
 from django.http import Http404
 from rest_framework import permissions, viewsets
 from rest_framework.exceptions import NotFound
@@ -30,6 +30,12 @@ class CampaignViewSet(viewsets.ReadOnlyModelViewSet):
             published_reports = (
                 Report.objects
                 .filter(status=Report.Status.PUBLISHED)
+                .annotate(
+                    reach_total=Sum(
+                        "metrics__value",
+                        filter=Q(metrics__metric_name="reach"),
+                    ),
+                )
                 .order_by("-published_at")
             )
             stages_qs = Stage.objects.prefetch_related(
@@ -43,11 +49,28 @@ class CampaignViewSet(viewsets.ReadOnlyModelViewSet):
             )
 
         published = Q(stages__reports__status=Report.Status.PUBLISHED)
+        # Para el cálculo de reach_total per-campaign (serializer lo computa en
+        # Python sumando stages), prefetcheamos los reportes publicados con el
+        # mismo annotate que usa el detail. Sin esto sería N+1 al acceder a
+        # stage.reports.all() en el serializer.
+        published_reports = (
+            Report.objects
+            .filter(status=Report.Status.PUBLISHED)
+            .annotate(
+                reach_total=Sum(
+                    "metrics__value",
+                    filter=Q(metrics__metric_name="reach"),
+                ),
+            )
+        )
+        stages_qs = Stage.objects.prefetch_related(
+            Prefetch("reports", queryset=published_reports)
+        )
         return (
             Campaign.objects
             .filter(brand__client_id=client_id)
             .select_related("brand")
-            .prefetch_related("stages")
+            .prefetch_related(Prefetch("stages", queryset=stages_qs))
             .annotate(
                 _stage_count=Count("stages", distinct=True),
                 _published_count=Count("stages__reports", filter=published, distinct=True),

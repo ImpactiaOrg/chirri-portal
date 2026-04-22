@@ -1,6 +1,17 @@
 import type { StageWithReportsDto } from "@/lib/api";
 import StageBlock from "./StageBlock";
 
+function pickLatestReportId(stages: StageWithReportsDto[]): number | null {
+  const reports = stages.flatMap((s) => s.reports);
+  if (reports.length === 0) return null;
+  return reports.reduce((best, r) => {
+    const diff = new Date(r.published_at).getTime() - new Date(best.published_at).getTime();
+    if (diff > 0) return r;
+    if (diff === 0 && r.id > best.id) return r;
+    return best;
+  }).id;
+}
+
 export default function StagesTimeline({
   stages,
 }: {
@@ -24,6 +35,8 @@ export default function StagesTimeline({
     );
   }
 
+  const latestReportId = pickLatestReportId(stages);
+  const reversed = [...stages].reverse();
   return (
     <section style={{ marginBottom: 40 }}>
       <ol
@@ -34,8 +47,8 @@ export default function StagesTimeline({
           borderBottom: "2px solid var(--chirri-black)",
         }}
       >
-        {stages.map((stage) => (
-          <StageBlock key={stage.id} stage={stage} />
+        {reversed.map((stage) => (
+          <StageBlock key={stage.id} stage={stage} latestReportId={latestReportId} />
         ))}
       </ol>
     </section>
