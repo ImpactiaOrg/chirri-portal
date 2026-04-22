@@ -42,12 +42,29 @@ def test_validate_image_mimetype_rejects_svg():
         validate_image_mimetype(svg)
 
 
-from apps.reports.models import TopContent, ReportMetric
+def test_validate_image_mimetype_skips_fieldfile_without_content_type():
+    """Regression: saving a TopContent from admin without changing the thumbnail
+    triggered 'Formato no permitido (None)' because FieldFile from storage has
+    no content_type attribute. Validator should no-op in that case."""
+    class _FieldFileLike:
+        pass
+    validate_image_mimetype(_FieldFileLike())
+
+
+from apps.reports.models import TopContent, ReportMetric, ReportBlock
+
+
+def _make_top_content_block(report, kind="POST", order=1):
+    return ReportBlock.objects.create(
+        report=report, order=order, type=ReportBlock.Type.TOP_CONTENT,
+        config={"title": "t", "kind": kind, "limit": 6},
+    )
 
 
 def test_top_content_is_created_with_json_metrics(balanz_published_report):
+    block = _make_top_content_block(balanz_published_report)
     tc = TopContent.objects.create(
-        report=balanz_published_report,
+        block=block,
         kind=TopContent.Kind.POST,
         network=ReportMetric.Network.INSTAGRAM,
         source_type=ReportMetric.SourceType.ORGANIC,
@@ -60,13 +77,14 @@ def test_top_content_is_created_with_json_metrics(balanz_published_report):
 
 
 def test_top_content_orders_by_report_kind_network_rank(balanz_published_report):
+    block = _make_top_content_block(balanz_published_report)
     TopContent.objects.create(
-        report=balanz_published_report, kind=TopContent.Kind.POST,
+        block=block, kind=TopContent.Kind.POST,
         network=ReportMetric.Network.INSTAGRAM, source_type=ReportMetric.SourceType.ORGANIC,
         rank=2, caption="b", metrics={},
     )
     TopContent.objects.create(
-        report=balanz_published_report, kind=TopContent.Kind.POST,
+        block=block, kind=TopContent.Kind.POST,
         network=ReportMetric.Network.INSTAGRAM, source_type=ReportMetric.SourceType.ORGANIC,
         rank=1, caption="a", metrics={},
     )

@@ -8,9 +8,14 @@ pytestmark = pytest.mark.django_db
 
 
 def test_report_detail_avoids_nplus1(authed_balanz, balanz_published_report):
+    # TopContent now lives under a TOP_CONTENT ReportBlock (abr 2026 refactor).
+    top_block = ReportBlock.objects.create(
+        report=balanz_published_report, order=1, type=ReportBlock.Type.TOP_CONTENT,
+        config={"title": "t", "kind": "POST", "limit": 6},
+    )
     for i in range(20):
         TopContent.objects.create(
-            report=balanz_published_report, kind=TopContent.Kind.POST,
+            block=top_block, kind=TopContent.Kind.POST,
             network=ReportMetric.Network.INSTAGRAM,
             source_type=ReportMetric.SourceType.ORGANIC,
             rank=i + 1, caption=f"#{i}", metrics={},
@@ -23,7 +28,7 @@ def test_report_detail_avoids_nplus1(authed_balanz, balanz_published_report):
         )
     for i in range(20):
         ReportBlock.objects.create(
-            report=balanz_published_report, order=i + 1,
+            report=balanz_published_report, order=i + 2,
             type=ReportBlock.Type.KPI_GRID,
             config={"tiles": [{"label": "R", "source": "reach_total"}]},
         )

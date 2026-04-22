@@ -5,7 +5,9 @@ export function hasMetrics(report: ReportDto, network: Network): boolean {
 }
 
 export function hasTopContent(report: ReportDto, kind: "POST" | "CREATOR"): boolean {
-  return report.top_content.some((c) => c.kind === kind);
+  return report.blocks.some(
+    (b) => b.type === "TOP_CONTENT" && (b.items ?? []).some((c) => c.kind === kind),
+  );
 }
 
 export function hasOneLink(report: ReportDto): boolean {

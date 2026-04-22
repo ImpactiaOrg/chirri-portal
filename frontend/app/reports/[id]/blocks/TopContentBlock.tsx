@@ -5,7 +5,6 @@ type TopContentConfig = { title?: string; kind: "POST" | "CREATOR"; limit?: numb
 
 export default function TopContentBlock({
   block,
-  report,
 }: {
   block: ReportBlockDto;
   report: ReportDto;
@@ -16,9 +15,7 @@ export default function TopContentBlock({
     return null;
   }
   const limit = typeof cfg.limit === "number" && cfg.limit > 0 ? cfg.limit : 6;
-  const items: TopContentDto[] = report.top_content
-    .filter((c) => c.kind === cfg.kind)
-    .slice(0, limit);
+  const items: TopContentDto[] = (block.items ?? []).slice(0, limit);
 
   if (items.length === 0) return null;
 

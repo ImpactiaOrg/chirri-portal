@@ -13,10 +13,16 @@ test.describe("Report viewer · blocks", () => {
     await activeSection.getByRole("link").first().click();
     await expect(page).toHaveURL(/\/campaigns\/\d+$/);
 
-    // Open the first "Reporte general · Marzo" report — this is the seeded
-    // full report that carries the 11 block layout. Other reports on this
-    // page are placeholders without blocks.
-    await page
+    // Open the "Reporte general · Marzo" inside the Educación stage. Two
+    // stages seed a report with this exact title (Educación and Validación),
+    // and StagesTimeline renders stages in reverse order — so `first()` on
+    // a page-wide match lands on Validación's, which only has INSTAGRAM
+    // metrics and therefore hides the X/Twitter and TikTok METRICS_TABLE
+    // blocks. We want the Educación one, which carries the full metric set.
+    const educacionStage = page
+      .locator('li[id^="stage-"]')
+      .filter({ has: page.locator("h3", { hasText: /educación/i }) });
+    await educacionStage
       .locator('a[href^="/reports/"]')
       .filter({ hasText: /reporte general · marzo/i })
       .first()

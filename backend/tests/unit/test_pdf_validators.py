@@ -35,3 +35,11 @@ def test_validate_pdf_mimetype_accepts_pdf():
 def test_validate_pdf_mimetype_rejects_non_pdf(bad_type):
     with pytest.raises(ValidationError):
         validate_pdf_mimetype(_pdf_file(10, bad_type))
+
+
+def test_validate_pdf_mimetype_skips_fieldfile_without_content_type():
+    """Regression: re-saving a Report from admin without replacing the PDF
+    would fail mimetype validation because FieldFile has no content_type."""
+    class _FieldFileLike:
+        pass
+    validate_pdf_mimetype(_FieldFileLike())

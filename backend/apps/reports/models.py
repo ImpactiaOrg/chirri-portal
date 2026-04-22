@@ -104,6 +104,12 @@ class TopContent(models.Model):
         CREATOR = "CREATOR", "Creator destacado"
 
     report = models.ForeignKey(Report, on_delete=models.CASCADE, related_name="top_content")
+    block = models.ForeignKey(
+        "ReportBlock",
+        on_delete=models.CASCADE,
+        related_name="items",
+        help_text="Bloque TOP_CONTENT que renderiza este ítem en el viewer.",
+    )
     kind = models.CharField(max_length=16, choices=Kind.choices)
     network = models.CharField(max_length=16, choices=ReportMetric.Network.choices)
     source_type = models.CharField(max_length=16, choices=ReportMetric.SourceType.choices)
@@ -121,6 +127,14 @@ class TopContent(models.Model):
     class Meta:
         ordering = ["report", "kind", "network", "rank"]
         indexes = [models.Index(fields=["report", "kind"])]
+
+    def save(self, *args, **kwargs):
+        # report y block.report siempre viven sincronizados. Esto permite crear
+        # TopContent desde el inline del ReportBlockAdmin sin tener que elegir
+        # report a mano (se deriva del block padre).
+        if self.block_id:
+            self.report_id = self.block.report_id
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.report_id} · {self.kind}/{self.network} #{self.rank}"

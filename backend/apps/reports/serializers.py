@@ -37,10 +37,11 @@ class OneLinkAttributionSerializer(serializers.ModelSerializer):
 
 class ReportBlockSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
+    items = TopContentSerializer(many=True, read_only=True)
 
     class Meta:
         model = ReportBlock
-        fields = ("id", "type", "order", "config", "image_url")
+        fields = ("id", "type", "order", "config", "image_url", "items")
 
     def get_image_url(self, obj) -> str | None:
         return obj.image.url if obj.image else None
@@ -54,7 +55,6 @@ class ReportDetailSerializer(serializers.ModelSerializer):
     brand_name = serializers.CharField(source="stage.campaign.brand.name", read_only=True)
     display_title = serializers.CharField(read_only=True)
     metrics = ReportMetricSerializer(many=True, read_only=True)
-    top_content = TopContentSerializer(many=True, read_only=True)
     onelink = OneLinkAttributionSerializer(many=True, read_only=True)
     follower_snapshots = serializers.SerializerMethodField()
     q1_rollup = serializers.SerializerMethodField()
@@ -70,7 +70,7 @@ class ReportDetailSerializer(serializers.ModelSerializer):
             "intro_text", "conclusions_text",
             "stage_id", "stage_name",
             "campaign_id", "campaign_name", "brand_name",
-            "metrics", "top_content", "onelink",
+            "metrics", "onelink",
             "follower_snapshots", "q1_rollup", "yoy",
             "blocks", "original_pdf_url",
         )

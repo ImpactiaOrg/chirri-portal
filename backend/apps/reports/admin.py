@@ -13,6 +13,7 @@ class ReportMetricInline(admin.TabularInline):
 
 
 class TopContentInline(admin.StackedInline):
+    """Nested under a TOP_CONTENT ReportBlock. Admin hides it for other block types."""
     model = TopContent
     extra = 0
     fields = ("kind", "network", "source_type", "rank", "handle", "caption", "thumbnail", "post_url", "metrics")
@@ -27,6 +28,7 @@ class ReportBlockInline(SortableInlineAdminMixin, admin.StackedInline):
     model = ReportBlock
     extra = 0
     fields = ("type", "config", "image")
+    show_change_link = True  # click-through to ReportBlockAdmin (with TopContent inline)
     # order es gestionado por SortableInlineAdminMixin automáticamente
 
 
@@ -37,7 +39,6 @@ class ReportAdmin(SortableAdminBase, admin.ModelAdmin):
     search_fields = ("title", "stage__name", "stage__campaign__name")
     inlines = [
         ReportMetricInline,
-        TopContentInline,
         OneLinkAttributionInline,
         ReportBlockInline,
     ]
@@ -69,9 +70,23 @@ class ReportMetricAdmin(admin.ModelAdmin):
     search_fields = ("report__title", "metric_name")
 
 
+@admin.register(ReportBlock)
+class ReportBlockAdmin(admin.ModelAdmin):
+    list_display = ("report", "order", "type")
+    list_filter = ("type",)
+    search_fields = ("report__title",)
+    fields = ("report", "type", "order", "config", "image")
+
+    def get_inline_instances(self, request, obj=None):
+        # TopContent solo tiene sentido bajo un TOP_CONTENT block.
+        if obj is not None and obj.type == ReportBlock.Type.TOP_CONTENT:
+            return [TopContentInline(self.model, self.admin_site)]
+        return []
+
+
 @admin.register(TopContent)
 class TopContentAdmin(admin.ModelAdmin):
-    list_display = ("report", "kind", "network", "rank", "handle")
+    list_display = ("block", "report", "kind", "network", "rank", "handle")
     list_filter = ("kind", "network", "source_type")
     search_fields = ("handle", "caption")
 

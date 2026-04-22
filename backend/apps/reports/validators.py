@@ -12,7 +12,12 @@ def validate_image_size(file) -> None:
 
 
 def validate_image_mimetype(file) -> None:
+    # content_type only exists on fresh UploadedFile. Absent on FieldFile
+    # loaded from storage during a save that doesn't replace the file —
+    # in that case the mimetype was already checked on the original upload.
     mimetype = getattr(file, "content_type", None)
+    if mimetype is None:
+        return
     if mimetype not in ALLOWED_IMAGE_MIMETYPES:
         raise ValidationError(
             f"Formato no permitido ({mimetype}). Use JPEG, PNG o WebP."
@@ -32,6 +37,8 @@ def validate_pdf_size(file) -> None:
 
 def validate_pdf_mimetype(file) -> None:
     mimetype = getattr(file, "content_type", None)
+    if mimetype is None:
+        return
     if mimetype not in ALLOWED_PDF_MIMETYPES:
         raise ValidationError(
             f"Formato no permitido ({mimetype}). Solo se aceptan PDFs."

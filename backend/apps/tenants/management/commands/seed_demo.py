@@ -349,13 +349,15 @@ class Command(BaseCommand):
                     period_comparison=delta,
                 )
 
+            report.blocks.all().delete()
             if (
                 kind == Report.Kind.GENERAL
                 and stage.kind in {Stage.Kind.EDUCATION, Stage.Kind.VALIDATION}
                 and start.month == 3
             ):
-                report.blocks.all().delete()
                 _seed_blocks_for_full_report(report)
+            elif status == Report.Status.PUBLISHED:
+                _seed_blocks_minimal(report)
 
     def _seed_report_viewer_fixtures(self, brand: Brand) -> None:
         """Populate the Report Viewer fixtures (TopContent, OneLink, FollowerSnapshots).
@@ -404,13 +406,24 @@ class Command(BaseCommand):
             TopContent.objects.filter(report=report).delete()
             OneLinkAttribution.objects.filter(report=report).delete()
 
+            post_block = report.blocks.filter(
+                type=ReportBlock.Type.TOP_CONTENT, config__kind="POST",
+            ).first()
+            creator_block = report.blocks.filter(
+                type=ReportBlock.Type.TOP_CONTENT, config__kind="CREATOR",
+            ).first()
             for i, (handle, fname) in enumerate(top_content_specs, start=1):
+                is_creator = bool(handle)
+                block = creator_block if is_creator else post_block
+                if block is None:
+                    continue  # skip if the report wasn't seeded with a matching block
                 tc = TopContent(
                     report=report,
-                    kind=TopContent.Kind.CREATOR if handle else TopContent.Kind.POST,
+                    block=block,
+                    kind=TopContent.Kind.CREATOR if is_creator else TopContent.Kind.POST,
                     network=ReportMetric.Network.INSTAGRAM,
                     source_type=(
-                        ReportMetric.SourceType.INFLUENCER if handle
+                        ReportMetric.SourceType.INFLUENCER if is_creator
                         else ReportMetric.SourceType.ORGANIC
                     ),
                     rank=i,
@@ -438,6 +451,33 @@ class Command(BaseCommand):
                 as_of=date(latest.period_start.year, month, 28),
                 defaults={"followers_count": count},
             )
+
+
+def _seed_blocks_minimal(report):
+    """Minimal block set for reports that don't get the full layout.
+
+    Guarantees the viewer has something to render: a metrics table (if the
+    report has any metric) plus TOP_CONTENT blocks (POST + CREATOR) so the
+    fixture pipeline has somewhere to attach top content.
+    """
+    blocks = []
+    order = 1
+    if report.metrics.exists():
+        blocks.append(ReportBlock(
+            report=report, order=order, type=ReportBlock.Type.METRICS_TABLE,
+            config={"title": "Métricas del período", "source": "metrics", "filter": {}},
+        ))
+        order += 1
+    blocks.append(ReportBlock(
+        report=report, order=order, type=ReportBlock.Type.TOP_CONTENT,
+        config={"title": "Posts del mes", "kind": "POST", "limit": 6},
+    ))
+    order += 1
+    blocks.append(ReportBlock(
+        report=report, order=order, type=ReportBlock.Type.TOP_CONTENT,
+        config={"title": "Creators del mes", "kind": "CREATOR", "limit": 6},
+    ))
+    ReportBlock.objects.bulk_create(blocks)
 
 
 def _seed_blocks_for_full_report(report):

@@ -76,6 +76,7 @@ export type CampaignDto = {
   stage_count: number;
   published_report_count: number;
   last_published_at: string | null;
+  reach_total: string | number | null;
 };
 
 export type CampaignReportRowDto = {
@@ -86,6 +87,7 @@ export type CampaignReportRowDto = {
   period_start: string;
   period_end: string;
   published_at: string;
+  reach_total: string | null;
 };
 
 export type StageWithReportsDto = {
@@ -97,6 +99,7 @@ export type StageWithReportsDto = {
   start_date: string | null;
   end_date: string | null;
   reports: CampaignReportRowDto[];
+  reach_total: string | number | null;
 };
 
 export type CampaignDetailDto = {
@@ -173,6 +176,7 @@ export type ReportBlockDto = {
   order: number;
   config: Record<string, unknown>;
   image_url: string | null;
+  items: TopContentDto[];
 };
 
 export type ReportDto = {
@@ -192,7 +196,6 @@ export type ReportDto = {
   campaign_name: string;
   brand_name: string;
   metrics: ReportMetricDto[];
-  top_content: TopContentDto[];
   onelink: OneLinkAttributionDto[];
   follower_snapshots: Record<string, FollowerSnapshotPoint[]>;
   q1_rollup: Q1RollupDto | null;
