@@ -66,3 +66,6 @@ logs/
 test-results/
 playwright-report/
 playwright/.cache/
+
+# Meeting transcripts (private, do not commit)
+Documents/Meeting Transcript/
