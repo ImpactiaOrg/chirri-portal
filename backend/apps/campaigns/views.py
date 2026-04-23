@@ -1,6 +1,6 @@
 import logging
 
-from django.db.models import Count, Max, Prefetch, Q, Sum
+from django.db.models import Count, Max, Prefetch, Q
 from django.http import Http404
 from rest_framework import permissions, viewsets
 from rest_framework.exceptions import NotFound
@@ -27,15 +27,12 @@ class CampaignViewSet(viewsets.ReadOnlyModelViewSet):
             return Campaign.objects.none()
 
         if self.action == "retrieve":
+            # Post-DEV-116: ReportMetric eliminated — `reach_total` field on
+            # Report no longer exists. Serializer returns None for it. See
+            # _compute_stage_reach docs for future reintroduction options.
             published_reports = (
                 Report.objects
                 .filter(status=Report.Status.PUBLISHED)
-                .annotate(
-                    reach_total=Sum(
-                        "metrics__value",
-                        filter=Q(metrics__metric_name="reach"),
-                    ),
-                )
                 .order_by("-published_at")
             )
             stages_qs = Stage.objects.prefetch_related(
@@ -49,20 +46,10 @@ class CampaignViewSet(viewsets.ReadOnlyModelViewSet):
             )
 
         published = Q(stages__reports__status=Report.Status.PUBLISHED)
-        # Para el cálculo de reach_total per-campaign (serializer lo computa en
-        # Python sumando stages), prefetcheamos los reportes publicados con el
-        # mismo annotate que usa el detail. Sin esto sería N+1 al acceder a
-        # stage.reports.all() en el serializer.
-        published_reports = (
-            Report.objects
-            .filter(status=Report.Status.PUBLISHED)
-            .annotate(
-                reach_total=Sum(
-                    "metrics__value",
-                    filter=Q(metrics__metric_name="reach"),
-                ),
-            )
-        )
+        # Prefetch de reports publicados para evitar N+1 cuando el serializer
+        # list itera stage.reports.all() (aunque ya no anote reach_total —
+        # ver nota arriba).
+        published_reports = Report.objects.filter(status=Report.Status.PUBLISHED)
         stages_qs = Stage.objects.prefetch_related(
             Prefetch("reports", queryset=published_reports)
         )

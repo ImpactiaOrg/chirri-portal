@@ -32,9 +32,12 @@ class TestReportDetail:
         res = authed_balanz.get(self._url(99999))
         assert res.status_code == 404
 
-    def test_response_shape_includes_rollups(self, authed_balanz, balanz_published_report):
+    def test_response_shape_post_dev116(self, authed_balanz, balanz_published_report):
+        """Post-DEV-116: report detail returns only `blocks` as the data surface.
+        `metrics`, `onelink`, `follower_snapshots`, `q1_rollup`, `yoy` all
+        eliminated — their data lives inside typed blocks as snapshots."""
         res = authed_balanz.get(self._url(balanz_published_report.pk))
         assert res.status_code == 200
-        # top_content moved to blocks[].items after abr 2026 refactor.
-        for field in ("blocks", "onelink", "follower_snapshots", "q1_rollup", "yoy", "metrics"):
-            assert field in res.data
+        assert "blocks" in res.data
+        for gone in ("onelink", "follower_snapshots", "q1_rollup", "yoy", "metrics"):
+            assert gone not in res.data, f"legacy field {gone} should be gone"

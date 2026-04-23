@@ -6,17 +6,21 @@ from .models import Campaign, Stage
 
 
 def _compute_stage_reach(stage: Stage) -> int | None:
-    """Reach de una etapa evitando doble-conteo con CIERRE_ETAPA.
+    """Reach agregado de una etapa.
 
-    Si la etapa tiene un cierre, ese ya rollupea la etapa — usamos solo ese.
-    Si no, sumamos los demás (mensuales, influencer, general). Espera que
-    `stage.reports.all()` esté prefetcheado con `reach_total` anotado.
+    Post-DEV-116: `ReportMetric` se eliminó y no hay una fuente canónica única
+    de "reach" a nivel Report — la data vive dentro de bloques tipados
+    (KpiTile / MetricsTableRow) y se interpreta al renderizar. Por ahora
+    devolvemos None desde el list/detail serializer; el campo queda en el
+    payload por estabilidad de contrato pero no se computa.
+
+    Si más adelante se quiere re-introducir, las opciones son:
+    a) Sumar KpiTile.value labeled "Reach total" across stage reports.
+    b) Exponer un campo materializado `Report.reach_total` actualizado al
+       publicar.
+    c) Calcularlo desde Metricool (DEV-111) al momento de poblar el reporte.
     """
-    reports = list(stage.reports.all())
-    cierres = [r for r in reports if r.kind == Report.Kind.CIERRE_ETAPA]
-    pool = cierres if cierres else [r for r in reports if r.kind != Report.Kind.CIERRE_ETAPA]
-    total = sum((r.reach_total or 0) for r in pool)
-    return total or None
+    return None
 
 
 class StageSummarySerializer(serializers.ModelSerializer):
@@ -59,16 +63,18 @@ class CampaignReportRowSerializer(serializers.ModelSerializer):
     """Minimal report payload for the per-stage list on the campaign detail page.
 
     Intentionally smaller than ReportDetailSerializer — we only need what the
-    row renders (title, kind, period, published_at, reach_total) to avoid
-    dragging metrics and top_content into a list view. `reach_total` comes
-    from a Sum annotation in the campaign-detail view; it's None when the
-    report has no metrics tagged `reach`.
+    row renders (title, kind, period, published_at, reach_total).
+
+    Post-DEV-116: `reach_total` is always None — the ReportMetric source was
+    eliminated. The field stays in the payload for contract stability until
+    a replacement source is wired (ver _compute_stage_reach docs).
     """
 
     display_title = serializers.CharField(read_only=True)
-    reach_total = serializers.DecimalField(
-        max_digits=16, decimal_places=0, read_only=True, allow_null=True,
-    )
+    reach_total = serializers.SerializerMethodField()
+
+    def get_reach_total(self, report):
+        return None
 
     class Meta:
         model = Report
