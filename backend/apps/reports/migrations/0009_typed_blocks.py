@@ -28,47 +28,25 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # DEV-116: el modelo Python ya no declara `image`, `config`, `type`
-        # (ReportBlock fue reemplazado por la versión polimórfica). Sacamos
-        # esos campos del state de Django pero NO los dropeamos de la DB
-        # — Task 2.5 se encarga del drop real (una vez que los bloques
-        # tipados cubran todos los casos de uso y el legacy viewer/
-        # seed_demo sigan pudiendo leer las columnas viejas hasta ahí).
-        migrations.SeparateDatabaseAndState(
-            state_operations=[
-                migrations.RemoveField(
-                    model_name='reportblock',
-                    name='image',
-                ),
-                migrations.RemoveField(
-                    model_name='reportblock',
-                    name='config',
-                ),
-                migrations.RemoveField(
-                    model_name='reportblock',
-                    name='type',
-                ),
-            ],
-            # Relajamos los NOT NULL de las columnas legacy (sin dropearlas)
-            # para que los INSERTs del nuevo modelo polimórfico no exploten.
-            # La data vieja se preserva; Task 2.5 dropea definitivamente
-            # estas columnas.
-            database_operations=[
-                migrations.RunSQL(
-                    sql=(
-                        "ALTER TABLE reports_reportblock "
-                        "ALTER COLUMN type DROP NOT NULL, "
-                        "ALTER COLUMN config DROP NOT NULL, "
-                        "ALTER COLUMN image DROP NOT NULL;"
-                    ),
-                    reverse_sql=(
-                        "ALTER TABLE reports_reportblock "
-                        "ALTER COLUMN type SET NOT NULL, "
-                        "ALTER COLUMN config SET NOT NULL, "
-                        "ALTER COLUMN image SET NOT NULL;"
-                    ),
-                ),
-            ],
+        # DEV-116: ReportBlock fue reemplazado por la versión polimórfica que
+        # no declara `image`, `config`, `type`. Drop tanto state como DB aquí
+        # — originalmente la intención era diferir el DB drop a 0011 (Task
+        # 2.5), pero el RunSQL Postgres-specific para DROP NOT NULL rompía
+        # el CI SQLite. Usar el RemoveField de Django (vendor-agnostic:
+        # ALTER DROP COLUMN en Postgres, table rebuild en SQLite) resuelve
+        # los dos problemas. Nada está en prod al momento del merge — la
+        # data que vivía en esas columnas ya no se consume.
+        migrations.RemoveField(
+            model_name='reportblock',
+            name='image',
+        ),
+        migrations.RemoveField(
+            model_name='reportblock',
+            name='config',
+        ),
+        migrations.RemoveField(
+            model_name='reportblock',
+            name='type',
         ),
         migrations.AddField(
             model_name='reportblock',

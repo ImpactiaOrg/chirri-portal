@@ -100,16 +100,9 @@ class Migration(migrations.Migration):
         migrations.DeleteModel(
             name='ReportMetric',
         ),
-        # 0009 state-removed type/config/image from ReportBlock but kept the
-        # DB columns (only NOT NULL dropped). Here we physically drop them.
-        migrations.RunSQL(
-            sql=(
-                "ALTER TABLE reports_reportblock "
-                "DROP COLUMN IF EXISTS type, "
-                "DROP COLUMN IF EXISTS config, "
-                "DROP COLUMN IF EXISTS image;"
-            ),
-            reverse_sql=migrations.RunSQL.noop,  # rollback no restaura data
-        ),
+        # NOTE: 0009 previously deferred the DB drop of type/config/image to
+        # this migration, but was changed to use Django's vendor-agnostic
+        # RemoveField (works on both Postgres and SQLite). So the columns are
+        # already gone by the time 0011 runs — no extra RunSQL needed here.
         migrations.RunPython(_log_destructive_migration, _warn_rollback_unsafe),
     ]
