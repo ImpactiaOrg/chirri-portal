@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
+    "polymorphic",
     # Local apps
     "apps.tenants",
     "apps.users",
