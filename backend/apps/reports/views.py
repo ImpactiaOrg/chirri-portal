@@ -62,7 +62,17 @@ class ReportDetailView(RetrieveAPIView):
                 status=Report.Status.PUBLISHED,
             )
             .select_related("stage", "stage__campaign", "stage__campaign__brand")
-            .prefetch_related("blocks")
+            .prefetch_related(
+                # Polymorphic base — django-polymorphic devuelve los subtipos
+                # concretos. Los children de cada subtipo se prefetchean por
+                # el related_name reverse del polymorphic child table.
+                "blocks",
+                "blocks__kpigridblock__tiles",
+                "blocks__metricstableblock__rows",
+                "blocks__chartblock__data_points",
+                "blocks__topcontentblock__items",
+                "blocks__attributiontableblock__entries",
+            )
         )
 
     def get_object(self):

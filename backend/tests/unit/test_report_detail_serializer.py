@@ -1,27 +1,29 @@
+"""ReportDetailSerializer post-DEV-116: blocks polimórficos, sin
+metrics/yoy/q1_rollup/follower_snapshots."""
 import pytest
-from apps.reports.serializers import ReportDetailSerializer
 
-pytestmark = pytest.mark.django_db
-
-
-def test_serializer_includes_new_fields(balanz_published_report):
-    data = ReportDetailSerializer(balanz_published_report).data
-    # top_content moved to blocks[].items after abr 2026 refactor.
-    for field in ("blocks", "onelink", "follower_snapshots", "q1_rollup", "yoy", "intro_text", "brand_name"):
-        assert field in data
+from apps.reports.tests.factories import make_report
 
 
-def test_serializer_top_content_thumbnail_url_is_null_when_missing(balanz_published_report):
-    from apps.reports.models import TopContent, ReportMetric, ReportBlock
-    block = ReportBlock.objects.create(
-        report=balanz_published_report, order=1, type=ReportBlock.Type.TOP_CONTENT,
-        config={"title": "t", "kind": "POST", "limit": 6},
+@pytest.mark.django_db
+def test_payload_has_no_legacy_fields():
+    from apps.reports.serializers import ReportDetailSerializer
+    report = make_report()
+    data = ReportDetailSerializer(report).data
+    for gone in ["metrics", "yoy", "q1_rollup", "follower_snapshots", "onelink"]:
+        assert gone not in data, f"legacy field still in payload: {gone}"
+
+
+@pytest.mark.django_db
+def test_payload_includes_blocks_as_list():
+    from apps.reports.models import TextImageBlock
+    from apps.reports.serializers import ReportDetailSerializer
+    report = make_report()
+    TextImageBlock.objects.create(
+        report=report, order=1, title="Hello", body="world",
     )
-    TopContent.objects.create(
-        block=block, kind=TopContent.Kind.POST,
-        network=ReportMetric.Network.INSTAGRAM,
-        source_type=ReportMetric.SourceType.ORGANIC,
-        rank=1, caption="x", metrics={},
-    )
-    data = ReportDetailSerializer(balanz_published_report).data
-    assert data["blocks"][0]["items"][0]["thumbnail_url"] is None
+    data = ReportDetailSerializer(report).data
+    assert "blocks" in data
+    assert len(data["blocks"]) == 1
+    assert data["blocks"][0]["type"] == "TextImageBlock"
+    assert data["blocks"][0]["title"] == "Hello"
