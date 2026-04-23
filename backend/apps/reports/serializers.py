@@ -1,28 +1,195 @@
+"""Report serializers - post-DEV-116.
+
+ReportBlockSerializer es polimórfico: despacha a un sub-serializer por
+subtipo. Los campos agregados cross-report (yoy, q1_rollup, follower_snapshots)
+se eliminaron porque dependían de ReportMetric, que ya no existe.
+"""
 from rest_framework import serializers
 
-from .models import Report, ReportMetric
+from .models import (
+    Report,
+    TextImageBlock, KpiGridBlock, KpiTile,
+    MetricsTableBlock, MetricsTableRow,
+    TopContentBlock, AttributionTableBlock,
+    ChartBlock, ChartDataPoint,
+    TopContent, OneLinkAttribution,
+)
 
 
-class ReportMetricSerializer(serializers.ModelSerializer):
+# ---------- Child row serializers ----------
+
+class KpiTileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ReportMetric
-        fields = ("network", "source_type", "metric_name", "value", "period_comparison")
+        model = KpiTile
+        fields = ("label", "value", "period_comparison", "order")
 
+
+class MetricsTableRowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MetricsTableRow
+        fields = ("metric_name", "value", "source_type", "period_comparison", "order")
+
+
+class ChartDataPointSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChartDataPoint
+        fields = ("label", "value", "order")
+
+
+class TopContentItemSerializer(serializers.ModelSerializer):
+    thumbnail_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TopContent
+        fields = (
+            "kind", "network", "source_type", "rank", "handle",
+            "caption", "thumbnail_url", "post_url", "metrics",
+        )
+
+    def get_thumbnail_url(self, obj) -> str | None:
+        return obj.thumbnail.url if obj.thumbnail else None
+
+
+class OneLinkEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OneLinkAttribution
+        fields = ("influencer_handle", "clicks", "app_downloads")
+
+
+# ---------- Subtype block serializers ----------
+
+BASE_BLOCK_FIELDS = ("id", "order", "instructions")
+
+
+class TextImageBlockSerializer(serializers.ModelSerializer):
+    type = serializers.SerializerMethodField()
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TextImageBlock
+        fields = BASE_BLOCK_FIELDS + (
+            "type", "title", "body", "columns", "image_position", "image_alt",
+            "image_url",
+        )
+
+    def get_type(self, obj) -> str:
+        return "TextImageBlock"
+
+    def get_image_url(self, obj) -> str | None:
+        return obj.image.url if obj.image else None
+
+
+class KpiGridBlockSerializer(serializers.ModelSerializer):
+    type = serializers.SerializerMethodField()
+    tiles = KpiTileSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = KpiGridBlock
+        fields = BASE_BLOCK_FIELDS + ("type", "title", "tiles")
+
+    def get_type(self, obj) -> str:
+        return "KpiGridBlock"
+
+
+class MetricsTableBlockSerializer(serializers.ModelSerializer):
+    type = serializers.SerializerMethodField()
+    rows = MetricsTableRowSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = MetricsTableBlock
+        fields = BASE_BLOCK_FIELDS + ("type", "title", "network", "rows")
+
+    def get_type(self, obj) -> str:
+        return "MetricsTableBlock"
+
+
+class TopContentBlockSerializer(serializers.ModelSerializer):
+    type = serializers.SerializerMethodField()
+    items = TopContentItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = TopContentBlock
+        fields = BASE_BLOCK_FIELDS + ("type", "title", "kind", "limit", "items")
+
+    def get_type(self, obj) -> str:
+        return "TopContentBlock"
+
+
+class AttributionTableBlockSerializer(serializers.ModelSerializer):
+    type = serializers.SerializerMethodField()
+    entries = OneLinkEntrySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = AttributionTableBlock
+        fields = BASE_BLOCK_FIELDS + ("type", "title", "show_total", "entries")
+
+    def get_type(self, obj) -> str:
+        return "AttributionTableBlock"
+
+
+class ChartBlockSerializer(serializers.ModelSerializer):
+    type = serializers.SerializerMethodField()
+    data_points = ChartDataPointSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ChartBlock
+        fields = BASE_BLOCK_FIELDS + ("type", "title", "network", "chart_type", "data_points")
+
+    def get_type(self, obj) -> str:
+        return "ChartBlock"
+
+
+# ---------- Polymorphic dispatcher (manual, sin dep externa) ----------
+
+_BLOCK_SERIALIZERS = {
+    TextImageBlock: TextImageBlockSerializer,
+    KpiGridBlock: KpiGridBlockSerializer,
+    MetricsTableBlock: MetricsTableBlockSerializer,
+    TopContentBlock: TopContentBlockSerializer,
+    AttributionTableBlock: AttributionTableBlockSerializer,
+    ChartBlock: ChartBlockSerializer,
+}
+
+
+class ReportBlockSerializer(serializers.Serializer):
+    """Polymorphic dispatcher. Acepta un ReportBlock (base o subtipo) y lo
+    serializa con el serializer correspondiente al subtipo real.
+
+    django-polymorphic devuelve la instancia del subtipo automáticamente
+    cuando hacés ReportBlock.objects.filter(...). Así que `obj` ya es el
+    subtipo concreto (TextImageBlock, KpiGridBlock, etc.) - no la base.
+    """
+
+    def to_representation(self, obj):
+        serializer_class = _BLOCK_SERIALIZERS.get(type(obj))
+        if serializer_class is None:
+            # Fallback defensivo: no debería pasar en prod.
+            return {"id": obj.id, "order": obj.order, "type": type(obj).__name__}
+        return serializer_class(obj, context=self.context).data
+
+
+# ---------- Top-level Report serializer ----------
 
 class ReportDetailSerializer(serializers.ModelSerializer):
     stage_name = serializers.CharField(source="stage.name", read_only=True)
     stage_id = serializers.IntegerField(source="stage.id", read_only=True)
     campaign_name = serializers.CharField(source="stage.campaign.name", read_only=True)
     campaign_id = serializers.IntegerField(source="stage.campaign.id", read_only=True)
-    metrics = ReportMetricSerializer(many=True, read_only=True)
+    brand_name = serializers.CharField(source="stage.campaign.brand.name", read_only=True)
     display_title = serializers.CharField(read_only=True)
+    blocks = ReportBlockSerializer(many=True, read_only=True)
+    original_pdf_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Report
         fields = (
             "id", "kind", "period_start", "period_end",
-            "title", "display_title", "status", "published_at", "conclusions_text",
+            "title", "display_title", "status", "published_at",
+            "intro_text", "conclusions_text",
             "stage_id", "stage_name",
-            "campaign_id", "campaign_name",
-            "metrics",
+            "campaign_id", "campaign_name", "brand_name",
+            "blocks", "original_pdf_url",
         )
+
+    def get_original_pdf_url(self, obj) -> str | None:
+        return obj.original_pdf.url if obj.original_pdf else None

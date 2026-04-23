@@ -1,6 +1,13 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { apiFetch, type CampaignDto, type PagedResponse, type ReportDto } from "@/lib/api";
+import {
+  apiFetch,
+  type CampaignDto,
+  type KpiGridBlockDto,
+  type PagedResponse,
+  type ReportBlockDto,
+  type ReportDto,
+} from "@/lib/api";
 import { getAccessToken, getCurrentUser } from "@/lib/auth";
 import { formatMonthYear } from "@/lib/format";
 import TopBar from "@/components/top-bar";
@@ -12,9 +19,22 @@ function firstName(full: string, fallback: string): string {
 
 function sumReach(report: ReportDto | null): number {
   if (!report) return 0;
-  return report.metrics
-    .filter((m) => m.metric_name === "reach")
-    .reduce((acc, m) => acc + Number(m.value), 0);
+  // Post-DEV-116: metrics live inside typed blocks instead of a flat
+  // report.metrics list. The "Reach total" headline number is authored
+  // as the first tile of the first KpiGridBlock in seed_demo and in
+  // production reports. We look it up by label (case-insensitive) with
+  // a fallback to the first tile so the hero never renders empty when
+  // the label drifts.
+  const isKpi = (b: ReportBlockDto): b is KpiGridBlockDto =>
+    b.type === "KpiGridBlock";
+  const kpiBlock = report.blocks.find(isKpi);
+  if (!kpiBlock) return 0;
+  const tiles = kpiBlock.tiles ?? [];
+  const reachTile =
+    tiles.find((t) => /reach\s*total/i.test(t.label)) ?? tiles[0];
+  if (!reachTile) return 0;
+  const n = Number(reachTile.value);
+  return Number.isFinite(n) ? n : 0;
 }
 
 function formatCompact(n: number): { value: string; unit: string } {
@@ -78,7 +98,10 @@ export default async function HomePage() {
             </p>
           </div>
           {latest?.conclusions_text && (
-            <div className="chirri-note" style={{ maxWidth: 360 }}>
+            <div
+              className="chirri-note"
+              style={{ maxWidth: 360, background: "var(--chirri-mint)" }}
+            >
               {latest.conclusions_text}
               <span className="sig">— CHIRRI</span>
             </div>

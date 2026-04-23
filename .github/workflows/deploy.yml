@@ -33,3 +33,34 @@ jobs:
             docker compose -f docker-compose.prod.yml exec -T backend python manage.py migrate --noinput
             docker compose -f docker-compose.prod.yml exec -T backend python manage.py collectstatic --noinput
             docker image prune -f
+
+  post_deploy_smoke:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/development'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install frontend deps + Playwright
+        working-directory: frontend
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Wait for deploy to stabilise
+        run: |
+          for i in {1..30}; do
+            if curl -fsS "${{ secrets.DEPLOY_URL }}/api/health/"; then
+              echo "health check passed after $i attempts"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "health check never passed after 30 attempts" >&2
+          exit 1
+      - name: Run post-deploy smoke against DEPLOY_URL
+        working-directory: frontend
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ secrets.DEPLOY_URL }}
+        run: npx playwright test --grep "Report viewer|Home smoke|Campaign detail" --reporter=line

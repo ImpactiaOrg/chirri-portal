@@ -1,0 +1,4 @@
+# Force LF for shell scripts and Dockerfiles — they run in Linux containers,
+# CRLF breaks bash (here-docs, arg parsing). See backend/bootstrap.sh CRLF bug.
+*.sh        text eol=lf
+Dockerfile  text eol=lf

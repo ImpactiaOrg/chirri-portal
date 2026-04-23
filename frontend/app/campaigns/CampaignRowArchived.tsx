@@ -23,7 +23,7 @@ export default function CampaignRowArchived({ campaign }: Props) {
   return (
     <Link
       href={`/campaigns/${campaign.id}`}
-      className="card-link"
+      className="card-link campaign-row-archived"
       style={{
         background: "white",
         border: "2px solid var(--chirri-black)",

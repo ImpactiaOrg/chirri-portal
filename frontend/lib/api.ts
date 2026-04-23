@@ -31,6 +31,9 @@ export class ApiError extends Error {
   }
 }
 
+export type Network = "INSTAGRAM" | "TIKTOK" | "X";
+export type SourceType = "ORGANIC" | "INFLUENCER" | "PAID";
+
 export type ClientUserDto = {
   id: number;
   email: string;
@@ -73,15 +76,149 @@ export type CampaignDto = {
   stage_count: number;
   published_report_count: number;
   last_published_at: string | null;
+  reach_total: string | number | null;
 };
 
-export type ReportMetricDto = {
-  network: "INSTAGRAM" | "TIKTOK" | "X";
-  source_type: "ORGANIC" | "INFLUENCER" | "PAID";
+export type CampaignReportRowDto = {
+  id: number;
+  title: string;
+  display_title: string;
+  kind: "INFLUENCER" | "GENERAL" | "QUINCENAL" | "MENSUAL" | "CIERRE_ETAPA";
+  period_start: string;
+  period_end: string;
+  published_at: string;
+  reach_total: string | null;
+};
+
+export type StageWithReportsDto = {
+  id: number;
+  order: number;
+  kind: "AWARENESS" | "EDUCATION" | "VALIDATION" | "CONVERSION" | "ONGOING" | "OTHER";
+  name: string;
+  description: string;
+  start_date: string | null;
+  end_date: string | null;
+  reports: CampaignReportRowDto[];
+  reach_total: string | number | null;
+};
+
+export type CampaignDetailDto = {
+  id: number;
+  brand_name: string;
+  name: string;
+  brief: string;
+  status: "ACTIVE" | "FINISHED" | "PAUSED";
+  start_date: string | null;
+  end_date: string | null;
+  is_ongoing_operation: boolean;
+  stages_with_reports: StageWithReportsDto[];
+};
+
+// -- Child row DTOs --
+
+export type KpiTileDto = {
+  label: string;
+  value: string; // Decimal serialized as string
+  period_comparison: string | null;
+  order: number;
+};
+
+export type MetricsTableRowDto = {
   metric_name: string;
   value: string;
+  source_type: SourceType | null;
   period_comparison: string | null;
+  order: number;
 };
+
+export type ChartDataPointDto = {
+  label: string;
+  value: string;
+  order: number;
+};
+
+export type TopContentItemDto = {
+  kind: "POST" | "CREATOR";
+  network: Network;
+  source_type: SourceType;
+  rank: number;
+  handle: string;
+  caption: string;
+  thumbnail_url: string | null;
+  post_url: string;
+  metrics: Record<string, unknown>;
+};
+
+// Back-compat alias: ContentCard still imports TopContentDto.
+export type TopContentDto = TopContentItemDto;
+
+export type OneLinkEntryDto = {
+  influencer_handle: string;
+  clicks: number;
+  app_downloads: number;
+};
+
+// -- Block subtype DTOs (discriminated union on `type`) --
+
+type BaseBlockFields = {
+  id: number;
+  order: number;
+  instructions: string;
+};
+
+export type TextImageBlockDto = BaseBlockFields & {
+  type: "TextImageBlock";
+  title: string;
+  body: string;
+  columns: 1 | 2 | 3;
+  image_position: "left" | "right" | "top";
+  image_alt: string;
+  image_url: string | null;
+};
+
+export type KpiGridBlockDto = BaseBlockFields & {
+  type: "KpiGridBlock";
+  title: string;
+  tiles: KpiTileDto[];
+};
+
+export type MetricsTableBlockDto = BaseBlockFields & {
+  type: "MetricsTableBlock";
+  title: string;
+  network: Network | null;
+  rows: MetricsTableRowDto[];
+};
+
+export type TopContentBlockDto = BaseBlockFields & {
+  type: "TopContentBlock";
+  title: string;
+  kind: "POST" | "CREATOR";
+  limit: number;
+  items: TopContentItemDto[];
+};
+
+export type AttributionTableBlockDto = BaseBlockFields & {
+  type: "AttributionTableBlock";
+  title: string;
+  show_total: boolean;
+  entries: OneLinkEntryDto[];
+};
+
+export type ChartBlockDto = BaseBlockFields & {
+  type: "ChartBlock";
+  title: string;
+  network: Network | null;
+  chart_type: "bar";
+  data_points: ChartDataPointDto[];
+};
+
+export type ReportBlockDto =
+  | TextImageBlockDto
+  | KpiGridBlockDto
+  | MetricsTableBlockDto
+  | TopContentBlockDto
+  | AttributionTableBlockDto
+  | ChartBlockDto;
 
 export type ReportDto = {
   id: number;
@@ -92,12 +229,15 @@ export type ReportDto = {
   display_title: string;
   status: "DRAFT" | "PUBLISHED";
   published_at: string | null;
+  intro_text: string;
   conclusions_text: string;
   stage_id: number;
   stage_name: string;
   campaign_id: number;
   campaign_name: string;
-  metrics: ReportMetricDto[];
+  brand_name: string;
+  blocks: ReportBlockDto[];
+  original_pdf_url: string | null;
 };
 
 export type PagedResponse<T> = { count: number; next: string | null; previous: string | null; results: T[] };

@@ -55,11 +55,46 @@ El seed carga el Client Balanz, 3 campañas (1 activa + 2 terminadas), 4 stages,
 
 **Para producción:** cargar Client, Brand, Campaign, Stage y ClientUser desde `/admin`.
 
+### Rutas del portal
+- `/login` — acceso al portal
+- `/home` — dashboard principal
+- `/campaigns` — listado de campañas
+- `/campaigns/[id]` — detalle de campaña con stages timeline y reportes por etapa
+- `/reports/[id]` — detalle de reporte con métricas y análisis
+
+### Env vars nuevas (R2)
+Ver `docs/ENV.md`. En dev dejá `USE_R2` unset — se usa filesystem local.
+
 ### Endpoints de auth
 
 - `POST /api/auth/login/` → `{ access, refresh, user }`
 - `POST /api/auth/refresh/` → `{ access }`
 - `GET  /api/auth/me/` → usuario + cliente + brands
+
+## Reportes
+
+Cada `Report` tiene una base fija (título, período, intro, conclusiones, `original_pdf` opcional)
+y una lista ordenada de `ReportBlock`. Post-DEV-116 los bloques son **tipados**: cada subtipo es
+su propio modelo Django con columnas específicas (herencia multi-tabla via `django-polymorphic`).
+La data de cada bloque vive directamente dentro del subtipo o en tablas hijas — no hay
+`ReportMetric` ni `config` JSON compartido.
+
+| Subtipo                 | Cuándo usarlo                                              | Children                |
+|-------------------------|------------------------------------------------------------|-------------------------|
+| `TextImageBlock`        | Bloque narrativo con título, texto multi-columna e imagen. | —                       |
+| `KpiGridBlock`          | Tarjetas de KPIs (reach total / orgánico / influencer).    | `KpiTile`               |
+| `MetricsTableBlock`     | Tabla de métricas, opcionalmente etiquetada por network.   | `MetricsTableRow`       |
+| `TopContentBlock`       | Grid de mejores posts o creators.                          | `TopContent`            |
+| `AttributionTableBlock` | Tabla de OneLink (clicks + descargas por influencer).      | `OneLinkAttribution`    |
+| `ChartBlock`            | Bar chart (follower growth), un chart por bloque.          | `ChartDataPoint`        |
+
+Los bloques se crean desde Django admin (dropdown polimórfico "Add block" + formularios tipados
+por subtipo — sin JSON) o vía `seed_demo`. Para regenerar los reportes demo:
+
+    docker compose exec backend python manage.py seed_demo
+
+Ver `docs/superpowers/specs/2026-04-22-dev-116-typed-blocks-refactor-design.md` para el diseño
+completo.
 
 ## Deploy
 
@@ -81,6 +116,11 @@ cd frontend && npm run typecheck && npm run build
 ```
 
 CI corre ambos en cada push/PR a `main` y `development` (`.github/workflows/test.yml`).
+
+## Rollback
+1. `git revert <bad-sha>` o `git reset --hard <good-sha>` en `development`.
+2. Push — `deploy.yml` redespliega la imagen previa (pineada por SHA, no `:latest`).
+3. Si hay que rollback de migración: `docker compose exec backend python manage.py migrate reports <prev>`. Las migraciones DEV-52 son aditivas (campos/modelos nuevos); el rollback no pierde datos de columnas existentes.
 
 ## Documentación
 

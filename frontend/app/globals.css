@@ -68,6 +68,13 @@ a { color: inherit; }
 .pill-title.mint { --pill-bg: var(--chirri-mint); }
 .pill-title.white { --pill-bg: white; }
 
+/* Section-heading pills (direct children of <section>) center on the page */
+section > .pill-title {
+  display: block;
+  width: fit-content;
+  margin-inline: auto;
+}
+
 /* Compact pills (section counters like "ACTIVAS · N") */
 .pill {
   display: inline-flex;
@@ -82,6 +89,33 @@ a { color: inherit; }
 }
 .pill-mint { background: var(--chirri-mint); }
 .pill-white { background: white; }
+
+/* Status chips (campaign status: active / finished / paused) */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border: 2px solid var(--chirri-black);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.status-approved { background: var(--chirri-mint); }
+.status-archived { background: var(--chirri-muted); color: white; }
+.status-paused   { background: var(--chirri-yellow-soft); }
+
+/* Shared display heading (campaigns list h1, campaign detail h1, reports detail h1) */
+.display-xl {
+  font-family: var(--font-display);
+  font-size: 96px;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-transform: lowercase;
+  margin: 8px 0 0;
+}
 
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.25); border-radius: 10px; }
@@ -138,7 +172,14 @@ a { color: inherit; }
   border-color: var(--chirri-black);
 }
 .nav .soon {
-  opacity: 0.4; cursor: not-allowed;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 .nav .soon-tag {
   font-size: 9px; padding: 1px 6px; background: var(--chirri-muted);
@@ -410,4 +451,9 @@ a { color: inherit; }
   .topbar { flex-wrap: wrap; }
   .nav { order: 3; width: 100%; overflow-x: auto; }
   .history-row { grid-template-columns: 1fr; gap: 6px; }
+  .display-xl { font-size: 64px; }
+  .campaign-row-archived {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
 }
