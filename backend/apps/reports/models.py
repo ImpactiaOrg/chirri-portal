@@ -1,6 +1,7 @@
 from django.db import models
 
 from apps.campaigns.models import Stage
+from .choices import Network, SourceType
 from .validators import (
     validate_image_mimetype, validate_image_size,
     validate_pdf_mimetype, validate_pdf_size,
@@ -67,15 +68,9 @@ class ReportMetric(models.Model):
     is built around — see design addendum.
     """
 
-    class Network(models.TextChoices):
-        INSTAGRAM = "INSTAGRAM", "Instagram"
-        TIKTOK = "TIKTOK", "TikTok"
-        X = "X", "X/Twitter"
-
-    class SourceType(models.TextChoices):
-        ORGANIC = "ORGANIC", "Orgánico"
-        INFLUENCER = "INFLUENCER", "Influencer"
-        PAID = "PAID", "Pauta"
+    # Back-compat aliases — Network y SourceType viven en choices.py ahora.
+    Network = Network
+    SourceType = SourceType
 
     report = models.ForeignKey(Report, on_delete=models.CASCADE, related_name="metrics")
     network = models.CharField(max_length=16, choices=Network.choices)
