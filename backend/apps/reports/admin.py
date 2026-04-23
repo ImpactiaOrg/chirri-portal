@@ -27,9 +27,13 @@ class OneLinkAttributionInline(admin.TabularInline):
 class ReportBlockInline(SortableInlineAdminMixin, admin.StackedInline):
     model = ReportBlock
     extra = 0
-    fields = ("type", "config", "image")
+    fields = ("instructions",)
     show_change_link = True  # click-through to ReportBlockAdmin (with TopContent inline)
     # order es gestionado por SortableInlineAdminMixin automáticamente
+    # NOTE: DEV-116 — polymorphic subclasses (TextImageBlock, etc.) get their
+    # own admin inlines en tasks siguientes. Este inline base solo muestra
+    # instructions compartido; los campos tipados viven en el admin del
+    # subtipo.
 
 
 @admin.register(Report)
@@ -72,16 +76,13 @@ class ReportMetricAdmin(admin.ModelAdmin):
 
 @admin.register(ReportBlock)
 class ReportBlockAdmin(admin.ModelAdmin):
-    list_display = ("report", "order", "type")
-    list_filter = ("type",)
+    # DEV-116: ReportBlock ahora es PolymorphicModel. El admin base muestra
+    # solo los campos compartidos; los subtipos (TextImageBlock, etc.) se
+    # registran por separado con sus propios fields en tasks siguientes.
+    list_display = ("report", "order", "polymorphic_ctype")
+    list_filter = ("polymorphic_ctype",)
     search_fields = ("report__title",)
-    fields = ("report", "type", "order", "config", "image")
-
-    def get_inline_instances(self, request, obj=None):
-        # TopContent solo tiene sentido bajo un TOP_CONTENT block.
-        if obj is not None and obj.type == ReportBlock.Type.TOP_CONTENT:
-            return [TopContentInline(self.model, self.admin_site)]
-        return []
+    fields = ("report", "order", "instructions")
 
 
 @admin.register(TopContent)
