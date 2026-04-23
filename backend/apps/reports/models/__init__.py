@@ -6,7 +6,6 @@ desde models_legacy y agregamos los nuevos a medida que existen.
 # Legacy (se van a eliminar al cerrar DEV-116):
 from apps.reports.models_legacy import (  # noqa: F401
     Report,
-    ReportMetric,
     TopContent,
     BrandFollowerSnapshot,
     OneLinkAttribution,

@@ -2,14 +2,9 @@ from adminsortable2.admin import SortableAdminBase, SortableInlineAdminMixin
 from django.contrib import admin
 
 from .models import (
-    Report, ReportMetric, ReportBlock,
+    Report, ReportBlock,
     TopContent, BrandFollowerSnapshot, OneLinkAttribution,
 )
-
-
-class ReportMetricInline(admin.TabularInline):
-    model = ReportMetric
-    extra = 0
 
 
 class TopContentInline(admin.StackedInline):
@@ -42,8 +37,6 @@ class ReportAdmin(SortableAdminBase, admin.ModelAdmin):
     list_filter = ("status", "kind", "stage__campaign__brand")
     search_fields = ("title", "stage__name", "stage__campaign__name")
     inlines = [
-        ReportMetricInline,
-        OneLinkAttributionInline,
         ReportBlockInline,
     ]
     fieldsets = (
@@ -67,13 +60,6 @@ class ReportAdmin(SortableAdminBase, admin.ModelAdmin):
         self.message_user(request, f"{updated} reporte(s) publicado(s).")
 
 
-@admin.register(ReportMetric)
-class ReportMetricAdmin(admin.ModelAdmin):
-    list_display = ("report", "network", "source_type", "metric_name", "value", "period_comparison")
-    list_filter = ("network", "source_type")
-    search_fields = ("report__title", "metric_name")
-
-
 @admin.register(ReportBlock)
 class ReportBlockAdmin(admin.ModelAdmin):
     # DEV-116: ReportBlock ahora es PolymorphicModel. El admin base muestra
@@ -87,7 +73,7 @@ class ReportBlockAdmin(admin.ModelAdmin):
 
 @admin.register(TopContent)
 class TopContentAdmin(admin.ModelAdmin):
-    list_display = ("block", "report", "kind", "network", "rank", "handle")
+    list_display = ("block", "kind", "network", "rank", "handle")
     list_filter = ("kind", "network", "source_type")
     search_fields = ("handle", "caption")
 
@@ -101,5 +87,5 @@ class BrandFollowerSnapshotAdmin(admin.ModelAdmin):
 
 @admin.register(OneLinkAttribution)
 class OneLinkAttributionAdmin(admin.ModelAdmin):
-    list_display = ("report", "influencer_handle", "clicks", "app_downloads")
+    list_display = ("attribution_block", "influencer_handle", "clicks", "app_downloads")
     search_fields = ("influencer_handle",)

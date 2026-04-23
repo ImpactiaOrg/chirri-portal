@@ -13,7 +13,7 @@ from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.campaigns.models import Campaign, Stage
-from apps.reports.models import Report, ReportMetric
+from apps.reports.models import Report
 from apps.reports.tests.factories import make_report
 from apps.tenants.models import Brand, Client
 from apps.users.models import ClientUser
@@ -113,13 +113,8 @@ def balanz_published_report(balanz_stage):
         published_at=timezone.now(),
         conclusions_text="Cerramos bien.",
     )
-    ReportMetric.objects.create(
-        report=r,
-        network=ReportMetric.Network.INSTAGRAM,
-        source_type=ReportMetric.SourceType.ORGANIC,
-        metric_name="reach",
-        value=123456,
-    )
+    # DEV-116 Task 2.5: ReportMetric gone. Metrics now live inside KpiGridBlock /
+    # MetricsTableBlock, created per-test when needed.
     return r
 
 

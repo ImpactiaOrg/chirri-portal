@@ -23,7 +23,6 @@ def test_report_block_base_fields_exist():
 
 
 @pytest.mark.django_db
-@pytest.mark.skip(reason="Old fields removal happens in Task 2.5")
 def test_report_block_old_fields_gone():
     from apps.reports.models import ReportBlock
     fields = {f.name for f in ReportBlock._meta.get_fields()}
