@@ -57,7 +57,9 @@ Expected: todo pasa. Si algo falla antes de empezar, stop y reportar.
 
 - [ ] **Step 1: Verificar versión compatible + dependency audit (P7)**
 
-Ver https://pypi.org/project/django-polymorphic/. Última release compatible con Django 5: `django-polymorphic==3.1.0`.
+Ver https://pypi.org/project/django-polymorphic/. Última release (2026-03-07): `django-polymorphic==4.11.2`, BSD-3-Clause, classifiers oficiales para Django 4.2/5.2/6.0. Python ≥3.10.
+
+**Nota correctiva (2026-04-23):** el primer draft del plan puso `3.1.0` — release de 2021, pre-Django-5, fuera del audit de 18 meses. No usar 3.x.
 
 Chequeo de sanidad (spec dim 7 — security by default):
 
@@ -76,7 +78,7 @@ Agregar entry en `docs/ENV.md` o `docs/DEPENDENCIES.md` (crear si no existe) reg
 
 ```
 # Abrir backend/requirements.txt y agregar después de django-admin-sortable2:
-django-polymorphic==3.1.0
+django-polymorphic==4.11.2
 ```
 
 - [ ] **Step 3: Rebuildear imagen backend**
@@ -89,13 +91,15 @@ docker compose up -d backend
 - [ ] **Step 4: Verificar import**
 
 ```bash
-docker compose exec -T backend python -c "from polymorphic.models import PolymorphicModel; print('ok')"
+docker compose exec -T backend python manage.py shell -c "from polymorphic.models import PolymorphicModel; print('ok')"
 ```
 Expected: `ok`.
 
+**Nota:** usá `manage.py shell -c` y NO `python -c` bare — `polymorphic.models` importa `django.contrib.contenttypes.models.ContentType` a module load, lo cual requiere que Django haya corrido `django.setup()`. Con `python -c` falla con `AppRegistryNotReady`; con `manage.py shell` funciona.
+
 - [ ] **Step 5: Agregar app a INSTALLED_APPS**
 
-Modify: `backend/config/settings.py` — buscar `INSTALLED_APPS` y agregar `"polymorphic"` antes de las apps propias del proyecto:
+Modify: `backend/config/settings/base.py` (el repo tiene split settings; base.py es el compartido entre development/production/test) — buscar `INSTALLED_APPS` y agregar `"polymorphic"` antes de las apps propias del proyecto:
 
 ```python
 INSTALLED_APPS = [
@@ -115,8 +119,8 @@ Expected: `System check identified no issues (0 silenced).`
 - [ ] **Step 7: Commit**
 
 ```bash
-git add backend/requirements.txt backend/config/settings.py
-git commit -m "build(backend): add django-polymorphic 3.1.0 for typed block MTI"
+git add backend/requirements.txt backend/config/settings/base.py docs/DEPENDENCIES.md
+git commit -m "build(backend): add django-polymorphic 4.11.2 for typed block MTI"
 ```
 
 ---
