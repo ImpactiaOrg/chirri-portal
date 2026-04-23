@@ -5,6 +5,7 @@ Polimorfismo de ReportBlock via django-polymorphic:
 - ReportBlockAdmin standalone como PolymorphicParentModelAdmin.
 - Un PolymorphicChildModelAdmin por subtipo con sus own child row inlines.
 """
+from adminsortable2.admin import SortableAdminBase, SortableTabularInline
 from django.contrib import admin
 from polymorphic.admin import (
     PolymorphicInlineSupportMixin,
@@ -23,35 +24,57 @@ from .models import (
 )
 
 
-# -------- Child row inlines (TabularInline) --------
+# -------- Child row inlines --------
+#
+# Los 4 inlines que exponen un campo de orden usable (KpiTile / MetricsTableRow
+# / ChartDataPoint / TopContent) usan SortableTabularInline de adminsortable2
+# para habilitar drag-reorder en el admin. Los modelos tienen Meta.ordering que
+# empieza con el FK al parent (para scopar el orden por parent), así que el
+# inline explicita su propio `ordering` en el campo de orden real.
+#
+# OneLinkAttributionInline queda como TabularInline plain: el orden canonical
+# es por `-app_downloads` (descending) y no es user-reorderable.
 
-class KpiTileInline(admin.TabularInline):
+
+class KpiTileInline(SortableTabularInline):
     model = KpiTile
     extra = 0
     fields = ("order", "label", "value", "period_comparison")
+    ordering = ("order",)
 
 
-class MetricsTableRowInline(admin.TabularInline):
+class MetricsTableRowInline(SortableTabularInline):
     model = MetricsTableRow
     extra = 0
     fields = ("order", "metric_name", "value", "source_type", "period_comparison")
+    ordering = ("order",)
 
 
-class ChartDataPointInline(admin.TabularInline):
+class ChartDataPointInline(SortableTabularInline):
     model = ChartDataPoint
     extra = 0
     fields = ("order", "label", "value")
+    ordering = ("order",)
 
 
-class TopContentInline(admin.TabularInline):
-    """Inline de TopContent dentro de TopContentBlock admin."""
+class TopContentInline(SortableTabularInline):
+    """Inline de TopContent dentro de TopContentBlock admin.
+
+    TopContent usa `rank` (no `order`) como campo de ordering; el inline lo
+    declara explícitamente para que adminsortable2 lo use como drag field.
+    """
     model = TopContent
     extra = 0
     fields = ("rank", "kind", "network", "source_type", "handle", "thumbnail", "post_url")
+    ordering = ("rank",)
 
 
 class OneLinkAttributionInline(admin.TabularInline):
-    """Inline de OneLinkAttribution dentro de AttributionTableBlock admin."""
+    """Inline de OneLinkAttribution dentro de AttributionTableBlock admin.
+
+    Plain TabularInline (no sortable): el orden canonical es `-app_downloads`
+    y no es user-reorderable, así que drag-reorder no aplica.
+    """
     model = OneLinkAttribution
     extra = 0
     fields = ("influencer_handle", "clicks", "app_downloads")
@@ -137,9 +160,16 @@ class ReportBlockAdmin(PolymorphicParentModelAdmin):
     search_fields = ("report__title",)
 
 
-class _BlockChildAdminBase(PolymorphicChildModelAdmin):
+class _BlockChildAdminBase(SortableAdminBase, PolymorphicChildModelAdmin):
     """Base común de los 6 subtipos. Cada uno puede sobrescribir `inlines`
-    para agregar sus child rows."""
+    para agregar sus child rows.
+
+    Hereda `SortableAdminBase` para que los child admins que hostean
+    SortableTabularInline (KpiGrid / MetricsTable / Chart / TopContent) emitan
+    el CSS/JS de adminsortable2 y habiliten drag-reorder en el UI. Subtipos
+    que no usan sortable inlines (TextImage, AttributionTable) lo heredan
+    inofensivamente — el mixin es no-op si no hay sortable inlines.
+    """
     base_model = ReportBlock
     # Los fields se derivan automáticamente del modelo subtipo.
     # Se podría explicitar cada uno con `base_fieldsets`, pero Django introspection
