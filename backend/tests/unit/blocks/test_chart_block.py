@@ -30,6 +30,25 @@ def test_chart_block_rejects_unknown_chart_type(report_factory):
     from django.core.exceptions import ValidationError
     from apps.reports.models import ChartBlock
     report = report_factory()
-    block = ChartBlock(report=report, order=1, chart_type="pie")  # no soportado
+    # "pie" no está en CHART_TYPES (solo bar/line son válidos).
+    block = ChartBlock(report=report, order=1, chart_type="pie")
     with pytest.raises(ValidationError):
         block.full_clean()
+
+
+@pytest.mark.django_db
+def test_chart_block_accepts_line_type(report_factory):
+    """DEV-128: ChartBlock.chart_type debe aceptar 'line' además de 'bar'."""
+    from apps.reports.models import ChartBlock
+    report = report_factory()
+    block = ChartBlock(report=report, order=1, chart_type="line")
+    block.full_clean()  # no debe raisear
+    block.save()
+    assert block.chart_type == "line"
+
+
+def test_chart_types_enum_contains_bar_and_line():
+    """DEV-128: guardrail contra regresión del enum de chart_type."""
+    from apps.reports.models.blocks.chart import CHART_TYPES
+    values = {value for value, _label in CHART_TYPES}
+    assert values == {"bar", "line"}

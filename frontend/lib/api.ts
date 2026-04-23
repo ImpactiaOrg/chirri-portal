@@ -208,7 +208,7 @@ export type ChartBlockDto = BaseBlockFields & {
   type: "ChartBlock";
   title: string;
   network: Network | null;
-  chart_type: "bar";
+  chart_type: "bar" | "line";
   data_points: ChartDataPointDto[];
 };
 
@@ -219,6 +219,18 @@ export type ReportBlockDto =
   | TopContentBlockDto
   | AttributionTableBlockDto
   | ChartBlockDto;
+
+export type ReportAttachmentKind = "PDF_REPORT" | "DATA_EXPORT" | "ANNEX" | "OTHER";
+
+export type ReportAttachmentDto = {
+  id: number;
+  title: string;
+  url: string | null;
+  mime_type: string;
+  size_bytes: number;
+  kind: ReportAttachmentKind;
+  order: number;
+};
 
 export type ReportDto = {
   id: number;
@@ -237,7 +249,7 @@ export type ReportDto = {
   campaign_name: string;
   brand_name: string;
   blocks: ReportBlockDto[];
-  original_pdf_url: string | null;
+  attachments: ReportAttachmentDto[];
 };
 
 export type PagedResponse<T> = { count: number; next: string | null; previous: string | null; results: T[] };

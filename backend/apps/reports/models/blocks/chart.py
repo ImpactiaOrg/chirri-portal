@@ -6,7 +6,7 @@ from apps.reports.choices import Network
 from .base_block import ReportBlock
 
 
-CHART_TYPES = [("bar", "Bar")]  # extensible a future (line, area, etc.)
+CHART_TYPES = [("bar", "Bar"), ("line", "Line")]  # extensible a future (area, etc.)
 
 
 class ChartBlock(ReportBlock):
