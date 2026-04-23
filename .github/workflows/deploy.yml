@@ -1,8 +1,10 @@
 name: Deploy
 
+# Deploy disabled auto-trigger until Hetzner env exists. Only manual
+# dispatch for now (workflow_dispatch). When infra is ready, re-add the
+# appropriate push trigger (likely `branches: [main]` unless a separate
+# deploy branch is re-introduced).
 on:
-  push:
-    branches: [development]
   workflow_dispatch:
 
 concurrency:
@@ -25,8 +27,8 @@ jobs:
           script: |
             set -euo pipefail
             cd /opt/chirri-portal
-            git fetch origin development
-            git reset --hard origin/development
+            git fetch origin main
+            git reset --hard origin/main
             docker compose -f docker-compose.prod.yml pull || true
             docker compose -f docker-compose.prod.yml build
             docker compose -f docker-compose.prod.yml up -d
@@ -37,7 +39,7 @@ jobs:
   post_deploy_smoke:
     needs: deploy
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/development'
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

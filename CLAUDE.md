@@ -39,6 +39,10 @@ Credenciales demo: `belen.rizzo@balanz.com` / `balanz2026`.
 
 ## Branch model
 
-- `development` = branch de deploy (push dispara `deploy.yml` → Hetzner).
-- `main` = production-ready.
-- CI (`test.yml`) corre backend + frontend + e2e-smoke en cada push/PR a `main` o `development`.
+- `main` = single working branch. No hay `development` separado por ahora
+  (se eliminó 2026-04-23 porque no tenemos Hetzner todavía y mantener un
+  deploy branch vacío era overhead). Cuando venga Hetzner volvemos a
+  separar deploy/main.
+- CI (`test.yml`) corre backend + frontend + e2e-smoke en cada push/PR a `main`.
+- `deploy.yml` está en modo `workflow_dispatch` (manual) hasta que exista
+  el target Hetzner + secretos `HETZNER_HOST/USER/SSH_KEY/DEPLOY_URL`.
