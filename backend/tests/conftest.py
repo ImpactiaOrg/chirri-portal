@@ -14,6 +14,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.campaigns.models import Campaign, Stage
 from apps.reports.models import Report, ReportMetric
+from apps.reports.tests.factories import make_report
 from apps.tenants.models import Brand, Client
 from apps.users.models import ClientUser
 
@@ -120,3 +121,9 @@ def balanz_published_report(balanz_stage):
         value=123456,
     )
     return r
+
+
+@pytest.fixture
+def report_factory(db):
+    """Fixture: callable que crea un Report nuevo cada vez (DEV-116)."""
+    return make_report
