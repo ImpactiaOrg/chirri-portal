@@ -1,8 +1,8 @@
 {
-  "last_scan": "2026-04-20",
+  "last_scan": "2026-04-23",
   "overall_grade": "B",
   "previous_grade": "B",
-  "trending": "=",
+  "trending": "up_within_band",
   "scanned_domains": [
     "backend/apps/campaigns",
     "frontend/app/campaigns",
@@ -18,12 +18,13 @@
       "principles": "A",
       "patterns": "A",
       "security": "A",
-      "git_health": "A",
+      "git_health": "B",
       "testability": "A",
       "observability": "B",
       "frontend": null,
       "hygiene": "A",
-      "ci_cd": "B",
+      "ci_cd": "A",
+      "score": 3.83,
       "overall": "B"
     },
     "frontend/app/campaigns": {
@@ -34,12 +35,13 @@
       "principles": "A",
       "patterns": "A",
       "security": "A",
-      "git_health": "A",
+      "git_health": "B",
       "testability": "A",
       "observability": "B",
       "frontend": "C",
       "hygiene": "A",
-      "ci_cd": "B",
+      "ci_cd": "A",
+      "score": 3.38,
       "overall": "B"
     },
     "backend/apps/reports": {
@@ -50,28 +52,30 @@
       "principles": "A",
       "patterns": "A",
       "security": "A",
-      "git_health": "A",
+      "git_health": "B",
       "testability": "A",
       "observability": "B",
       "frontend": null,
       "hygiene": "A",
-      "ci_cd": "B",
+      "ci_cd": "A",
+      "score": 3.83,
       "overall": "B"
     },
     "frontend/app/reports": {
       "tests": "A",
-      "dry": "C",
+      "dry": "B",
       "boundaries": "A",
       "docs_complexity": "A",
       "principles": "A",
       "patterns": "A",
       "security": "A",
-      "git_health": "A",
+      "git_health": "B",
       "testability": "A",
       "observability": "B",
       "frontend": "C",
       "hygiene": "A",
-      "ci_cd": "B",
+      "ci_cd": "A",
+      "score": 3.61,
       "overall": "B"
     }
   },
@@ -83,6 +87,7 @@
   },
   "history": [
     {"date": "2026-04-20", "overall": "B", "trend": null, "note": "first scan, campaigns only"},
-    {"date": "2026-04-20", "overall": "B", "trend": "=", "note": "reports domain added"}
+    {"date": "2026-04-20", "overall": "B", "trend": "=", "note": "reports domain added"},
+    {"date": "2026-04-23", "overall": "B", "trend": "up_within_band", "note": "post DEV-116 typed blocks refactor; backend/reports score 3.4 -> 3.83"}
   ]
 }

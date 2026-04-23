@@ -2,29 +2,33 @@
 
 **Last scan:** 2026-04-23 (post DEV-116 typed blocks refactor)
 **Scanned domains:** `backend/apps/campaigns`, `frontend/app/campaigns`, `backend/apps/reports`, `frontend/app/reports`
-**Overall grade (scanned):** B+
+**Overall grade (scanned):** B
 **Previous grade:** B
-**Trending:** ↑
+**Trending:** ↑ (within-band)
 
 ## Domain Grades
 
-| Domain | Tests | DRY | Boundaries | Docs | Principles | Patterns | Security | Git | Testability | Observability | Frontend | Hygiene | CI/CD | Overall |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| backend/apps/campaigns | A | A | A | A | A | A | A | A | A | B | — | A | B | **B+** |
-| frontend/app/campaigns | B | C | A | A | A | A | A | A | A | B | C | A | B | **B** |
-| backend/apps/reports | A | A | A | A | A | A | A | A | A | B | — | A | B | **A-** |
-| frontend/app/reports | A | C | A | A | A | A | A | A | A | B | C | A | B | **B** |
+| Domain | Tests | DRY | Boundaries | Docs | Principles | Patterns | Security | Git | Testability | Observability | Frontend | Hygiene | CI/CD | Score | Overall |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| backend/apps/campaigns | A | A | A | A | A | A | A | B | A | B | — | A | A | 3.83 | **B** |
+| frontend/app/campaigns | B | C | A | A | A | A | A | B | A | B | C | A | A | 3.38 | **B** |
+| backend/apps/reports | A | A | A | A | A | A | A | B | A | B | — | A | A | 3.83 | **B** |
+| frontend/app/reports | A | B | A | A | A | A | A | B | A | B | C | A | A | 3.61 | **B** |
 
-All four scanned domains pass the entropy-driven quality gate (≥ B). No entropy-fix cycle required.
+Score agregado usa letter-to-number (A=4, B=3, C=2, D=1, F=0) / agent_count, round DOWN. Todos los dominios siguen en banda B pero más arriba que el scan previo — `backend/apps/reports` pasó de 3.4 → 3.83 (casi A) gracias a DEV-116.
 
-**DEV-116 impact:** `backend/apps/reports` rose from B to A- after the typed blocks refactor. Key drivers:
-- Eliminated the `ReportBlock.config` JSONField + imperative validators; replaced with typed Django models (constraints enforced at DB).
-- Eliminated `services/aggregations.py` (dead cross-report rollups); report is now a pure snapshot.
-- Admin UX no longer requires JSON editing (`django-polymorphic` typed forms).
-- Dependency audit process captured in `docs/DEPENDENCIES.md`.
-- New tenant scoping regression test (`test_tenant_scoping.py`) guards the CLAUDE.md gotcha explicitly.
+**DEV-116 impact — dimensiones que subieron:**
+- **DRY (backend/reports)**: B→A. Eliminó `blocks/registry.py`, `blocks/schemas.py`, `services/aggregations.py` — el duplicate structure paralelo desaparece.
+- **Principles (backend/reports)**: A con citas explícitas P2/P4/P10 en el spec.
+- **CI/CD**: B→A. Rollback procedure documentada explícita en `docs/DEPLOY.md` (nuevo).
+- **Hygiene**: `docs/DEPENDENCIES.md` nuevo con audit metadata; spec+plan committed correctamente.
 
-Overall rises from B to B+ because backend/reports moved up while frontend grades stayed (design-system debt still open).
+**Drags que persisten (fuera del scope de DEV-116):**
+- **Git Health B** en todos los dominios: alta churn del período (DEV-116 mismo, 16 commits en 2 días) + bus factor single-author (>80% Dani). Self-limiting — normaliza post-merge.
+- **Observability B** (repo-wide): sin request tracing / correlation IDs / Prometheus metrics. Gap pre-existente.
+- **Frontend Quality C**: design-system debt (fontSize/padding/colors hardcoded en `frontend/app/*`). No tocado por DEV-116.
+
+All four domains pass the entropy-driven quality gate (≥ B). No entropy-fix cycle required.
 
 ## Detailed Findings
 
@@ -193,4 +197,4 @@ new debt markers.
 |---|---|---|
 | 2026-04-20 | B | — (first scan, campaigns only) |
 | 2026-04-20 | B | = (reports domain added, same grade) |
-| 2026-04-23 | B+ | ↑ (DEV-116: backend/reports B→A-, typed blocks refactor eliminates JSON config + aggregations) |
+| 2026-04-23 | B | ↑ within-band (DEV-116: backend/reports score 3.4 → 3.83; eliminates JSON config, aggregations, ReportMetric; rollback doc lands) |
