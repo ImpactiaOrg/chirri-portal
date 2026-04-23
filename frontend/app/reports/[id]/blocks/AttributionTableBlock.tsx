@@ -1,22 +1,17 @@
-import type { ReportBlockDto, ReportDto } from "@/lib/api";
-
-type AttributionTableConfig = { title?: string; show_total?: boolean };
+import type { AttributionTableBlockDto } from "@/lib/api";
 
 export default function AttributionTableBlock({
   block,
-  report,
 }: {
-  block: ReportBlockDto;
-  report: ReportDto;
+  block: AttributionTableBlockDto;
 }) {
-  const cfg = (block.config ?? {}) as AttributionTableConfig;
-  const rows = report.onelink ?? [];
+  const rows = block.entries ?? [];
   if (rows.length === 0) return null;
 
-  const showTotal = cfg.show_total !== false;
+  const showTotal = block.show_total !== false;
   const totalClicks = rows.reduce((a, r) => a + r.clicks, 0);
   const totalDownloads = rows.reduce((a, r) => a + r.app_downloads, 0);
-  const title = cfg.title ?? "Atribución OneLink";
+  const title = block.title?.trim() || "Atribución OneLink";
 
   return (
     <section style={{ marginBottom: 48 }}>

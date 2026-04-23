@@ -1,81 +1,15 @@
-import type { ReportBlockDto, ReportDto, Network } from "@/lib/api";
+import type { KpiGridBlockDto } from "@/lib/api";
 import KpiTile from "../components/KpiTile";
 
-const NETWORKS: Network[] = ["INSTAGRAM", "TIKTOK", "X"];
+export default function KpiGridBlock({ block }: { block: KpiGridBlockDto }) {
+  const tiles = [...(block.tiles ?? [])].sort((a, b) => a.order - b.order);
+  if (tiles.length === 0) return null;
 
-type KpiSource =
-  | "reach_total"
-  | "reach_organic"
-  | "reach_influencer"
-  | "reach_paid"
-  | "engagement_total";
-
-type Tile = { label: string; source: KpiSource };
-
-type KpiGridConfig = { title?: string; tiles: Tile[] };
-
-function sumReachByType(
-  report: ReportDto,
-  filter: "total" | "ORGANIC" | "INFLUENCER" | "PAID",
-): number {
-  return NETWORKS.reduce((acc, n) => {
-    return (
-      acc +
-      report.metrics
-        .filter(
-          (m) =>
-            m.network === n &&
-            m.metric_name === "reach" &&
-            (filter === "total" ? true : m.source_type === filter),
-        )
-        .reduce((a, m) => a + Number(m.value), 0)
-    );
-  }, 0);
-}
-
-function sumEngagement(report: ReportDto): number {
-  return report.metrics
-    .filter((m) => m.metric_name === "engagement")
-    .reduce((a, m) => a + Number(m.value), 0);
-}
-
-function computeTileValue(report: ReportDto, source: KpiSource): number {
-  switch (source) {
-    case "reach_total":
-      return sumReachByType(report, "total");
-    case "reach_organic":
-      return sumReachByType(report, "ORGANIC");
-    case "reach_influencer":
-      return sumReachByType(report, "INFLUENCER");
-    case "reach_paid":
-      return sumReachByType(report, "PAID");
-    case "engagement_total":
-      return sumEngagement(report);
-    default:
-      return 0;
-  }
-}
-
-export default function KpiGridBlock({
-  block,
-  report,
-}: {
-  block: ReportBlockDto;
-  report: ReportDto;
-}) {
-  const cfg = block.config as unknown as KpiGridConfig;
-  if (!Array.isArray(cfg?.tiles) || cfg.tiles.length === 0) {
-    console.warn("invalid_kpi_grid_config", block.id, cfg);
-    return null;
-  }
-
-  const values = cfg.tiles.map((t) => computeTileValue(report, t.source));
-  if (values.every((v) => v === 0)) return null;
+  const title = block.title?.trim() || "KPIs del mes";
 
   return (
     <section style={{ marginBottom: 48 }}>
-      {cfg.title ? <span className="pill-title">{cfg.title.toUpperCase()}</span>
-        : <span className="pill-title">KPIs DEL MES</span>}
+      <span className="pill-title">{title.toUpperCase()}</span>
       <div
         style={{
           display: "grid",
@@ -84,8 +18,13 @@ export default function KpiGridBlock({
           marginTop: 16,
         }}
       >
-        {cfg.tiles.map((tile, i) => (
-          <KpiTile key={i} label={tile.label} value={values[i]} />
+        {tiles.map((tile, i) => (
+          <KpiTile
+            key={i}
+            label={tile.label}
+            value={Number(tile.value)}
+            delta={tile.period_comparison !== null ? Number(tile.period_comparison) : null}
+          />
         ))}
       </div>
     </section>

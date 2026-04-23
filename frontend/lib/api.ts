@@ -114,15 +114,30 @@ export type CampaignDetailDto = {
   stages_with_reports: StageWithReportsDto[];
 };
 
-export type ReportMetricDto = {
-  network: Network;
-  source_type: SourceType;
-  metric_name: string;
-  value: string;
+// -- Child row DTOs --
+
+export type KpiTileDto = {
+  label: string;
+  value: string; // Decimal serialized as string
   period_comparison: string | null;
+  order: number;
 };
 
-export type TopContentDto = {
+export type MetricsTableRowDto = {
+  metric_name: string;
+  value: string;
+  source_type: SourceType | null;
+  period_comparison: string | null;
+  order: number;
+};
+
+export type ChartDataPointDto = {
+  label: string;
+  value: string;
+  order: number;
+};
+
+export type TopContentItemDto = {
   kind: "POST" | "CREATOR";
   network: Network;
   source_type: SourceType;
@@ -131,53 +146,79 @@ export type TopContentDto = {
   caption: string;
   thumbnail_url: string | null;
   post_url: string;
-  metrics: Record<string, number>;
+  metrics: Record<string, unknown>;
 };
 
-export type OneLinkAttributionDto = {
+// Back-compat alias: ContentCard still imports TopContentDto.
+export type TopContentDto = TopContentItemDto;
+
+export type OneLinkEntryDto = {
   influencer_handle: string;
   clicks: number;
   app_downloads: number;
 };
 
-export type FollowerSnapshotPoint = {
-  month: string;
-  as_of: string;
-  count: number;
-};
+// -- Block subtype DTOs (discriminated union on `type`) --
 
-export type Q1RollupDto = {
-  months: string[];
-  rows: Array<{
-    metric: string;
-    network: Network;
-    values: Array<number | null>;
-  }>;
-};
-
-export type YoyRowDto = {
-  metric: "reach" | "er";
-  network: Network;
-  current: number;
-  year_ago: number;
-};
-
-export type ReportBlockType =
-  | "TEXT_IMAGE"
-  | "KPI_GRID"
-  | "METRICS_TABLE"
-  | "TOP_CONTENT"
-  | "ATTRIBUTION_TABLE"
-  | "CHART";
-
-export type ReportBlockDto = {
+type BaseBlockFields = {
   id: number;
-  type: ReportBlockType;
   order: number;
-  config: Record<string, unknown>;
-  image_url: string | null;
-  items: TopContentDto[];
+  instructions: string;
 };
+
+export type TextImageBlockDto = BaseBlockFields & {
+  type: "TextImageBlock";
+  title: string;
+  body: string;
+  columns: 1 | 2 | 3;
+  image_position: "left" | "right" | "top";
+  image_alt: string;
+  image_url: string | null;
+};
+
+export type KpiGridBlockDto = BaseBlockFields & {
+  type: "KpiGridBlock";
+  title: string;
+  tiles: KpiTileDto[];
+};
+
+export type MetricsTableBlockDto = BaseBlockFields & {
+  type: "MetricsTableBlock";
+  title: string;
+  network: Network | null;
+  rows: MetricsTableRowDto[];
+};
+
+export type TopContentBlockDto = BaseBlockFields & {
+  type: "TopContentBlock";
+  title: string;
+  kind: "POST" | "CREATOR";
+  limit: number;
+  items: TopContentItemDto[];
+};
+
+export type AttributionTableBlockDto = BaseBlockFields & {
+  type: "AttributionTableBlock";
+  title: string;
+  show_total: boolean;
+  entries: OneLinkEntryDto[];
+};
+
+export type ChartBlockDto = BaseBlockFields & {
+  type: "ChartBlock";
+  title: string;
+  network: Network | null;
+  chart_type: "bar";
+  data_points: ChartDataPointDto[];
+};
+
+export type ReportBlockDto =
+  | TextImageBlockDto
+  | KpiGridBlockDto
+  | MetricsTableBlockDto
+  | TopContentBlockDto
+  | AttributionTableBlockDto
+  | ChartBlockDto;
 
 export type ReportDto = {
   id: number;
@@ -195,11 +236,6 @@ export type ReportDto = {
   campaign_id: number;
   campaign_name: string;
   brand_name: string;
-  metrics: ReportMetricDto[];
-  onelink: OneLinkAttributionDto[];
-  follower_snapshots: Record<string, FollowerSnapshotPoint[]>;
-  q1_rollup: Q1RollupDto | null;
-  yoy: YoyRowDto[] | null;
   blocks: ReportBlockDto[];
   original_pdf_url: string | null;
 };

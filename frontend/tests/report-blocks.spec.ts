@@ -29,9 +29,10 @@ test.describe("Report viewer · blocks", () => {
       .click();
     await expect(page).toHaveURL(/\/reports\/\d+$/);
 
-    // Pill-titles we expect in order (from seed_demo blocks).
-    // NOTE: the YoY block is present in seed_demo but renders null because
-    // seed data has no prior-year reports — its pill correctly does not appear.
+    // Pill-titles we expect in order (from seed_demo typed blocks).
+    // Post-DEV-116: YoY and Q1 rollup blocks no longer exist — their data
+    // used to be computed from cross-report aggregates (ReportMetric) that
+    // were removed when blocks became self-contained snapshots.
     const expectedPills = [
       /KPIS DEL MES/i,
       /MES A MES/i,
@@ -42,7 +43,6 @@ test.describe("Report viewer · blocks", () => {
       /CREATORS DEL MES/i,
       /ATRIBUCIÓN ONELINK/i,
       /FOLLOWERS/i,
-      /Q1 ROLLUP/i,
     ];
     for (const pill of expectedPills) {
       await expect(page.getByText(pill).first()).toBeVisible();

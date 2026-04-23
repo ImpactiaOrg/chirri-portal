@@ -1,24 +1,11 @@
-import type { ReportBlockDto } from "@/lib/api";
+import type { TextImageBlockDto } from "@/lib/api";
 
-type TextImageConfig = {
-  title?: string;
-  text?: string;
-  columns: 1 | 2 | 3;
-  image_position: "left" | "right" | "top";
-  image_alt?: string;
-};
-
-export default function TextImageBlock({ block }: { block: ReportBlockDto }) {
-  const cfg = block.config as unknown as TextImageConfig;
-  if (!cfg || ![1, 2, 3].includes(cfg.columns as number)) {
-    console.warn("invalid_text_image_config", block.id, cfg);
-    return null;
-  }
+export default function TextImageBlock({ block }: { block: TextImageBlockDto }) {
   const hasImage = !!block.image_url;
-  const hasText = !!(cfg.text || cfg.title);
+  const hasText = !!(block.body || block.title);
   if (!hasImage && !hasText) return null;
 
-  const position = cfg.image_position ?? "top";
+  const position = block.image_position ?? "top";
   const direction =
     position === "top" || !hasImage
       ? "column"
@@ -28,7 +15,7 @@ export default function TextImageBlock({ block }: { block: ReportBlockDto }) {
 
   return (
     <section style={{ marginBottom: 48 }}>
-      {cfg.title && <span className="pill-title">{cfg.title.toUpperCase()}</span>}
+      {block.title && <span className="pill-title">{block.title.toUpperCase()}</span>}
       <div
         style={{
           display: "flex",
@@ -42,20 +29,20 @@ export default function TextImageBlock({ block }: { block: ReportBlockDto }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={block.image_url!}
-            alt={cfg.image_alt ?? cfg.title ?? ""}
+            alt={block.image_alt || block.title || ""}
             style={{ maxWidth: hasText ? "50%" : "100%", borderRadius: 8 }}
           />
         )}
-        {cfg.text && (
+        {block.body && (
           <div
             style={{
-              columnCount: cfg.columns,
+              columnCount: block.columns,
               columnGap: 24,
               maxWidth: 720,
               whiteSpace: "pre-wrap",
             }}
           >
-            {cfg.text}
+            {block.body}
           </div>
         )}
       </div>

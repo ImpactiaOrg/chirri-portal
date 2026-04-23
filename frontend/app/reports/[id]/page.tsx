@@ -57,17 +57,17 @@ export default async function ReportPage({ params }: { params: { id: string } })
           </>
         ) : (
           (() => {
-            const kpiIdx = report.blocks.findIndex((b) => b.type === "KPI_GRID");
-            // Conclusions land right after the first KPI_GRID block so the
+            const kpiIdx = report.blocks.findIndex((b) => b.type === "KpiGridBlock");
+            // Conclusions land right after the first KpiGridBlock so the
             // takeaway sits next to the top-line numbers. When the report has
-            // no KPI_GRID, fall through and render conclusions before the
+            // no KpiGridBlock, fall through and render conclusions before the
             // block list so it stays at the top of the page.
             return (
               <>
                 {kpiIdx === -1 && <ConclusionsSection report={report} />}
                 {report.blocks.map((block, i) => (
                   <Fragment key={block.id}>
-                    <BlockRenderer block={block} report={report} />
+                    <BlockRenderer block={block} />
                     {i === kpiIdx && <ConclusionsSection report={report} />}
                   </Fragment>
                 ))}

@@ -1,25 +1,14 @@
-import type { ReportBlockDto, ReportDto, TopContentDto } from "@/lib/api";
+import type { TopContentBlockDto } from "@/lib/api";
 import ContentCard from "../components/ContentCard";
 
-type TopContentConfig = { title?: string; kind: "POST" | "CREATOR"; limit?: number };
-
-export default function TopContentBlock({
-  block,
-}: {
-  block: ReportBlockDto;
-  report: ReportDto;
-}) {
-  const cfg = block.config as unknown as TopContentConfig;
-  if (!cfg || (cfg.kind !== "POST" && cfg.kind !== "CREATOR")) {
-    console.warn("invalid_top_content_config", block.id, cfg);
-    return null;
-  }
-  const limit = typeof cfg.limit === "number" && cfg.limit > 0 ? cfg.limit : 6;
-  const items: TopContentDto[] = (block.items ?? []).slice(0, limit);
+export default function TopContentBlock({ block }: { block: TopContentBlockDto }) {
+  const limit = typeof block.limit === "number" && block.limit > 0 ? block.limit : 6;
+  const items = (block.items ?? []).slice(0, limit);
 
   if (items.length === 0) return null;
 
-  const title = cfg.title ?? (cfg.kind === "POST" ? "Posts del mes" : "Creators del mes");
+  const title = block.title?.trim()
+    || (block.kind === "POST" ? "Posts del mes" : "Creators del mes");
 
   return (
     <section style={{ marginBottom: 48 }}>
