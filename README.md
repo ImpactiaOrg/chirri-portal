@@ -74,24 +74,27 @@ Ver `docs/ENV.md`. En dev dejá `USE_R2` unset — se usa filesystem local.
 ## Reportes
 
 Cada `Report` tiene una base fija (título, período, intro, conclusiones, `original_pdf` opcional)
-y una lista ordenada de `ReportBlock`. Los bloques definen qué se muestra y en qué orden; la data
-viene del `Report` agregado. Tipos soportados en fase 1:
+y una lista ordenada de `ReportBlock`. Post-DEV-116 los bloques son **tipados**: cada subtipo es
+su propio modelo Django con columnas específicas (herencia multi-tabla via `django-polymorphic`).
+La data de cada bloque vive directamente dentro del subtipo o en tablas hijas — no hay
+`ReportMetric` ni `config` JSON compartido.
 
-| Tipo               | Cuándo usarlo                                              |
-|--------------------|------------------------------------------------------------|
-| `TEXT_IMAGE`       | Bloque narrativo con título, texto multi-columna e imagen. |
-| `KPI_GRID`         | Tarjetas de KPIs (reach total / orgánico / influencer).    |
-| `METRICS_TABLE`    | Tabla filtrable de métricas, YoY o Q1 rollup.              |
-| `TOP_CONTENT`      | Grid de mejores posts o creators.                          |
-| `ATTRIBUTION_TABLE`| Tabla de OneLink (clicks + descargas por influencer).      |
-| `CHART`            | Bar chart de follower snapshots por red.                   |
+| Subtipo                 | Cuándo usarlo                                              | Children                |
+|-------------------------|------------------------------------------------------------|-------------------------|
+| `TextImageBlock`        | Bloque narrativo con título, texto multi-columna e imagen. | —                       |
+| `KpiGridBlock`          | Tarjetas de KPIs (reach total / orgánico / influencer).    | `KpiTile`               |
+| `MetricsTableBlock`     | Tabla de métricas, opcionalmente etiquetada por network.   | `MetricsTableRow`       |
+| `TopContentBlock`       | Grid de mejores posts o creators.                          | `TopContent`            |
+| `AttributionTableBlock` | Tabla de OneLink (clicks + descargas por influencer).      | `OneLinkAttribution`    |
+| `ChartBlock`            | Bar chart (follower growth), un chart por bloque.          | `ChartDataPoint`        |
 
-Los bloques se crean desde Django admin (reordenables con drag-drop) o vía `seed_demo`.
-Tras mergear DEV-105 en prod, correr una vez:
+Los bloques se crean desde Django admin (dropdown polimórfico "Add block" + formularios tipados
+por subtipo — sin JSON) o vía `seed_demo`. Para regenerar los reportes demo:
 
-    docker compose exec backend python manage.py seed_demo --wipe
+    docker compose exec backend python manage.py seed_demo
 
-para regenerar los reportes demo con bloques.
+Ver `docs/superpowers/specs/2026-04-22-dev-116-typed-blocks-refactor-design.md` para el diseño
+completo.
 
 ## Deploy
 

@@ -1,21 +1,30 @@
 # Quality Score
 
-**Last scan:** 2026-04-20
+**Last scan:** 2026-04-23 (post DEV-116 typed blocks refactor)
 **Scanned domains:** `backend/apps/campaigns`, `frontend/app/campaigns`, `backend/apps/reports`, `frontend/app/reports`
-**Overall grade (scanned):** B
+**Overall grade (scanned):** B+
 **Previous grade:** B
-**Trending:** =
+**Trending:** ↑
 
 ## Domain Grades
 
 | Domain | Tests | DRY | Boundaries | Docs | Principles | Patterns | Security | Git | Testability | Observability | Frontend | Hygiene | CI/CD | Overall |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| backend/apps/campaigns | A | A | A | A | A | A | A | A | A | B | — | A | B | **B** |
+| backend/apps/campaigns | A | A | A | A | A | A | A | A | A | B | — | A | B | **B+** |
 | frontend/app/campaigns | B | C | A | A | A | A | A | A | A | B | C | A | B | **B** |
-| backend/apps/reports | A | A | A | A | A | A | A | A | A | B | — | A | B | **B** |
+| backend/apps/reports | A | A | A | A | A | A | A | A | A | B | — | A | B | **A-** |
 | frontend/app/reports | A | C | A | A | A | A | A | A | A | B | C | A | B | **B** |
 
 All four scanned domains pass the entropy-driven quality gate (≥ B). No entropy-fix cycle required.
+
+**DEV-116 impact:** `backend/apps/reports` rose from B to A- after the typed blocks refactor. Key drivers:
+- Eliminated the `ReportBlock.config` JSONField + imperative validators; replaced with typed Django models (constraints enforced at DB).
+- Eliminated `services/aggregations.py` (dead cross-report rollups); report is now a pure snapshot.
+- Admin UX no longer requires JSON editing (`django-polymorphic` typed forms).
+- Dependency audit process captured in `docs/DEPENDENCIES.md`.
+- New tenant scoping regression test (`test_tenant_scoping.py`) guards the CLAUDE.md gotcha explicitly.
+
+Overall rises from B to B+ because backend/reports moved up while frontend grades stayed (design-system debt still open).
 
 ## Detailed Findings
 
@@ -184,3 +193,4 @@ new debt markers.
 |---|---|---|
 | 2026-04-20 | B | — (first scan, campaigns only) |
 | 2026-04-20 | B | = (reports domain added, same grade) |
+| 2026-04-23 | B+ | ↑ (DEV-116: backend/reports B→A-, typed blocks refactor eliminates JSON config + aggregations) |
