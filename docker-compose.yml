@@ -37,6 +37,18 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+    # runserver only starts *after* bootstrap.sh finishes (migrate +
+    # superuser seed). Using the HTTP port as healthcheck guarantees that
+    # `docker compose up --wait` blocks until migrations are done, so
+    # `seed_demo` can't race the schema in CI.
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/admin/login/', timeout=2)"
+      interval: 3s
+      timeout: 5s
+      retries: 40
+      start_period: 15s
 
   celery:
     build: ./backend
