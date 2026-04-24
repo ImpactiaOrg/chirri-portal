@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { apiFetch, ApiError, type ReportDto } from "@/lib/api";
 import { getAccessToken, getCurrentUser } from "@/lib/auth";
@@ -75,6 +76,42 @@ export default async function ReportPage({ params }: { params: { id: string } })
             );
           })()
         )}
+        <footer
+          style={{
+            marginTop: 48,
+            paddingTop: 32,
+            borderTop: "2px solid var(--chirri-black)",
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: 12,
+            flexWrap: "wrap",
+          }}
+        >
+          <Link
+            href={`/campaigns/${report.campaign_id}`}
+            className="btn"
+            style={{ background: "white", textDecoration: "none" }}
+          >
+            ← Volver a la campaña
+          </Link>
+          {(() => {
+            const primary =
+              report.attachments.find((a) => a.kind === "PDF_REPORT") ??
+              report.attachments[0];
+            if (!primary?.url) return null;
+            return (
+              <a
+                href={primary.url}
+                download
+                aria-label={`Descargar ${primary.title}`}
+                className="btn btn-primary"
+                style={{ textDecoration: "none" }}
+              >
+                Descargar reporte →
+              </a>
+            );
+          })()}
+        </footer>
       </main>
     </>
   );

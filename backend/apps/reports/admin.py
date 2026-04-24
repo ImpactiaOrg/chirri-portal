@@ -15,7 +15,7 @@ from polymorphic.admin import (
 )
 
 from .models import (
-    Report, ReportBlock,
+    Report, ReportAttachment, ReportBlock,
     TextImageBlock, KpiGridBlock, KpiTile,
     MetricsTableBlock, MetricsTableRow,
     TopContentBlock, AttributionTableBlock,
@@ -80,6 +80,15 @@ class OneLinkAttributionInline(admin.TabularInline):
     fields = ("influencer_handle", "clicks", "app_downloads")
 
 
+class ReportAttachmentInline(SortableTabularInline):
+    """Descargas asociadas al reporte (PDF oficial, exports, anexos)."""
+    model = ReportAttachment
+    extra = 0
+    fields = ("order", "title", "file", "kind", "mime_type", "size_bytes")
+    readonly_fields = ("mime_type", "size_bytes")
+    ordering = ("order",)
+
+
 # -------- Polymorphic inline for ReportBlock inside ReportAdmin --------
 
 class ReportBlockInline(StackedPolymorphicInline):
@@ -119,18 +128,17 @@ class ReportBlockInline(StackedPolymorphicInline):
 # -------- ReportAdmin --------
 
 @admin.register(Report)
-class ReportAdmin(PolymorphicInlineSupportMixin, admin.ModelAdmin):
+class ReportAdmin(SortableAdminBase, PolymorphicInlineSupportMixin, admin.ModelAdmin):
     list_display = ("display_title", "stage", "kind", "period_start", "period_end", "status", "published_at")
     list_filter = ("status", "kind", "stage__campaign__brand")
     search_fields = ("title", "stage__name", "stage__campaign__name")
-    inlines = [ReportBlockInline]
+    inlines = [ReportAttachmentInline, ReportBlockInline]
     fieldsets = (
         (None, {
             "fields": (
                 "stage", "kind", "period_start", "period_end",
                 "title", "status", "published_at",
                 "intro_text", "conclusions_text",
-                "original_pdf",
             ),
         }),
     )

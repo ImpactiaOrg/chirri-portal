@@ -1,4 +1,4 @@
-import type { ReportDto } from "@/lib/api";
+import type { ReportAttachmentDto, ReportDto } from "@/lib/api";
 import { formatReportDate } from "@/lib/format";
 import { hasIntro } from "@/lib/has-data";
 
@@ -9,6 +9,69 @@ const KIND_LABEL: Record<ReportDto["kind"], string> = {
   MENSUAL: "Reporte Mensual",
   CIERRE_ETAPA: "Cierre de Etapa",
 };
+
+function iconFor(mime: string): string {
+  if (mime.startsWith("application/pdf")) return "📄";
+  if (mime.includes("spreadsheet") || mime.includes("excel")) return "📊";
+  if (mime.startsWith("image/")) return "🖼️";
+  if (mime.includes("zip") || mime.includes("compressed")) return "🗜️";
+  return "📎";
+}
+
+function formatSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function AttachmentList({ items }: { items: ReportAttachmentDto[] }) {
+  if (items.length === 0) return null;
+  return (
+    <div style={{ position: "relative", marginTop: 20 }}>
+      <div
+        style={{
+          fontSize: 10,
+          letterSpacing: "0.14em",
+          fontWeight: 800,
+          textTransform: "uppercase",
+          color: "var(--chirri-muted)",
+          marginBottom: 8,
+        }}
+      >
+        Descargas
+      </div>
+      <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 6 }}>
+        {items.map((a) => (
+          <li key={a.id}>
+            <a
+              href={a.url ?? "#"}
+              download
+              aria-disabled={!a.url}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "8px 14px",
+                border: "2px solid var(--chirri-black)",
+                borderRadius: 999,
+                background: "white",
+                textDecoration: "none",
+                fontSize: 14,
+                fontWeight: 600,
+              }}
+            >
+              <span aria-hidden>{iconFor(a.mime_type)}</span>
+              <span>{a.title}</span>
+              <span style={{ color: "var(--chirri-muted)", fontWeight: 500 }}>
+                · {formatSize(a.size_bytes)}
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export default function HeaderSection({ report }: { report: ReportDto }) {
   const kindLabel = KIND_LABEL[report.kind] ?? "Reporte";
@@ -115,17 +178,7 @@ export default function HeaderSection({ report }: { report: ReportDto }) {
           </p>
         )}
 
-        {report.original_pdf_url && (
-          <a
-            href={report.original_pdf_url}
-            download
-            aria-label="Descargar PDF original"
-            className="btn btn-primary"
-            style={{ position: "relative", textDecoration: "none", display: "inline-block", marginTop: 8 }}
-          >
-            ↓ Descargar
-          </a>
-        )}
+        <AttachmentList items={report.attachments} />
       </div>
     </section>
   );

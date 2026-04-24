@@ -2,10 +2,7 @@ from django.db import models
 
 from apps.campaigns.models import Stage
 from .choices import Network, SourceType
-from .validators import (
-    validate_image_mimetype, validate_image_size,
-    validate_pdf_mimetype, validate_pdf_size,
-)
+from .validators import validate_image_mimetype, validate_image_size
 
 
 class Report(models.Model):
@@ -35,13 +32,6 @@ class Report(models.Model):
     intro_text = models.TextField(
         blank=True,
         help_text="Intro textual al principio del reporte (separada de conclusions_text).",
-    )
-    original_pdf = models.FileField(
-        upload_to="reports/pdf/%Y/%m/",
-        blank=True,
-        null=True,
-        validators=[validate_pdf_size, validate_pdf_mimetype],
-        help_text="PDF original del reporte (Google Slides export), descargable por el cliente.",
     )
 
     created_at = models.DateTimeField(auto_now_add=True)

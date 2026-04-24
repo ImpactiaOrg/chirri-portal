@@ -13,6 +13,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from django.core.files import File
+from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
@@ -30,6 +31,8 @@ from apps.reports.models import (
     MetricsTableRow,
     OneLinkAttribution,
     Report,
+    ReportAttachment,
+    TextImageBlock,
     TopContent,
     TopContentBlock,
 )
@@ -309,6 +312,19 @@ class Command(BaseCommand):
             ("conversion", Report.Kind.GENERAL, date(2026, 4, 1), date(2026, 5, 31),
              "Plan de la etapa", Report.Status.DRAFT, None,
              "Borrador del plan de conversión. Llegada de Flor Sosa."),
+
+            # Kitchen-sink: usa TODOS los block types (TextImage + KpiGrid +
+            # MetricsTable + TopContent + Attribution + Chart bar+line).
+            # Sirve de fixture visual para QA del viewer de reportes.
+            ("conversion", Report.Kind.GENERAL, date(2026, 4, 1), date(2026, 4, 30),
+             "Reporte general · Abril", Report.Status.PUBLISHED, pub(2026, 5, 2),
+             (
+                 "Abril arrancó la etapa de conversión. Flor Sosa debutó con el "
+                 "reel 'lo saqué del colchón' y disparó un pico de downloads "
+                 "sostenido. El mes cerró con el mejor ratio click→download de "
+                 "la campaña y la cohorte de usuarios nuevos duplicó a la de "
+                 "marzo."
+             )),
         ]
 
         for stage_slug, kind, start, end, title, status, published, conclusions in report_specs:
@@ -329,7 +345,9 @@ class Command(BaseCommand):
             # Reset blocks for idempotency (polymorphic delete cascades children).
             report.blocks.all().delete()
 
-            if (
+            if title == "Reporte general · Abril":
+                _seed_all_blocks_layout(report)
+            elif (
                 kind == Report.Kind.GENERAL
                 and stage.kind in {Stage.Kind.EDUCATION, Stage.Kind.VALIDATION}
                 and start.month == 3
@@ -337,6 +355,11 @@ class Command(BaseCommand):
                 _seed_full_layout(report)
             elif status == Report.Status.PUBLISHED:
                 _seed_minimal_layout(report)
+
+            # Descargable mínimo: todo reporte publicado viene con un PDF
+            # dummy (placeholder hasta que subamos el real desde admin).
+            if status == Report.Status.PUBLISHED:
+                _seed_pdf_attachment(report)
 
     def _seed_report_viewer_fixtures(self, brand: Brand) -> None:
         """Populate the Report Viewer fixtures (TopContent, OneLink, FollowerSnapshots).
@@ -430,7 +453,7 @@ class Command(BaseCommand):
                     )
 
         # Brand-level snapshots: one per month, keyed by (brand, network, as_of).
-        for month, count in [(1, 99_500), (2, 104_568), (3, 107_072)]:
+        for month, count in [(1, 99_500), (2, 104_568), (3, 107_072), (4, 110_240)]:
             BrandFollowerSnapshot.objects.update_or_create(
                 brand=brand,
                 network=Network.INSTAGRAM,
@@ -447,6 +470,34 @@ class Command(BaseCommand):
 _IG_FOLLOWERS = [("Enero", 99_500), ("Febrero", 104_568), ("Marzo", 107_072)]
 _TIKTOK_FOLLOWERS = [("Enero", 42_000), ("Febrero", 48_300), ("Marzo", 54_100)]
 _X_FOLLOWERS = [("Enero", 18_200), ("Febrero", 19_400), ("Marzo", 20_850)]
+
+
+_PDF_DUMMY = (
+    b"%PDF-1.4\n"
+    b"1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n"
+    b"2 0 obj<</Type/Pages/Count 0/Kids[]>>endobj\n"
+    b"xref\n0 3\n0000000000 65535 f \n"
+    b"0000000009 00000 n \n0000000052 00000 n \n"
+    b"trailer<</Size 3/Root 1 0 R>>startxref\n98\n%%EOF\n"
+)
+
+
+def _seed_pdf_attachment(report) -> None:
+    """Adjunta un PDF dummy al reporte (idempotente: borra los existentes
+    y recrea). El contenido es un PDF 1.4 mínimo válido — suficiente para
+    que el browser lo sirva como application/pdf.
+    """
+    report.attachments.all().delete()
+    period = report.period_start.strftime("%Y-%m")
+    file_name = f"reporte-{report.id}-{period}.pdf"
+    attachment = ReportAttachment(
+        report=report,
+        order=0,
+        title="Reporte (PDF)",
+        kind=ReportAttachment.Kind.PDF_REPORT,
+    )
+    attachment.file.save(file_name, ContentFile(_PDF_DUMMY), save=False)
+    attachment.save()
 
 
 def _seed_full_layout(report) -> None:
@@ -605,4 +656,158 @@ def _seed_minimal_layout(report) -> None:
     )
     TopContentBlock.objects.create(
         report=report, order=2, title="Creators del mes", kind="CREATOR", limit=6,
+    )
+
+
+# Follower trend para el reporte Abril (incluye 4 meses de historia).
+_IG_FOLLOWERS_APRIL = [
+    ("Enero", 99_500), ("Febrero", 104_568),
+    ("Marzo", 107_072), ("Abril", 110_240),
+]
+_ENGAGEMENT_RATE_APRIL = [
+    ("Enero", Decimal("3.9")), ("Febrero", Decimal("4.2")),
+    ("Marzo", Decimal("4.8")), ("Abril", Decimal("5.3")),
+]
+
+
+def _seed_all_blocks_layout(report) -> None:
+    """Kitchen-sink layout: usa los 6 subtipos de ReportBlock.
+
+    Pensado como fixture visual para QA del viewer de reportes — permite
+    ver en una sola página cómo se renderiza cada block type con data real.
+    Variantes incluidas:
+      · TextImageBlock (con imagen, position=left) y (solo texto, 2 columnas)
+      · KpiGridBlock con 4 tiles (con y sin delta)
+      · MetricsTableBlock cross-network y por-red (Instagram)
+      · TopContentBlock POST y CREATOR
+      · AttributionTableBlock con show_total
+      · ChartBlock bar (followers IG) y line (engagement rate)
+    """
+    fixtures_dir = Path(__file__).parent / "fixtures"
+
+    # 1) TextImageBlock — intro narrativa con imagen
+    intro_img = TextImageBlock(
+        report=report, order=1,
+        title="Contexto del mes",
+        body=(
+            "Abril fue la primera bajada real del mensaje de conversión. "
+            "Flor Sosa entró con un reel testimonial que marcó la agenda "
+            "del mes y el resto de la comunidad orgánica lo amplificó con "
+            "comentarios propios.\n\n"
+            "La conversión medida por OneLink creció 32% mes a mes y la "
+            "app sumó 310 descargas atribuidas directamente a la campaña."
+        ),
+        columns=1,
+        image_position="left",
+        image_alt="Creator Flor Sosa grabando el reel de abril",
+    )
+    with open(fixtures_dir / "placeholder_post_1.jpg", "rb") as fh:
+        intro_img.image.save("april_intro.jpg", File(fh), save=False)
+    intro_img.save()
+
+    # 2) KpiGridBlock — 4 tiles
+    kpi_grid = KpiGridBlock.objects.create(
+        report=report, order=2, title="KPIs del mes",
+    )
+    KpiTile.objects.bulk_create([
+        KpiTile(kpi_grid_block=kpi_grid, order=1,
+                label="Reach total", value=Decimal("3120000"),
+                period_comparison=Decimal("9.9")),
+        KpiTile(kpi_grid_block=kpi_grid, order=2,
+                label="Engagement rate", value=Decimal("5.3"),
+                period_comparison=Decimal("0.5")),
+        KpiTile(kpi_grid_block=kpi_grid, order=3,
+                label="App downloads", value=Decimal("310")),
+        KpiTile(kpi_grid_block=kpi_grid, order=4,
+                label="Click→download", value=Decimal("12.8"),
+                period_comparison=Decimal("3.1")),
+    ])
+
+    # 3) MetricsTableBlock — cross-network (Mes a mes)
+    mtm = MetricsTableBlock.objects.create(
+        report=report, order=3, title="Mes a mes", network=None,
+    )
+    MetricsTableRow.objects.bulk_create([
+        MetricsTableRow(metrics_table_block=mtm, order=1,
+                        metric_name="engagement_rate", value=Decimal("5.3"),
+                        source_type=SourceType.ORGANIC,
+                        period_comparison=Decimal("0.5")),
+        MetricsTableRow(metrics_table_block=mtm, order=2,
+                        metric_name="followers_gained", value=Decimal("21300"),
+                        source_type=SourceType.ORGANIC,
+                        period_comparison=Decimal("15.7")),
+        MetricsTableRow(metrics_table_block=mtm, order=3,
+                        metric_name="app_downloads", value=Decimal("310"),
+                        source_type=SourceType.INFLUENCER,
+                        period_comparison=Decimal("32")),
+    ])
+
+    # 4) MetricsTableBlock — Instagram
+    ig = MetricsTableBlock.objects.create(
+        report=report, order=4, title="Instagram", network=Network.INSTAGRAM,
+    )
+    MetricsTableRow.objects.bulk_create([
+        MetricsTableRow(metrics_table_block=ig, order=1,
+                        metric_name="reach", value=Decimal("312000"),
+                        source_type=SourceType.ORGANIC,
+                        period_comparison=Decimal("9.9")),
+        MetricsTableRow(metrics_table_block=ig, order=2,
+                        metric_name="reach", value=Decimal("594000"),
+                        source_type=SourceType.PAID,
+                        period_comparison=Decimal("16.0")),
+        MetricsTableRow(metrics_table_block=ig, order=3,
+                        metric_name="reach", value=Decimal("1810000"),
+                        source_type=SourceType.INFLUENCER,
+                        period_comparison=Decimal("10.4")),
+    ])
+
+    # 5) TopContentBlock — Posts
+    TopContentBlock.objects.create(
+        report=report, order=5, title="Posts del mes", kind="POST", limit=6,
+    )
+    # 6) TopContentBlock — Creators
+    TopContentBlock.objects.create(
+        report=report, order=6, title="Creators del mes", kind="CREATOR", limit=6,
+    )
+
+    # 7) AttributionTableBlock
+    AttributionTableBlock.objects.create(
+        report=report, order=7, title="Atribución OneLink", show_total=True,
+    )
+
+    # 8) ChartBlock bar — Followers IG
+    ig_chart = ChartBlock.objects.create(
+        report=report, order=8, title="Followers Instagram",
+        network=Network.INSTAGRAM, chart_type="bar",
+    )
+    ChartDataPoint.objects.bulk_create([
+        ChartDataPoint(chart_block=ig_chart, order=i, label=label,
+                       value=Decimal(str(value)))
+        for i, (label, value) in enumerate(_IG_FOLLOWERS_APRIL, start=1)
+    ])
+
+    # 9) ChartBlock line — Engagement rate evolution
+    er_chart = ChartBlock.objects.create(
+        report=report, order=9, title="Engagement rate",
+        network=None, chart_type="line",
+    )
+    ChartDataPoint.objects.bulk_create([
+        ChartDataPoint(chart_block=er_chart, order=i, label=label, value=value)
+        for i, (label, value) in enumerate(_ENGAGEMENT_RATE_APRIL, start=1)
+    ])
+
+    # 10) TextImageBlock — cierre solo texto, multicol
+    TextImageBlock.objects.create(
+        report=report, order=10,
+        title="Qué probamos para mayo",
+        body=(
+            "Seguimos apostando al formato reel testimonial — los saves "
+            "duplicaron a los carruseles educativos del mes anterior. "
+            "Vamos a sumar un creator asesor para reforzar la narrativa "
+            "'rol del asesor' y cerrar el embudo antes de la pauta final. "
+            "El ratio click→download de abril (12.8%) es el piso para mayo "
+            "— si cae habrá que revisar creativos antes que audiencias."
+        ),
+        columns=2,
+        image_position="top",
     )
