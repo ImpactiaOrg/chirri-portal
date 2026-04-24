@@ -27,7 +27,6 @@ Fase 2 (ticket aparte): AI best-effort para tolerar formatos distintos.
 - Edición post-import (el admin ya lo permite).
 - Bulk import de muchos reportes en un archivo (1 archivo = 1 reporte).
 - Import de `BrandFollowerSnapshot` (brand-level, no report-scoped — separado).
-- Import de thumbnails desde el Excel (se suben después desde los inlines del admin).
 
 ## Architecture
 
@@ -38,24 +37,47 @@ Todos dentro de `apps/reports/`:
 ```
 apps/reports/importers/
   __init__.py
-  excel_parser.py      — pure function: bytes → (ParsedReport, List[ImporterError])
-  excel_writer.py      — pure function: () → BytesIO (template vacío)
+  bundle_reader.py     — pure function: bytes (zip or xlsx) → (xlsx_bytes, Dict[filename → image_bytes], List[ImporterError])
+  excel_parser.py      — pure function: xlsx_bytes + image_names → (ParsedReport, List[ImporterError])
+  excel_writer.py      — pure function: () → BytesIO (template vacío, 10 hojas)
+  excel_exporter.py    — pure function: Report → BytesIO (xlsx con data existente, misma shape que el template)
   errors.py            — ImporterError(sheet, row, column, reason)
   schema.py            — mapping español → Python field names, enums, validaciones
 
-apps/reports/admin.py  (extendido) — vista custom `import/`, botón en changelist,
-                                     TopContentInline, OneLinkAttributionInline
+apps/reports/admin.py  (extendido) — vista custom `import/`, botón en changelist
 apps/reports/management/commands/
   dump_report_template.py          — CLI wrapper de excel_writer.build_template()
+  dump_report_example.py           — CLI wrapper de excel_exporter.export(report_id)
+  validate_import.py               — (Etapa 2) corre bundle_reader+parser sin DB, imprime errores
 ```
 
 **Principios de separación (P2 SRP, P5 DIP):**
 
-- `excel_parser` no importa nada de Django ni de modelos — trabaja con dicts y dataclasses. Facilita test unitario puro.
-- `excel_writer` genera un workbook sin tocar DB ni filesystem — retorna `BytesIO`, el caller decide dónde escribirlo.
+- `bundle_reader` es el único que toca `zipfile` — resuelve el upload (ZIP o XLSX pelado) y entrega al parser el `xlsx_bytes` + un dict de imágenes disponibles. Valida zip-slip, extensiones y caps de tamaño antes de pasar nada al parser.
+- `excel_parser` no importa nada de Django ni de modelos — trabaja con dicts y dataclasses. Recibe el set de filenames disponibles para validar referencias `imagen` sin saber nada de bytes. Facilita test unitario puro.
+- `excel_writer` genera un workbook **vacío** sin tocar DB ni filesystem — retorna `BytesIO` con las 10 hojas, headers, dropdowns y la hoja `Instrucciones`. El caller decide dónde escribirlo.
+- `excel_exporter` genera un workbook **lleno con un report existente** — misma shape que el template. Sirve para (a) el ejemplo de referencia del equipo Chirri, (b) re-editar un report importado antes sin tipear todo de cero.
 - `errors.py` es la única clase de error estructurada — el admin serializa `List[ImporterError]` para renderizar la tabla.
 - `schema.py` centraliza el mapping español↔Python para que no haya strings mágicos dispersos.
 - El admin es un **thin wrapper**: recibe el upload, llama al parser, si hay errores los muestra, si no, crea rows en `transaction.atomic()` y redirige.
+
+### Staged delivery (template primero, parser después)
+
+Antes de escribir una sola línea del parser o del admin, entregamos el **formato del template** + un **ejemplo lleno** para review del equipo Chirri. Si el formato es sólido, lo otro sigue mecánico. Si no, ahorramos rework.
+
+**Etapa 1 — Template + ejemplo (scope de esta primera PR)**:
+1. `schema.py` — mapping y choice labels (compartido por writer/parser/exporter).
+2. `excel_writer.build_template()` — genera las 10 hojas con headers, dropdowns, hoja `Instrucciones` formateada.
+3. `dump_report_template` management command — wrapper CLI del writer.
+4. `excel_exporter.export(report)` — toma un Report y lo escupe al mismo shape que el template.
+5. `dump_report_example --report <id>` — wrapper CLI del exporter. Por defecto usa el report Abril del seed (`_seed_all_blocks_layout`, cubre los 8 block types).
+6. Review con Julián/Euge del xlsx vacío + ejemplo Abril lleno. Iterar formato si hace falta.
+
+**Etapa 2 — Parser + admin + import + tests (PR siguiente)**:
+7. `bundle_reader` + `excel_parser` + `ImportReportForm` + admin views.
+8. Full test suite (unit + E2E).
+
+Ambas etapas caen en DEV-83; la separación es operativa (review-gate) no scope.
 
 ### Flujo end-to-end
 
@@ -77,79 +99,224 @@ apps/reports/management/commands/
          → action "Publicar reportes seleccionados" → status = PUBLISHED
 ```
 
+## Bundle format (ZIP + imágenes)
+
+El upload es un **único archivo `.zip`** con esta estructura:
+
+```
+reporte.zip
+├── reporte.xlsx           # el template lleno (único .xlsx en la raíz)
+└── images/
+    ├── post_1.jpg
+    ├── post_2.png
+    ├── creator_sofi.jpg
+    └── ...
+```
+
+- Las celdas `imagen` del Excel referencian imágenes por **filename relativo a `images/`** (ej: `post_1.jpg`, no `images/post_1.jpg`, no paths absolutos).
+- Imágenes referenciadas y ausentes del ZIP → error de validación con `(hoja, fila, columna, "imagen 'X' no encontrada en images/")`.
+- Imágenes presentes en el ZIP pero no referenciadas → warning no-bloqueante (no falla el import).
+- Extensiones aceptadas en `images/`: `.jpg`, `.jpeg`, `.png`, `.webp`. Otras se rechazan con error estructural.
+- El ZIP se procesa en memoria con `zipfile` stdlib (no se escribe a disco hasta que cada `ImageField.save()` persiste su imagen, ya en `transaction.atomic()`).
+
+**Por qué ZIP y no multi-file upload**: un único archivo atómico, simple de re-subir si falla, el form del admin queda con un `FileField` estándar, y los errores son claros ("falta imagen X" > "olvidaste subir 1 de 20 archivos").
+
 ## Excel template
+
+Cubre los **8 tipos de block** del modelo tipado actual (post DEV-116/129/130): `TextImageBlock`, `ImageBlock`, `KpiGridBlock`, `MetricsTableBlock`, `TopContentsBlock`, `TopCreatorsBlock`, `AttributionTableBlock`, `ChartBlock`. Todas las imágenes de cualquier block se referencian por filename relativo a `images/` del ZIP.
+
+### Convención transversal: `nombre` como ID de bloque
+
+- Cada block instance tiene un `nombre` (string elegido por Julián, ej: `intro`, `kpis_mes`, `hero`).
+- **Único en todo el archivo** — no puede repetirse entre hojas distintas (el parser deduce el tipo de block de la hoja donde aparece el `nombre`).
+- La hoja `Reporte` lo referencia desde la sección Layout para definir el orden de aparición.
+- En blocks con sub-items (Kpis, MetricsTables, TopContents, TopCreators, Attribution, Charts) la tabla es **denormalizada**: los fields del parent block se repiten en cada row del item, agrupados por `nombre`.
 
 ### Hojas (en este orden)
 
-| Hoja | Shape | Modelo mapeado |
-|---|---|---|
-| `Reporte` | key-value (2 col) | `Report` (fields escalares) |
-| `Metricas` | tabular | `ReportMetric` (1:N) |
-| `Destacados` | tabular | `TopContent` (1:N) |
-| `InfluencerAttribution` | tabular | `OneLinkAttribution` (1:N) |
-| `_LEEME` | texto plano | instrucciones de llenado |
+| # | Hoja | Shape | Mapea a |
+|---|---|---|---|
+| 1 | `Instrucciones` | texto | cómo llenar + armar el ZIP |
+| 2 | `Reporte` | key-value + Layout | `Report` (scalars) + orden de bloques |
+| 3 | `TextImage` | tabular (1 row = 1 block) | `TextImageBlock` |
+| 4 | `Imagenes` | tabular (1 row = 1 block) | `ImageBlock` |
+| 5 | `Kpis` | tabular denormalizada | `KpiGridBlock` + `KpiTile` |
+| 6 | `MetricsTables` | tabular denormalizada | `MetricsTableBlock` + `MetricsTableRow` |
+| 7 | `TopContents` | tabular denormalizada | `TopContentsBlock` + `TopContentItem` |
+| 8 | `TopCreators` | tabular denormalizada | `TopCreatorsBlock` + `TopCreatorItem` |
+| 9 | `Attribution` | tabular denormalizada | `AttributionTableBlock` + `OneLinkAttribution` |
+| 10 | `Charts` | tabular denormalizada | `ChartBlock` + `ChartDataPoint` |
 
-Las hojas se buscan por nombre (orden no importa). Hoja faltante = error estructural único.
+Total: **10 hojas**. Orden fijo (writer las genera siempre igual); hojas vacías = no hay blocks de ese tipo. Hoja faltante en el upload = error estructural único.
 
-### Hoja `Reporte` (key-value)
+### Hoja 2 · `Reporte` (key-value + Layout inline)
 
-| Campo | Tipo | Obligatorio | Valor ejemplo |
+**Bloque superior — data escalar del report** (key-value, 2 columnas):
+
+| Campo | Tipo | Obligatorio | Ejemplo |
 |---|---|---|---|
 | tipo | enum | sí | `Mensual` |
-| fecha_inicio | fecha | sí | `01/03/2026` |
-| fecha_fin | fecha | sí | `31/03/2026` |
-| titulo | texto | no | `Reporte general · Marzo` |
-| intro | texto | no | `Marzo fue el mes…` |
-| conclusiones | texto | no | `El carrusel de los 5 errores…` |
+| fecha_inicio | fecha | sí | `01/04/2026` |
+| fecha_fin | fecha | sí | `30/04/2026` |
+| titulo | texto | no | `Reporte general · Abril` |
+| intro | texto | no | `Abril fue el mes…` |
+| conclusiones | texto | no | `El ratio click→download de abril…` |
 
 - `tipo` dropdown: `Influencer / General / Quincenal / Mensual / Cierre de etapa`.
-- Fechas: aceptamos `DD/MM/YYYY`, `DD-MM-YYYY`, ISO `YYYY-MM-DD`. Normalizamos a `date`.
-- `titulo` vacío = se usa `display_title` auto-generado del modelo.
+- Fechas: aceptamos `DD/MM/YYYY`, `DD-MM-YYYY`, ISO `YYYY-MM-DD`. Normalizadas a `date`.
 
-### Hoja `Metricas` (tabular)
+**Bloque inferior — Layout** (tabular, debajo del header `# Layout (orden de bloques)`):
 
-| red | origen | metrica | valor | comparacion |
-|---|---|---|---|---|
-| Instagram | Orgánico | reach | 284000 | 6.1 |
-| Instagram | Pauta | reach | 512000 | |
-| TikTok | Influencer | engagement_rate | 4.8 | 0.3 |
+| orden | nombre |
+|---|---|
+| 1 | intro |
+| 2 | kpis_mes |
+| 3 | mtm_cross |
+| 4 | top_posts |
+| 5 | hero |
 
-- Dropdown `red`: `Instagram / TikTok / X`.
-- Dropdown `origen`: `Orgánico / Influencer / Pauta`.
-- `metrica`: texto libre. Convención: snake_case. Ejemplos comunes: `reach`, `impressions`, `engagement_rate`, `followers_gained`.
-- `valor`: número (decimal). Obligatorio.
-- `comparacion`: delta % vs período anterior. Opcional.
+- `orden`: entero 1-based, único dentro del Layout.
+- `nombre`: debe existir exactamente en una de las hojas de blocks (`TextImage`/`Imagenes`/`Kpis`/etc.). Si no aparece en ninguna → error. Si aparece en más de una → error.
+- Blocks definidos en sus hojas pero no listados en Layout → warning (no se renderizan en el report, pero no bloquea el import).
 
-### Hoja `Destacados` (tabular)
+### Hoja 3 · `TextImage`
 
-| tipo | red | origen | ranking | handle | caption | url_post | metricas_json |
+Una fila por block. Sin sub-items.
+
+| nombre | title | body | imagen | image_alt | image_position | columns |
+|---|---|---|---|---|---|---|
+| intro | Contexto del mes | Abril fue la primera bajada real... | intro.jpg | Creator Flor Sosa grabando... | left | 1 |
+| cierre | Qué probamos para mayo | Seguimos apostando al formato reel... | | | top | 2 |
+
+- `imagen`: opcional. Filename dentro de `images/`.
+- `image_position` dropdown: `left / right / top / bottom`.
+- `columns`: 1 o 2.
+
+### Hoja 4 · `Imagenes`
+
+Una fila por block. Sin sub-items.
+
+| nombre | title | caption | imagen | image_alt | overlay_position |
+|---|---|---|---|---|---|
+| hero | El mes en fotos | Momentos destacados del contenido... | hero.jpg | Collage visual del mes | bottom |
+
+- `imagen`: **obligatoria** (ImageBlock requiere imagen).
+- `overlay_position` dropdown: `top / bottom / center / none`.
+
+### Hoja 5 · `Kpis` (denormalizada)
+
+Parent fields (`block_title`) se repiten en cada row. Parser agrupa por `nombre`.
+
+| nombre | block_title | item_orden | label | value | period_comparison |
+|---|---|---|---|---|---|
+| kpis_mes | KPIs del mes | 1 | Reach total | 3120000 | 9.9 |
+| kpis_mes | KPIs del mes | 2 | Engagement rate | 5.3 | 0.5 |
+| kpis_mes | KPIs del mes | 3 | App downloads | 310 | |
+| kpis_mes | KPIs del mes | 4 | Click→download | 12.8 | 3.1 |
+
+- `block_title`: repetido en cada row del mismo `nombre`. Si rows de un mismo `nombre` tienen `block_title` distinto → error.
+- `period_comparison`: delta % vs período anterior. Opcional.
+
+### Hoja 6 · `MetricsTables` (denormalizada)
+
+| nombre | block_title | block_network | item_orden | metric_name | value | source_type | period_comparison |
 |---|---|---|---|---|---|---|---|
-| Post | Instagram | Orgánico | 1 | | Contenido destacado #1 | https://... | `{"likes":500,"reach":10000}` |
-| Creator | Instagram | Influencer | 1 | @sofi.gonet | | https://... | `{}` |
+| mtm_cross | Mes a mes | | 1 | engagement_rate | 5.3 | Orgánico | 0.5 |
+| mtm_cross | Mes a mes | | 2 | followers_gained | 21300 | Orgánico | 15.7 |
+| mtm_cross | Mes a mes | | 3 | app_downloads | 310 | Influencer | 32 |
+| mtm_ig | Instagram | Instagram | 1 | reach | 312000 | Orgánico | 9.9 |
+| mtm_ig | Instagram | Instagram | 2 | reach | 594000 | Pauta | 16.0 |
+| mtm_ig | Instagram | Instagram | 3 | reach | 1810000 | Influencer | 10.4 |
 
-- Dropdown `tipo`: `Post / Creator`.
-- `handle` obligatorio si `tipo = Creator`.
-- `metricas_json`: JSON plano. Vacío = `{}`. Usado por el render del carrusel en el portal.
-- `ranking` es 1-based. Se usa para ordenar dentro de `(tipo, red)`.
-- Thumbnails **no** van acá — se suben después desde el inline de Destacados en el admin.
+- `block_network` dropdown: `Instagram / TikTok / X / (vacío)`. Vacío = tabla cross-network.
+- `source_type` dropdown: `Orgánico / Influencer / Pauta`.
+- `metric_name`: texto libre en snake_case (`reach`, `impressions`, `engagement_rate`, `followers_gained`, `app_downloads`).
 
-### Hoja `InfluencerAttribution` (tabular)
+### Hoja 7 · `TopContents` (denormalizada)
 
-| handle | clicks | descargas_app |
-|---|---|---|
-| @sofi.gonet | 1200 | 180 |
+| nombre | block_title | block_network | block_period_label | block_limit | item_orden | imagen | caption | post_url | source_type | views | likes | comments | shares | saves |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| top_posts | Posts del mes | Instagram | abril | 6 | 1 | post_1.jpg | Reel testimonial de Flor | https://... | Orgánico | 120000 | 5000 | 120 | 80 | 300 |
+| top_posts | Posts del mes | Instagram | abril | 6 | 2 | post_2.jpg | Carrusel educativo | https://... | Influencer | 95000 | 4200 | 98 | 60 | 210 |
 
-Mapea 1:1 a `OneLinkAttribution`. Solo aplica a marcas con app mobile. Para marcas sin app, se deja vacía.
+- `imagen`: opcional. Si está vacío, el item se crea sin thumbnail.
+- `block_limit`: cuántos top items renderiza el block en el viewer (1-20). El count real de rows en la hoja puede ser ≤ `block_limit`.
 
-### Hoja `_LEEME`
+### Hoja 8 · `TopCreators` (denormalizada)
 
-Texto plano con:
+| nombre | block_title | block_network | block_period_label | block_limit | item_orden | imagen | handle | post_url | views | likes | comments | shares |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| top_creators | Creators del mes | Instagram | abril | 6 | 1 | creator_flor.jpg | @flor.sosa | https://... | 180000 | 7800 | 240 | 150 |
 
+- `handle`: **obligatorio**. Incluir `@`.
+- `imagen`: opcional.
+
+### Hoja 9 · `Attribution` (denormalizada)
+
+| nombre | block_title | block_show_total | item_orden | handle | clicks | app_downloads |
+|---|---|---|---|---|---|---|
+| attr | Atribución OneLink | TRUE | 1 | @sofi.gonet | 1200 | 180 |
+| attr | Atribución OneLink | TRUE | 2 | @flor.sosa | 2400 | 310 |
+
+- `block_show_total` boolean: `TRUE / FALSE`.
+- Sin items = se deja la hoja vacía. Solo aplica a marcas con app mobile.
+
+### Hoja 10 · `Charts` (denormalizada)
+
+| nombre | block_title | block_network | chart_type | point_orden | point_label | point_value |
+|---|---|---|---|---|---|---|
+| chart_followers | Followers Instagram | Instagram | bar | 1 | Enero | 99500 |
+| chart_followers | Followers Instagram | Instagram | bar | 2 | Febrero | 104568 |
+| chart_followers | Followers Instagram | Instagram | bar | 3 | Marzo | 107072 |
+| chart_followers | Followers Instagram | Instagram | bar | 4 | Abril | 110240 |
+| chart_er | Engagement rate | | line | 1 | Enero | 3.9 |
+| chart_er | Engagement rate | | line | 2 | Febrero | 4.2 |
+| chart_er | Engagement rate | | line | 3 | Marzo | 4.8 |
+| chart_er | Engagement rate | | line | 4 | Abril | 5.3 |
+
+- `chart_type` dropdown: `bar / line`.
+- `block_network`: opcional. Metadata hint.
+
+### Hoja 1 · `Instrucciones`
+
+Primera hoja del workbook (la que Julián ve al abrir el archivo). Texto plano con:
+
+**A. Cómo llenar el Excel**
 - Qué es cada hoja y cuándo llenarla.
-- Qué valores acepta cada dropdown.
-- Convenciones: fechas, handles con `@`, JSON.
-- Cómo regenerar el template: `python manage.py dump_report_template`.
-- Advertencia: thumbnails y `BrandFollowerSnapshot` no van en el Excel.
+- Convención `nombre`: cada block instance tiene un nombre único (ej. `intro`, `kpis_mes`, `hero`). Sirve para cruzar con la sección Layout de la hoja `Reporte`.
+- En blocks con sub-items (Kpis, MetricsTables, TopContents, TopCreators, Attribution, Charts) los fields del parent se repiten en cada row del item. Parser agrupa por `nombre`.
+- Qué valores acepta cada dropdown (enums).
+- Convenciones: fechas (`DD/MM/YYYY`), handles con `@`, boolean como `TRUE`/`FALSE`, decimales con `.`.
+- Advertencia: `BrandFollowerSnapshot` no va acá (es brand-level, se carga aparte).
+
+**B. Cómo armar el ZIP para importar**
+- Estructura esperada: `reporte.zip` con el `.xlsx` en la raíz + carpeta `images/` con todas las imágenes.
+- En las columnas `imagen` (presentes en `TextImage`, `Imagenes`, `TopContents`, `TopCreators`) poner **solo el filename** (ej. `hero.jpg`), no path.
+- Filenames case-sensitive. Extensiones aceptadas: `.jpg`, `.jpeg`, `.png`, `.webp`.
+- Paso a paso: (1) llenar el Excel, (2) crear carpeta `images/`, (3) pegar las imágenes dentro, (4) seleccionar xlsx + carpeta y "Enviar a → Carpeta comprimida" en Windows / "Comprimir" en Mac, (5) subir el `.zip` resultante en el admin.
+- Si no hay imágenes referenciadas, se puede subir solo el `.xlsx` (sin ZIP). El admin acepta ambos.
+
+**C. Regenerar el template**
+- `python manage.py dump_report_template` — escribe `reporte-template.xlsx` con este contenido siempre actualizado.
+- `python manage.py dump_report_example --report <id>` — exporta un report existente a xlsx para usar como referencia.
+
+**D. Para LLMs / scripts generando el ZIP desde un PDF**
+
+Esta sección está pensada para que alguien le pase a un LLM (Claude, ChatGPT) el PDF del reporte + este xlsx template y le pida que arme el ZIP de importación. Contiene el contrato formal del schema.
+
+- **Contrato por hoja** (lista bullet-style, no prosa):
+  - `Reporte` top block — campos exactos, tipos, enums y formatos aceptados (idéntico a lo descripto en la sección 2 de arriba, pero en formato key/type/required/enum estricto).
+  - `Reporte` Layout — `orden: int 1-based`, `nombre: str matching [a-z0-9_-]+ max 60`.
+  - Una entrada por hoja de block con: nombre de la hoja, columnas exactas en orden, tipos, required, enums, y si admite repetición de `nombre` (hojas denormalizadas) o es unique (TextImage, Imagenes).
+- **Constraints globales** (checklist):
+  - `nombre` único en todo el archivo (no puede aparecer en dos hojas distintas).
+  - Cada `nombre` del Layout debe existir en exactamente una hoja de blocks.
+  - En hojas denormalizadas, los `block_*` fields deben ser idénticos en todos los rows con el mismo `nombre` (si varían, el row más frecuente gana con warning, o se rechaza — a definir).
+  - `imagen` filenames case-sensitive, extensiones `.jpg|.jpeg|.png|.webp`, deben existir en `images/` del ZIP.
+  - ZIP: `.xlsx` en la raíz con nombre cualquiera (único `.xlsx` en la raíz), carpeta `images/` con las imágenes.
+- **Ejemplo canónico (few-shot)**: el archivo `reporte-abril-ejemplo.xlsx` generado por `dump_report_example` es la fuente de verdad para dudas de formato. Si una instrucción de esta sección contradice al ejemplo, el ejemplo gana y abrimos un issue.
+- **Validación pre-submit**: correr `python manage.py validate_import <zip>` (Etapa 2) para chequear el ZIP sin tocar DB — devuelve la misma lista de `ImporterError(hoja, fila, columna, razón)` que vería el admin. Útil como feedback loop para el LLM.
+- **Extracción de imágenes**: no se espera que el LLM extraiga imágenes del PDF. Cuando no las tenga, debe dejar `imagen` vacío en las hojas con imagen opcional, y Julián las sube desde el admin post-import. Para `Imagenes` (donde `imagen` es obligatoria) el LLM debe pedir al usuario que provea las imágenes y listar exactamente qué filenames referenció en la columna.
 
 ## Admin integration
 
@@ -172,31 +339,20 @@ class ImportReportForm(forms.Form):
         label="Etapa destino",
     )
     file = forms.FileField(
-        label="Archivo Excel (.xlsx)",
-        validators=[FileExtensionValidator(allowed_extensions=["xlsx"])],
+        label="Archivo (.zip con Excel + imágenes, o .xlsx solo si no hay thumbnails)",
+        validators=[FileExtensionValidator(allowed_extensions=["zip", "xlsx"])],
     )
 ```
 
 El autocomplete muestra `"{Brand} · {Campaña} · {Etapa}"`. Django admin ya ofrece `autocomplete_fields` — reutilizamos.
 
-### Inlines en `ReportAdmin` (nuevos)
+### Inlines en `ReportAdmin`
 
-```python
-class TopContentInline(admin.TabularInline):
-    model = TopContent
-    extra = 0
-    fields = ("kind", "network", "source_type", "rank", "handle", "caption", "post_url", "thumbnail", "metrics")
+El admin ya tiene los inlines polimórficos para los 8 block types post DEV-116/129/130 (`ReportBlockStackedPolymorphic` + children por subtipo). **No hay que tocar admin inlines en este ticket** — el importer solo crea rows a través de los mismos managers que ya consume el admin. Post-import, Julián cae en el change form del Report y ve todos los blocks populados con sus items en inlines polimórficos existentes.
 
-class OneLinkAttributionInline(admin.TabularInline):
-    model = OneLinkAttribution
-    extra = 0
-    fields = ("influencer_handle", "clicks", "app_downloads")
-
-class ReportAdmin(admin.ModelAdmin):
-    inlines = [ReportMetricInline, TopContentInline, OneLinkAttributionInline]  # ya existía ReportMetricInline
-```
-
-Post-import, Julián cae en el change form y ve las 3 tablas inline, con file picker de thumbnail en cada row de Destacados.
+Lo único que se agrega al admin es:
+- `ReportAdmin.get_urls()` con `download-template/`, `download-example/<id>/` e `import/`.
+- Botones en changelist + change form para invocarlos.
 
 ## Error handling
 
@@ -223,23 +379,31 @@ Post-import, Julián cae en el change form y ve las 3 tablas inline, con file pi
 
 Fail-fast obligaría a Julián a N round-trips para un archivo con N errores. Acumular = ve todo junto, corrige, reintenta una vez.
 
-## Template generation — `dump_report_template`
+## Template generation — `dump_report_template` y `dump_report_example`
 
 ```bash
 $ python manage.py dump_report_template
-Template escrito en reporte-template.xlsx (5 hojas)
+Template escrito en reporte-template.xlsx (10 hojas)
 
 $ python manage.py dump_report_template --out /tmp/test.xlsx
-Template escrito en /tmp/test.xlsx (5 hojas)
+Template escrito en /tmp/test.xlsx (10 hojas)
+
+$ python manage.py dump_report_example --report <id>
+Ejemplo escrito en reporte-<id>-<slug>.xlsx (10 hojas, data del report)
+
+$ python manage.py dump_report_example  # sin --report → usa el report Abril del seed
+Ejemplo escrito en reporte-abril-ejemplo.xlsx (10 hojas)
 ```
 
-El command invoca `excel_writer.build_template()` — la misma función que usa la vista admin. Garantiza que CLI y admin generan exactamente el mismo archivo.
+- `dump_report_template` invoca `excel_writer.build_template()` — template vacío con headers, dropdowns, hoja `Instrucciones`.
+- `dump_report_example` invoca `excel_exporter.export(report)` — template con data poblada de un report existente. Shape idéntico al template vacío.
+- Ambos comparten `schema.py` → CLI, admin y exporter generan archivos con exactamente la misma shape.
 
 ## Testing strategy (P1, TDD)
 
 ### Unit tests — `backend/tests/unit/`
 
-12 tests, cada uno TDD (failing test → minimal impl → passing):
+15 tests, cada uno TDD (failing test → minimal impl → passing):
 
 1. `test_excel_parser_happy_path` — fixture válido → `ParsedReport` con 1 report + 5 metrics + 3 destacados + 2 attribution.
 2. `test_excel_parser_missing_sheet` — sin hoja `Metricas` → `ImporterError(sheet="Metricas", reason="hoja faltante")`.
@@ -253,6 +417,9 @@ El command invoca `excel_writer.build_template()` — la misma función que usa 
 10. `test_import_view_rollback_on_error` — POST xlsx inválido → DB intacta, form re-renderizado.
 11. `test_import_view_permission_denied` — non-staff user → 403.
 12. `test_dump_report_template_command` — comando escribe archivo, archivo es parseable.
+13. `test_bundle_reader_zip_happy_path` — ZIP válido → `(xlsx_bytes, {filename: image_bytes}, [])` con el dict poblado.
+14. `test_bundle_reader_zip_slip_rejected` — entry con `../../etc/passwd` → `ImporterError` estructural, no extrae nada.
+15. `test_import_view_image_reference_missing` — ZIP con Excel que referencia `post_X.jpg` inexistente → error `(Destacados, N, imagen, "imagen 'post_X.jpg' no encontrada en images/")`.
 
 ### E2E — `frontend/tests/admin-import.spec.ts`
 
@@ -267,7 +434,9 @@ El command invoca `excel_writer.build_template()` — la misma función que usa 
 
 ### Fixtures
 
-- `backend/tests/fixtures/reporte_valido.xlsx` — template lleno con data de Marzo (reusa valores del seed).
+- `backend/tests/fixtures/reporte_valido.xlsx` — template lleno con data de Marzo (reusa valores del seed), sin referencias a `imagen`.
+- `backend/tests/fixtures/reporte_valido.zip` — `reporte_valido.xlsx` con columna `imagen` llena + carpeta `images/` con 3 thumbnails dummy.
+- `backend/tests/fixtures/reporte_imagen_faltante.zip` — Excel referencia `post_99.jpg` pero no está en `images/`.
 - `backend/tests/fixtures/reporte_invalido_enum.xlsx` — mismo pero con `red=Instagrma` en row 3.
 - `backend/tests/fixtures/reporte_faltan_hojas.xlsx` — sin hoja `Metricas`.
 
@@ -282,8 +451,9 @@ Generados por `backend/tests/fixtures/generate_excel_fixtures.py` (script versio
 - **Permissions**: las nuevas URLs del admin requieren `reports.add_report` (mismo permiso que el botón "Add report" del admin).
 - **Tenant scope**: el autocomplete de Stage usa `autocomplete_fields` de Django, que ya respeta los permissions del `StageAdmin` actual. Un user no-superuser sin perms de `campaigns.view_stage` no puede elegir Stages ajenos al cliente.
 - **Input validation**: el parser valida todo antes de tocar DB. Sin raw SQL, sin f-strings en queries.
-- **File size cap**: el form limita el upload a 5 MB (un template lleno pesa < 100 KB — 5 MB deja margen). Protege contra DOS con archivos grandes.
-- **File extension cap**: `FileExtensionValidator(allowed_extensions=["xlsx"])`.
+- **File size cap**: el form limita el upload a 50 MB (un ZIP con ~20 thumbnails comprimidas pesa típicamente 5–15 MB; 50 MB deja margen). Protege contra DOS con archivos grandes.
+- **File extension cap**: `FileExtensionValidator(allowed_extensions=["zip", "xlsx"])`.
+- **ZIP extraction safety**: usamos `zipfile` stdlib con validación de `ZipInfo.filename` — rechazamos entries con paths absolutos o `..` (zip-slip). Validamos `file_size` de cada entry contra un cap por archivo (10 MB/imagen) antes de extraer.
 - **Secrets**: nada nuevo.
 - **Dependency health**: `openpyxl==3.1.5` — versión estable, activamente mantenida, sin CVEs conocidos al 2026-04-20. License: MIT.
 
@@ -368,17 +538,30 @@ Generados por `backend/tests/fixtures/generate_excel_fixtures.py` (script versio
 
 ## Acceptance criteria (DoD)
 
-- [ ] Template `.xlsx` documentado en `backend/tests/fixtures/reporte_valido.xlsx` + entrada en README.
-- [ ] Comando `python manage.py dump_report_template` genera el Excel vacío con 5 hojas, dropdowns, y hoja `_LEEME`.
-- [ ] Admin changelist de `Report` tiene botones "Descargar template" e "Importar desde Excel".
-- [ ] `ReportAdmin` tiene los 3 inlines (Metric + TopContent + OneLinkAttribution).
-- [ ] Form de import valida Excel, muestra errores claros en tabla por (hoja, fila, columna, razón).
-- [ ] Stacktrace crudo **nunca** llega al usuario — siempre pasa por `logger.exception` + mensaje genérico.
-- [ ] Transacción atómica: si cualquier cosa falla, rollback completo.
-- [ ] Post-import redirect a change form con todo populado.
-- [ ] 12 unit tests en `backend/tests/unit/` pasan (`pytest -q`).
-- [ ] 1 E2E test en `frontend/tests/admin-import.spec.ts` pasa (`npm run test:e2e:smoke`).
+**Etapa 1 — Template + ejemplo**:
+
 - [ ] `openpyxl==3.1.5` agregado a `requirements.txt`.
+- [ ] `schema.py` con los mappings de choice labels y field names para los 8 block types.
+- [ ] `excel_writer.build_template()` genera workbook con 10 hojas (orden fijo), headers, dropdowns y hoja `Instrucciones` formateada.
+- [ ] Comando `python manage.py dump_report_template` escribe `reporte-template.xlsx`.
+- [ ] `excel_exporter.export(report)` genera workbook con la misma shape que el template, poblado con data de un Report existente.
+- [ ] Comando `python manage.py dump_report_example [--report <id>]` escribe el ejemplo.
+- [ ] Ejecutando `dump_report_example` sin args sobre DB con seed demo → produce un xlsx con los 11 blocks del report Abril.
+- [ ] Unit test roundtrip: `build_template()` → `excel_exporter.export()` → shape diffing → assert hojas y headers coinciden.
+- [ ] Review con Julián/Euge del xlsx vacío + ejemplo Abril → sign-off del formato antes de Etapa 2.
+
+**Etapa 2 — Parser + admin + import**:
+
+- [ ] Admin changelist de `Report` tiene botones "Descargar template" e "Importar desde Excel".
+- [ ] Change form de `Report` tiene botón "Descargar como Excel" (usa `excel_exporter`).
+- [ ] Form de import acepta `.zip` (xlsx + `images/`) y `.xlsx` pelado.
+- [ ] Parser valida estructura, dropdowns, cross-reference Layout ↔ hojas de blocks, agrupación por `nombre`, consistencia de fields del parent en rows denormalizadas.
+- [ ] Errores se muestran en tabla por `(hoja, fila, columna, razón)`; stacktrace crudo nunca llega al usuario.
+- [ ] `transaction.atomic()`: si cualquier cosa falla, rollback completo (DB intacta, imágenes no persistidas).
+- [ ] Todas las imágenes del ZIP (4 campos) se persisten vía `ImageField.save()` dentro de la transacción.
+- [ ] Post-import redirect a change form con todo populado.
+- [ ] Unit tests pasan (`pytest -q`).
+- [ ] E2E smoke pasa (`npm run test:e2e:smoke`).
 - [ ] `docker compose build && docker compose up -d` en local funciona sin breaking changes.
 - [ ] CI verde en PR.
 
@@ -392,6 +575,19 @@ Generados por `backend/tests/fixtures/generate_excel_fixtures.py` (script versio
 | Archivo muy grande → OOM | Cap de 5 MB en el form |
 | Conflict: mismo Stage + período + kind importado 2 veces | El modelo no tiene `unique_together` en eso — crea duplicado, Julián lo detecta y borra en admin. Si se vuelve problema, se agrega unique constraint en ticket aparte |
 
+## Image-carrying blocks (inventario)
+
+Post DEV-116 + DEV-129 + DEV-130, el modelo tipado tiene **4 lugares donde se guarda una imagen**, los 4 cubiertos por Fase 1:
+
+| Modelo | Campo | Obligatorio | Hoja Excel |
+|---|---|---|---|
+| `ImageBlock.image` | `image` | ✅ sí | `Imagenes` |
+| `TextImageBlock.image` | `image` | opcional | `TextImage` |
+| `TopContentItem.thumbnail` | `thumbnail` | opcional | `TopContents` |
+| `TopCreatorItem.thumbnail` | `thumbnail` | opcional | `TopCreators` |
+
+Los 4 resuelven imagen por el mismo mecanismo: celda `imagen` en la hoja correspondiente → filename relativo a `images/` del ZIP.
+
 ## Open questions
 
-Ninguna.
+Ninguna — todas resueltas en la revisión del 2026-04-24 (ZIP bundle, 10 hojas, `nombre` como ID, denormalización de blocks con items, los 4 image-carrying blocks incluidos, staged delivery template-first).

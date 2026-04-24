@@ -50,7 +50,8 @@ yarn-error.log*
 Thumbs.db
 
 # Claude / superpowers artifacts
-.claude/
+.claude/*
+!.claude/skills/
 .superpowers/
 
 # Design handoff — unpacked folder tracked as reference; raw zip lives in
@@ -69,3 +70,6 @@ playwright/.cache/
 
 # Meeting transcripts (private, do not commit)
 Documents/Meeting Transcript/
+
+# Generated xlsx artifacts (template + ejemplo del importer, DEV-83)
+tmp/

@@ -1,0 +1,141 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block title %}Importar reporte desde Excel | {{ site_title|default:_("Django site admin") }}{% endblock %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans "Home" %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label='reports' %}">Reports</a>
+    &rsaquo; <a href="{% url 'admin:reports_report_changelist' %}">Reports</a>
+    &rsaquo; Importar desde Excel
+  </div>
+{% endblock %}
+
+{% block content %}
+  <h1>Importar reporte desde Excel</h1>
+
+  <p>
+    Aceptamos un <code>.zip</code> con el <code>.xlsx</code> en la raíz +
+    carpeta <code>images/</code>, o solo el <code>.xlsx</code> si no hay
+    imágenes. Para el detalle del formato, bajá el template e inspeccioná
+    la hoja <strong>Instrucciones</strong>.
+  </p>
+
+  <p>
+    <a href="{% url 'admin:reports_report_download_template' %}" class="button">
+      ⬇ Descargar template vacío
+    </a>
+  </p>
+
+  {% if import_errors %}
+    <div class="errornote">
+      El archivo tiene {{ import_errors|length }} error{{ import_errors|length|pluralize:"es" }}. Corregilos y volvé a subir.
+    </div>
+    <table style="border-collapse: collapse; margin: 1em 0;">
+      <thead>
+        <tr>
+          <th style="border: 1px solid #ddd; padding: 4px 8px;">Hoja</th>
+          <th style="border: 1px solid #ddd; padding: 4px 8px;">Fila</th>
+          <th style="border: 1px solid #ddd; padding: 4px 8px;">Columna</th>
+          <th style="border: 1px solid #ddd; padding: 4px 8px;">Razón</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for err in import_errors %}
+          <tr>
+            <td style="border: 1px solid #ddd; padding: 4px 8px;">{{ err.sheet }}</td>
+            <td style="border: 1px solid #ddd; padding: 4px 8px;">{{ err.row|default:"—" }}</td>
+            <td style="border: 1px solid #ddd; padding: 4px 8px;">{{ err.column|default:"—" }}</td>
+            <td style="border: 1px solid #ddd; padding: 4px 8px;">{{ err.reason }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <fieldset class="module aligned">
+      {% for field in form %}
+        <div class="form-row">
+          {{ field.label_tag }}
+          {{ field }}
+          {% if field.help_text %}
+            <div class="help">{{ field.help_text|safe }}</div>
+          {% endif %}
+          {% if field.errors %}
+            <ul class="errorlist">
+              {% for e in field.errors %}<li>{{ e }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </fieldset>
+    <div class="submit-row">
+      <input type="submit" class="default" value="Importar">
+    </div>
+  </form>
+
+  <script>
+    (function () {
+      const cascadeUrl = "{% url 'admin:reports_report_import_cascade' 'LEVEL' %}";
+      const levels = ["client", "brand", "campaign", "stage"];
+      const selects = {};
+      levels.forEach(l => {
+        selects[l] = document.querySelector(`select[name="${l}"]`);
+      });
+
+      function repopulate(select, results, placeholderText) {
+        select.innerHTML = "";
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = placeholderText;
+        select.appendChild(placeholder);
+        results.forEach(r => {
+          const opt = document.createElement("option");
+          opt.value = r.id;
+          opt.textContent = r.text;
+          select.appendChild(opt);
+        });
+        select.disabled = results.length === 0;
+      }
+
+      async function reload(level, parentId) {
+        if (!selects[level]) return;
+        if (!parentId) {
+          repopulate(selects[level], [], "— primero elegí el padre —");
+          return;
+        }
+        const url = cascadeUrl.replace("LEVEL", level) + "?parent=" + encodeURIComponent(parentId);
+        const resp = await fetch(url, {credentials: "same-origin"});
+        if (!resp.ok) return;
+        const data = await resp.json();
+        repopulate(selects[level], data.results, "— elegir —");
+      }
+
+      function onChange(parentLevel) {
+        const childMap = {client: "brand", brand: "campaign", campaign: "stage"};
+        const child = childMap[parentLevel];
+        if (!child) return;
+        const parentId = selects[parentLevel].value;
+        reload(child, parentId);
+        // Reset downstream levels
+        const downstream = levels.slice(levels.indexOf(child) + 1);
+        downstream.forEach(l => repopulate(selects[l], [], "— primero elegí el padre —"));
+      }
+
+      ["client", "brand", "campaign"].forEach(l => {
+        if (!selects[l]) return;
+        selects[l].addEventListener("change", () => onChange(l));
+      });
+
+      // Initial state: si no hay cliente seleccionado, vaciar brand/campaign/stage.
+      if (selects.client && !selects.client.value) {
+        ["brand", "campaign", "stage"].forEach(l =>
+          repopulate(selects[l], [], "— primero elegí el padre —")
+        );
+      }
+    })();
+  </script>
+{% endblock %}

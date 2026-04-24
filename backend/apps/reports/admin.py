@@ -5,14 +5,26 @@ Polimorfismo de ReportBlock via django-polymorphic:
 - ReportBlockAdmin standalone como PolymorphicParentModelAdmin.
 - Un PolymorphicChildModelAdmin por subtipo con sus own child row inlines.
 """
+import logging
+
 from adminsortable2.admin import SortableAdminBase, SortableTabularInline
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import redirect, render
+from django.urls import path, reverse
 from polymorphic.admin import (
     PolymorphicInlineSupportMixin,
     PolymorphicParentModelAdmin,
     PolymorphicChildModelAdmin,
     StackedPolymorphicInline,
 )
+
+from .importers.excel_exporter import export as export_report_xlsx
+from .importers.excel_writer import build_template
+from .importers.forms import ImportReportForm
+from .importers.import_flow import import_bytes
+
+logger = logging.getLogger(__name__)
 
 from .models import (
     Report, ReportAttachment, ReportBlock,
@@ -149,9 +161,34 @@ class ReportBlockInline(StackedPolymorphicInline):
 
 @admin.register(Report)
 class ReportAdmin(SortableAdminBase, PolymorphicInlineSupportMixin, admin.ModelAdmin):
-    list_display = ("display_title", "stage", "kind", "period_start", "period_end", "status", "published_at")
-    list_filter = ("status", "kind", "stage__campaign__brand")
-    search_fields = ("title", "stage__name", "stage__campaign__name")
+    list_display = (
+        "display_title", "client_col", "brand_col", "campaign_col", "stage",
+        "kind", "period_start", "period_end", "status", "published_at",
+    )
+    list_filter = (
+        "status", "kind",
+        "stage__campaign__brand__client",
+        "stage__campaign__brand",
+        "stage__campaign",
+    )
+    list_select_related = ("stage", "stage__campaign", "stage__campaign__brand", "stage__campaign__brand__client")
+    search_fields = (
+        "title", "stage__name", "stage__campaign__name",
+        "stage__campaign__brand__name",
+        "stage__campaign__brand__client__name",
+    )
+
+    @admin.display(description="Cliente", ordering="stage__campaign__brand__client__name")
+    def client_col(self, obj):
+        return obj.stage.campaign.brand.client.name
+
+    @admin.display(description="Brand", ordering="stage__campaign__brand__name")
+    def brand_col(self, obj):
+        return obj.stage.campaign.brand.name
+
+    @admin.display(description="Campaña", ordering="stage__campaign__name")
+    def campaign_col(self, obj):
+        return obj.stage.campaign.name
     inlines = [ReportAttachmentInline, ReportBlockInline]
     fieldsets = (
         (None, {
@@ -171,6 +208,133 @@ class ReportAdmin(SortableAdminBase, PolymorphicInlineSupportMixin, admin.ModelA
             status=Report.Status.PUBLISHED, published_at=timezone.now(),
         )
         self.message_user(request, f"{updated} reporte(s) publicado(s).")
+
+    # ------------------------------------------------------------------
+    # DEV-83 · Importer/Exporter xlsx
+    # ------------------------------------------------------------------
+    def get_urls(self):
+        urls = super().get_urls()
+        custom = [
+            path(
+                "download-template/",
+                self.admin_site.admin_view(self.download_template_view),
+                name="reports_report_download_template",
+            ),
+            path(
+                "download-example/<int:report_id>/",
+                self.admin_site.admin_view(self.download_example_view),
+                name="reports_report_download_example",
+            ),
+            path(
+                "import/",
+                self.admin_site.admin_view(self.import_view),
+                name="reports_report_import",
+            ),
+            path(
+                "import/cascade/<str:level>/",
+                self.admin_site.admin_view(self.import_cascade_view),
+                name="reports_report_import_cascade",
+            ),
+        ]
+        return custom + urls
+
+    def import_cascade_view(self, request, level: str):
+        """JSON feed para los selects cascading del form (Cliente → Etapa)."""
+        if not request.user.has_perm("reports.add_report"):
+            return JsonResponse({"results": []}, status=403)
+        parent = request.GET.get("parent")
+        from apps.campaigns.models import Campaign, Stage
+        from apps.tenants.models import Brand
+        if level == "brand":
+            qs = Brand.objects.filter(client_id=parent).order_by("name")
+        elif level == "campaign":
+            qs = Campaign.objects.filter(brand_id=parent).order_by("name")
+        elif level == "stage":
+            qs = Stage.objects.filter(campaign_id=parent).order_by("order")
+        else:
+            return JsonResponse({"results": []}, status=400)
+        return JsonResponse({
+            "results": [{"id": obj.pk, "text": str(obj)} for obj in qs],
+        })
+
+    def download_template_view(self, request):
+        if not request.user.has_perm("reports.add_report"):
+            return HttpResponse(status=403)
+        buf = build_template()
+        resp = HttpResponse(
+            buf.getvalue(),
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        resp["Content-Disposition"] = 'attachment; filename="reporte-template.xlsx"'
+        return resp
+
+    def download_example_view(self, request, report_id: int):
+        if not request.user.has_perm("reports.view_report"):
+            return HttpResponse(status=403)
+        try:
+            report = Report.objects.get(pk=report_id)
+        except Report.DoesNotExist:
+            return HttpResponse(status=404)
+        buf = export_report_xlsx(report)
+        resp = HttpResponse(
+            buf.getvalue(),
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        resp["Content-Disposition"] = (
+            f'attachment; filename="reporte-{report.pk}-export.xlsx"'
+        )
+        return resp
+
+    def import_view(self, request):
+        if not request.user.has_perm("reports.add_report"):
+            return HttpResponse(status=403)
+
+        import_errors = []
+        if request.method == "POST":
+            form = ImportReportForm(request.POST, request.FILES, admin_site=self.admin_site)
+            if form.is_valid():
+                stage = form.cleaned_data["stage"]
+                uploaded = form.cleaned_data["file"]
+                logger.info(
+                    "report_import_started",
+                    extra={
+                        "user_id": request.user.pk,
+                        "stage_id": stage.pk,
+                        "filename": uploaded.name,
+                        "size": uploaded.size,
+                    },
+                )
+                data = uploaded.read()
+                report, import_errors = import_bytes(
+                    data, filename=uploaded.name, stage_id=stage.pk,
+                )
+                if not import_errors and report is not None:
+                    messages.success(
+                        request,
+                        f"Reporte importado como DRAFT (id={report.pk}, "
+                        f"{report.blocks.count()} blocks).",
+                    )
+                    return redirect(reverse(
+                        "admin:reports_report_change", args=[report.pk],
+                    ))
+                logger.warning(
+                    "report_import_validation_failed",
+                    extra={
+                        "user_id": request.user.pk,
+                        "stage_id": stage.pk,
+                        "error_count": len(import_errors),
+                    },
+                )
+        else:
+            form = ImportReportForm(admin_site=self.admin_site)
+
+        context = {
+            **self.admin_site.each_context(request),
+            "form": form,
+            "import_errors": import_errors,
+            "opts": self.model._meta,
+        }
+        return render(request, "admin/reports/report/import.html", context)
 
 
 # -------- Polymorphic parent/child admins for standalone ReportBlock --------
@@ -212,8 +376,7 @@ class TextImageBlockAdmin(_BlockChildAdminBase):
 
 @admin.register(ImageBlock)
 class ImageBlockAdmin(_BlockChildAdminBase):
-    list_display = ("report", "order", "title", "overlay_position")
-    list_filter = ("overlay_position",)
+    list_display = ("report", "order", "title")
     search_fields = ("title", "caption")
 
 
