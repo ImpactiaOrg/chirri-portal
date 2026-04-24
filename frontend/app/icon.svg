@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#121212"></rect>
+  <g font-family="&#39;Archivo Black&#39;, &#39;Arial Black&#39;, Impact, sans-serif" font-weight="900" font-size="40" fill="#FFE74C" text-anchor="middle">
+    <text x="20" y="51" transform="matrix(1 0 0 1.22 0 -11)">c</text>
+    <text x="44" y="51" transform="matrix(1 0 0 1.22 0 -11)">h</text>
+  </g>
+</svg>

@@ -16,8 +16,63 @@ export default function TopBar({ user, active = "home" }: Props) {
   return (
     <header className="topbar">
       <div className="topbar-left">
-        <Link href="/home" className="logo-chirri">chirri</Link>
-        <span className="portal-pill">PORTAL</span>
+        <Link
+          href="/home"
+          className="logo-chirri"
+          style={{
+            fontSize: 26,
+            letterSpacing: "-0.03em",
+            display: "inline-block",
+            transform: "scaleY(1.18)",
+            transformOrigin: "center bottom",
+            paddingTop: 4,
+            fontWeight: 900,
+            WebkitTextStroke: "0.3px currentColor",
+          }}
+        >
+          chirri
+        </Link>
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 5,
+            fontSize: 11,
+            fontWeight: 800,
+            letterSpacing: "0.12em",
+            padding: "4px 10px 5px",
+            background: "var(--chirri-yellow)",
+            color: "var(--chirri-black)",
+            borderRadius: 999,
+            border: "2px solid var(--chirri-black)",
+            boxShadow: "2px 2px 0 var(--chirri-pink-deep)",
+            transform: "rotate(-3deg)",
+            fontFamily: "var(--font-display)",
+            marginLeft: 4,
+          }}
+        >
+          <span
+            style={{
+              color: "var(--chirri-mint-deep)",
+              fontFamily: "Georgia, serif",
+              fontSize: 11,
+              marginTop: -1,
+            }}
+          >
+            ✳
+          </span>
+          PORTAL
+        </span>
+        <span
+          aria-hidden="true"
+          style={{
+            width: 1,
+            height: 22,
+            background: "var(--chirri-line-strong)",
+            marginLeft: 8,
+            marginRight: 4,
+          }}
+        />
         <nav className="nav">
           <Link href="/home" className={active === "home" ? "active" : ""}>Home</Link>
           <Link href="/campaigns" className={active === "campaigns" ? "active" : ""}>Campañas</Link>
