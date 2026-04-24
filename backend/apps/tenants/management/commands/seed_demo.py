@@ -371,18 +371,15 @@ class Command(BaseCommand):
         """
         fixtures = Path(__file__).parent / "fixtures"
 
-        latest = (
-            Report.objects.filter(status=Report.Status.PUBLISHED)
-            .order_by("-period_start")
-            .first()
-        )
-        if latest is None:
+        # Poblar fixtures (TopContent, OneLink) en TODO reporte publicado.
+        # Antes filtrábamos a la última period_start, pero eso dejaba a los
+        # reportes Marzo sin datos en cuanto aparecía un reporte Abril, y
+        # el smoke E2E navega al Marzo Educación esperando POSTS DEL MES.
+        # El inner loop ya hace `if block is None: continue` para reportes
+        # cuyo layout no incluya el block correspondiente.
+        target_reports = Report.objects.filter(status=Report.Status.PUBLISHED)
+        if not target_reports.exists():
             return
-
-        target_reports = Report.objects.filter(
-            status=Report.Status.PUBLISHED,
-            period_start=latest.period_start,
-        )
 
         intro = (
             "Cerramos un mes con crecimiento sostenido en alcance orgánico y un pico "
@@ -453,11 +450,12 @@ class Command(BaseCommand):
                     )
 
         # Brand-level snapshots: one per month, keyed by (brand, network, as_of).
+        snapshot_year = target_reports.order_by("-period_start").first().period_start.year
         for month, count in [(1, 99_500), (2, 104_568), (3, 107_072), (4, 110_240)]:
             BrandFollowerSnapshot.objects.update_or_create(
                 brand=brand,
                 network=Network.INSTAGRAM,
-                as_of=date(latest.period_start.year, month, 28),
+                as_of=date(snapshot_year, month, 28),
                 defaults={"followers_count": count},
             )
 
