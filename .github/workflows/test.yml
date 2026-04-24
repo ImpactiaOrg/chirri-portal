@@ -68,6 +68,8 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Boot dev stack
+        # backend has a healthcheck on /admin/login/, so --wait blocks
+        # until bootstrap.sh (migrate + superuser) finishes. No race.
         run: docker compose up -d --wait
 
       - name: Seed demo data

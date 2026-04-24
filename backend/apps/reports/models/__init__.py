@@ -19,3 +19,6 @@ from .blocks.metrics_table import MetricsTableBlock, MetricsTableRow  # noqa: F4
 from .blocks.top_content import TopContentBlock  # noqa: F401
 from .blocks.attribution import AttributionTableBlock  # noqa: F401
 from .blocks.chart import ChartBlock, ChartDataPoint  # noqa: F401
+
+# Attachments (DEV-108):
+from .attachments import ReportAttachment  # noqa: F401
