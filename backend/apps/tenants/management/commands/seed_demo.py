@@ -510,7 +510,7 @@ def _seed_full_layout(report) -> None:
       6 TopContentBlock — "Posts del mes"   (kind=POST)
       7 TopContentBlock — "Creators del mes" (kind=CREATOR)
       8 AttributionTableBlock — (show_total=True)
-      9 ChartBlock — "Followers IG"      (bar, data puntos mensuales)
+      9 ChartBlock — "Followers IG"      (line, data puntos mensuales)
      10 ChartBlock — "Followers TikTok"  (bar)
      11 ChartBlock — "Followers X"       (bar)
     """
@@ -608,10 +608,10 @@ def _seed_full_layout(report) -> None:
         report=report, order=8, show_total=True,
     )
 
-    # 9) Chart IG
+    # 9) Chart IG — line (DEV-128: follower growth es una curva temporal)
     ig_chart = ChartBlock.objects.create(
         report=report, order=9, title="Followers IG",
-        network=Network.INSTAGRAM, chart_type="bar",
+        network=Network.INSTAGRAM, chart_type="line",
     )
     ChartDataPoint.objects.bulk_create([
         ChartDataPoint(chart_block=ig_chart, order=i, label=label,

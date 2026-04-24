@@ -1,5 +1,6 @@
 import type { ChartBlockDto } from "@/lib/api";
 import BarChartMini from "../components/BarChartMini";
+import LineChartMini from "../components/LineChartMini";
 
 const NETWORK_LABELS: Record<string, string> = {
   INSTAGRAM: "Instagram",
@@ -18,11 +19,13 @@ export default function ChartBlock({ block }: { block: ChartBlockDto }) {
     ? `${title} ${NETWORK_LABELS[block.network] ?? block.network}`
     : title;
 
+  const Chart = block.chart_type === "line" ? LineChartMini : BarChartMini;
+
   return (
     <section style={{ marginBottom: 48 }}>
       <span className="pill-title mint">{title.toUpperCase()}</span>
       <div style={{ marginTop: 16 }}>
-        <BarChartMini points={points} ariaLabelPrefix={ariaPrefix} />
+        <Chart points={points} ariaLabelPrefix={ariaPrefix} />
       </div>
     </section>
   );

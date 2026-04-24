@@ -208,7 +208,7 @@ export type ChartBlockDto = BaseBlockFields & {
   type: "ChartBlock";
   title: string;
   network: Network | null;
-  chart_type: "bar";
+  chart_type: "bar" | "line";
   data_points: ChartDataPointDto[];
 };
 
