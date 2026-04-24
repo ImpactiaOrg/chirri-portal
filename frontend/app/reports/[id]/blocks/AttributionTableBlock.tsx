@@ -1,5 +1,22 @@
 import type { AttributionTableBlockDto } from "@/lib/api";
 
+const thStyle: React.CSSProperties = {
+  padding: "14px 20px",
+  fontSize: 11,
+  fontWeight: 800,
+  letterSpacing: "0.14em",
+  textTransform: "uppercase",
+  color: "var(--chirri-black)",
+  background: "var(--chirri-paper)",
+  borderBottom: "2px solid var(--chirri-black)",
+};
+
+const tdStyle: React.CSSProperties = {
+  padding: "14px 20px",
+  fontSize: 14,
+  color: "var(--chirri-black)",
+};
+
 export default function AttributionTableBlock({
   block,
 }: {
@@ -16,39 +33,57 @@ export default function AttributionTableBlock({
   return (
     <section style={{ marginBottom: 48 }}>
       <span className="pill-title">{title.toUpperCase()}</span>
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 12 }}>
-        <thead>
-          <tr>
-            <th scope="col" style={{ textAlign: "left", padding: "8px 12px" }}>Influencer</th>
-            <th scope="col" style={{ textAlign: "right", padding: "8px 12px" }}>Clicks</th>
-            <th scope="col" style={{ textAlign: "right", padding: "8px 12px" }}>Descargas</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r, i) => (
-            <tr key={i} style={{ borderTop: "1px solid rgba(0,0,0,0.05)" }}>
-              <td style={{ padding: "8px 12px" }}>{r.influencer_handle}</td>
-              <td style={{ textAlign: "right", padding: "8px 12px" }}>
-                {r.clicks.toLocaleString("es-AR")}
-              </td>
-              <td style={{ textAlign: "right", padding: "8px 12px" }}>
-                {r.app_downloads.toLocaleString("es-AR")}
-              </td>
+      <div
+        className="card"
+        style={{
+          marginTop: 16,
+          padding: 0,
+          overflow: "hidden",
+          background: "#fff",
+        }}
+      >
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              <th scope="col" style={{ ...thStyle, textAlign: "left" }}>Influencer</th>
+              <th scope="col" style={{ ...thStyle, textAlign: "right" }}>Clicks</th>
+              <th scope="col" style={{ ...thStyle, textAlign: "right" }}>Descargas</th>
             </tr>
-          ))}
-          {showTotal && (
-            <tr style={{ borderTop: "2px solid rgba(0,0,0,0.15)", fontWeight: 600 }}>
-              <td style={{ padding: "8px 12px" }}>Total</td>
-              <td style={{ textAlign: "right", padding: "8px 12px" }}>
-                {totalClicks.toLocaleString("es-AR")}
-              </td>
-              <td style={{ textAlign: "right", padding: "8px 12px" }}>
-                {totalDownloads.toLocaleString("es-AR")}
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((r, i) => (
+              <tr
+                key={i}
+                style={{ borderTop: i > 0 ? "1px solid rgba(10,10,10,0.08)" : "none" }}
+              >
+                <td style={{ ...tdStyle, fontWeight: 600 }}>{r.influencer_handle}</td>
+                <td style={{ ...tdStyle, textAlign: "right" }}>
+                  {r.clicks.toLocaleString("es-AR")}
+                </td>
+                <td style={{ ...tdStyle, textAlign: "right" }}>
+                  {r.app_downloads.toLocaleString("es-AR")}
+                </td>
+              </tr>
+            ))}
+            {showTotal && (
+              <tr
+                style={{
+                  borderTop: "2px solid var(--chirri-black)",
+                  background: "var(--chirri-paper)",
+                }}
+              >
+                <td style={{ ...tdStyle, fontWeight: 800 }}>Total</td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 800 }}>
+                  {totalClicks.toLocaleString("es-AR")}
+                </td>
+                <td style={{ ...tdStyle, textAlign: "right", fontWeight: 800 }}>
+                  {totalDownloads.toLocaleString("es-AR")}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }

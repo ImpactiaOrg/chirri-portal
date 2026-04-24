@@ -119,7 +119,9 @@ export type CampaignDetailDto = {
 export type KpiTileDto = {
   label: string;
   value: string; // Decimal serialized as string
+  unit: string;
   period_comparison: string | null;
+  period_comparison_label: string;
   order: number;
 };
 
@@ -191,7 +193,6 @@ export type ImageBlockDto = BaseBlockFields & {
   image_alt: string;
   title: string;
   caption: string;
-  overlay_position: "top" | "bottom" | "center" | "none";
 };
 
 export type KpiGridBlockDto = BaseBlockFields & {
@@ -235,6 +236,7 @@ export type AttributionTableBlockDto = BaseBlockFields & {
 export type ChartBlockDto = BaseBlockFields & {
   type: "ChartBlock";
   title: string;
+  description: string;
   network: Network | null;
   chart_type: "bar" | "line";
   data_points: ChartDataPointDto[];

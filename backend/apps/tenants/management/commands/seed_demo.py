@@ -630,10 +630,12 @@ def _seed_full_layout(report) -> None:
                 label="Reach total", value=Decimal("2840000")),
         KpiTile(kpi_grid_block=kpi_grid, order=2,
                 label="Reach orgánico", value=Decimal("412000"),
-                period_comparison=Decimal("6.1")),
+                period_comparison=Decimal("6.1"),
+                period_comparison_label="vs feb"),
         KpiTile(kpi_grid_block=kpi_grid, order=3,
                 label="Reach influencer", value=Decimal("2430000"),
-                period_comparison=Decimal("14.8")),
+                period_comparison=Decimal("14.8"),
+                period_comparison_label="vs feb"),
     ])
 
     # 2) Mes a mes — cross-network (network=null)
@@ -719,7 +721,8 @@ def _seed_full_layout(report) -> None:
 
     # 9) Chart IG — line (DEV-128: follower growth es una curva temporal)
     ig_chart = ChartBlock.objects.create(
-        report=report, order=9, title="Followers IG",
+        report=report, order=9, title="Followers",
+        description="Cuántas personas nos siguen al cierre de cada mes.",
         network=Network.INSTAGRAM, chart_type="line",
     )
     ChartDataPoint.objects.bulk_create([
@@ -730,7 +733,8 @@ def _seed_full_layout(report) -> None:
 
     # 10) Chart TikTok
     tk_chart = ChartBlock.objects.create(
-        report=report, order=10, title="Followers TikTok",
+        report=report, order=10, title="Followers",
+        description="Cuántas personas nos siguen al cierre de cada mes.",
         network=Network.TIKTOK, chart_type="bar",
     )
     ChartDataPoint.objects.bulk_create([
@@ -741,7 +745,8 @@ def _seed_full_layout(report) -> None:
 
     # 11) Chart X
     x_chart = ChartBlock.objects.create(
-        report=report, order=11, title="Followers X",
+        report=report, order=11, title="Followers",
+        description="Cuántas personas nos siguen al cierre de cada mes.",
         network=Network.X, chart_type="bar",
     )
     ChartDataPoint.objects.bulk_create([
@@ -821,15 +826,18 @@ def _seed_all_blocks_layout(report) -> None:
     KpiTile.objects.bulk_create([
         KpiTile(kpi_grid_block=kpi_grid, order=1,
                 label="Reach total", value=Decimal("3120000"),
-                period_comparison=Decimal("9.9")),
+                period_comparison=Decimal("9.9"),
+                period_comparison_label="vs mar"),
         KpiTile(kpi_grid_block=kpi_grid, order=2,
-                label="Engagement rate", value=Decimal("5.3"),
-                period_comparison=Decimal("0.5")),
+                label="Engagement rate", value=Decimal("5.3"), unit="%",
+                period_comparison=Decimal("0.5"),
+                period_comparison_label="vs mar"),
         KpiTile(kpi_grid_block=kpi_grid, order=3,
                 label="App downloads", value=Decimal("310")),
         KpiTile(kpi_grid_block=kpi_grid, order=4,
-                label="Click→download", value=Decimal("12.8"),
-                period_comparison=Decimal("3.1")),
+                label="Click→download", value=Decimal("12.8"), unit="%",
+                period_comparison=Decimal("3.1"),
+                period_comparison_label="vs mar"),
     ])
 
     # 3) MetricsTableBlock — cross-network (Mes a mes)
@@ -888,7 +896,8 @@ def _seed_all_blocks_layout(report) -> None:
 
     # 8) ChartBlock bar — Followers IG
     ig_chart = ChartBlock.objects.create(
-        report=report, order=8, title="Followers Instagram",
+        report=report, order=8, title="Followers",
+        description="Cuántas personas nos siguen al cierre de cada mes.",
         network=Network.INSTAGRAM, chart_type="bar",
     )
     ChartDataPoint.objects.bulk_create([
@@ -900,6 +909,7 @@ def _seed_all_blocks_layout(report) -> None:
     # 9) ChartBlock line — Engagement rate evolution
     er_chart = ChartBlock.objects.create(
         report=report, order=9, title="Engagement rate",
+        description="Evolución mensual del engagement rate de la marca.",
         network=None, chart_type="line",
     )
     ChartDataPoint.objects.bulk_create([
@@ -912,7 +922,6 @@ def _seed_all_blocks_layout(report) -> None:
         report=report, order=10,
         title="El mes en fotos",
         caption="Momentos destacados del contenido publicado.",
-        overlay_position="bottom",
         image_alt="Collage visual del mes",
     )
     source = _pick_image("post")

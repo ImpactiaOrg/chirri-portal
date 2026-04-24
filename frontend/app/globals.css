@@ -4,7 +4,7 @@
   --chirri-pink: #FFB3D1;
   --chirri-pink-deep: #F478A8;
   --chirri-mint: #A8F0A8;
-  --chirri-mint-deep: #6DD36D;
+  --chirri-mint-deep: #1e7a3e;
   --chirri-black: #0A0A0A;
   --chirri-ink: #1A1A1A;
   --chirri-cream: #FFF8E8;
@@ -441,6 +441,18 @@ section > .pill-title {
 .history-row .hr-action { text-align: right; font-size: 13px; font-weight: 800; text-decoration: underline; }
 
 .muted { color: var(--chirri-muted); }
+
+/* ======= SPINNER (ChSpinner) ======= */
+@keyframes ch-spin-pulse {
+  0%, 100% { transform: scale(1) rotate(-2deg); }
+  50%      { transform: scale(1.08) rotate(2deg); }
+}
+
+@keyframes ch-spin-rotate {
+  0%   { transform: rotate(-8deg); }
+  50%  { transform: rotate(8deg); }
+  100% { transform: rotate(-8deg); }
+}
 
 /* ======= RESPONSIVE ======= */
 @media (max-width: 900px) {

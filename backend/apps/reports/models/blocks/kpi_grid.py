@@ -19,9 +19,17 @@ class KpiTile(models.Model):
     )
     label = models.CharField(max_length=120)
     value = models.DecimalField(max_digits=16, decimal_places=4)
+    unit = models.CharField(
+        max_length=10, blank=True,
+        help_text="Unidad mostrada al lado del valor (ej. '%', 'm'). Opcional.",
+    )
     period_comparison = models.DecimalField(
         max_digits=8, decimal_places=4, null=True, blank=True,
         help_text="Delta % vs periodo anterior. Opcional.",
+    )
+    period_comparison_label = models.CharField(
+        max_length=30, blank=True,
+        help_text="Etiqueta del período de comparación (ej. 'vs feb'). Opcional.",
     )
     order = models.PositiveIntegerField()
 

@@ -11,6 +11,10 @@ CHART_TYPES = [("bar", "Bar"), ("line", "Line")]  # extensible a future (area, e
 
 class ChartBlock(ReportBlock):
     title = models.CharField(max_length=200, blank=True)
+    description = models.TextField(
+        blank=True,
+        help_text="Frase descriptiva mostrada al lado del chart (hero layout).",
+    )
     network = models.CharField(
         max_length=16, choices=Network.choices,
         null=True, blank=True,

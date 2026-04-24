@@ -1,17 +1,9 @@
-"""ImageBlock: imagen full-width con overlay opcional (DEV-130)."""
+"""ImageBlock: imagen dentro de un card, con pill-title arriba y caption debajo (DEV-130)."""
 from django.db import models
 
 from apps.reports.validators import validate_image_mimetype, validate_image_size
 
 from .base_block import ReportBlock
-
-
-OVERLAY_POSITIONS = [
-    ("top", "Arriba"),
-    ("bottom", "Abajo"),
-    ("center", "Centrado"),
-    ("none", "Sin overlay"),
-]
 
 
 class ImageBlock(ReportBlock):
@@ -20,11 +12,14 @@ class ImageBlock(ReportBlock):
         validators=[validate_image_size, validate_image_mimetype],
     )
     image_alt = models.CharField(max_length=200, blank=True)
-    title = models.CharField(max_length=200, blank=True)
-    caption = models.TextField(blank=True)
-    overlay_position = models.CharField(
-        max_length=10, choices=OVERLAY_POSITIONS, default="bottom",
-        help_text="Dónde pintar el título+caption. 'none' deja la imagen sola.",
+    title = models.CharField(
+        max_length=200, blank=True,
+        help_text="Se renderea como pill title arriba del card.",
+    )
+    caption = models.TextField(
+        blank=True,
+        help_text="Se renderea debajo de la imagen, separado por una línea. "
+                  "Si está vacío, esa sección se oculta.",
     )
 
     class Meta:

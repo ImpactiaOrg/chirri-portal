@@ -7,54 +7,49 @@ type Props = {
 
 export default function BarChartMini({ points, ariaLabelPrefix }: Props) {
   if (points.length === 0) return null;
-  const max = Math.max(...points.map((p) => p.value));
-  const ceiling = max * 1.1 || 1;
+
+  const w = 640, h = 220, padL = 28, padR = 28, padT = 28, padB = 36;
+  const values = points.map((p) => p.value);
+  const max = Math.max(...values) * 1.05;
+  const barGap = 28;
+  const n = points.length;
+  const availW = w - padL - padR - barGap * (n - 1);
+  const barW = availW / n;
 
   const ariaLabel = `${ariaLabelPrefix}: ${points
     .map((p) => `${p.label} ${p.value.toLocaleString("es-AR")}`)
     .join(", ")}`;
 
-  const barWidth = 80;
-  const gap = 20;
-  const height = 160;
-  const width = points.length * barWidth + (points.length - 1) * gap;
-
   return (
     <svg
       role="img"
       aria-label={ariaLabel}
-      viewBox={`0 0 ${width} ${height + 40}`}
-      style={{ width: "100%", maxWidth: 520 }}
+      viewBox={`0 0 ${w} ${h}`}
+      style={{ width: "100%", height: "auto", display: "block" }}
     >
+      <line
+        x1={padL} x2={w - padR} y1={h - padB} y2={h - padB}
+        stroke="var(--chirri-black)" strokeWidth={2}
+      />
       {points.map((p, i) => {
-        const h = (p.value / ceiling) * height;
-        const x = i * (barWidth + gap);
-        const y = height - h;
+        const isLast = i === n - 1;
+        const x = padL + i * (barW + barGap);
+        const bh = (p.value / max) * (h - padT - padB);
+        const y = h - padB - bh;
         return (
           <g key={p.label}>
             <rect
-              x={x}
-              y={y}
-              width={barWidth}
-              height={h}
-              fill="var(--chirri-pink-deep)"
+              x={x} y={y} width={barW} height={bh}
+              fill={isLast ? "var(--chirri-pink-deep)" : "var(--chirri-pink)"}
+              stroke="var(--chirri-black)" strokeWidth={2}
+              rx={3}
             />
             <text
-              x={x + barWidth / 2}
-              y={y - 6}
+              x={x + barW / 2} y={h - 14}
               textAnchor="middle"
-              fontSize={12}
-              fontWeight={800}
-              fill="var(--chirri-black)"
-            >
-              {p.value.toLocaleString("es-AR")}
-            </text>
-            <text
-              x={x + barWidth / 2}
-              y={height + 20}
-              textAnchor="middle"
-              fontSize={11}
-              fill="var(--chirri-black)"
+              fontSize={11.5}
+              fontWeight={isLast ? 800 : 600}
+              fill={isLast ? "var(--chirri-black)" : "var(--chirri-muted)"}
             >
               {p.label}
             </text>

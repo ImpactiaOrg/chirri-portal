@@ -7,67 +7,70 @@ type Props = {
 
 export default function LineChartMini({ points, ariaLabelPrefix }: Props) {
   if (points.length === 0) return null;
-  const max = Math.max(...points.map((p) => p.value));
-  const ceiling = max * 1.1 || 1;
+
+  const w = 640, h = 220, padL = 40, padR = 28, padT = 28, padB = 36;
+  const values = points.map((p) => p.value);
+  const max = Math.max(...values);
+  const min = Math.min(...values);
+  const range = max - min || 1;
+  const n = points.length;
+
+  const coords = points.map((p, i) => ({
+    ...p,
+    x: padL + (n === 1 ? (w - padL - padR) / 2 : (i / (n - 1)) * (w - padL - padR)),
+    y: padT + (1 - (p.value - min) / range) * (h - padT - padB),
+  }));
+  const pathD = coords.map((c, i) => `${i === 0 ? "M" : "L"}${c.x} ${c.y}`).join(" ");
 
   const ariaLabel = `${ariaLabelPrefix}: ${points
     .map((p) => `${p.label} ${p.value.toLocaleString("es-AR")}`)
     .join(", ")}`;
 
-  const slotWidth = 80;
-  const gap = 20;
-  const height = 160;
-  const width = points.length * slotWidth + (points.length - 1) * gap;
-
-  const coords = points.map((p, i) => {
-    const x = i * (slotWidth + gap) + slotWidth / 2;
-    const y = height - (p.value / ceiling) * height;
-    return { ...p, x, y };
-  });
-
-  const pathD = coords
-    .map((c, i) => `${i === 0 ? "M" : "L"}${c.x},${c.y}`)
-    .join(" ");
-
   return (
     <svg
       role="img"
       aria-label={ariaLabel}
-      viewBox={`0 0 ${width} ${height + 40}`}
-      style={{ width: "100%", maxWidth: 520 }}
+      viewBox={`0 0 ${w} ${h}`}
+      style={{ width: "100%", height: "auto", display: "block" }}
     >
+      <line
+        x1={padL} x2={w - padR} y1={h - padB} y2={h - padB}
+        stroke="var(--chirri-black)" strokeWidth={1.5}
+      />
       <path
         d={pathD}
         fill="none"
         stroke="var(--chirri-pink-deep)"
-        strokeWidth={3}
-        strokeLinecap="round"
+        strokeWidth={3.5}
         strokeLinejoin="round"
+        strokeLinecap="round"
       />
-      {coords.map((c) => (
-        <g key={c.label}>
-          <circle cx={c.x} cy={c.y} r={4} fill="var(--chirri-pink-deep)" />
+      {coords.map((c, i) => {
+        const isLast = i === coords.length - 1;
+        return (
+          <circle
+            key={c.label}
+            cx={c.x} cy={c.y} r={isLast ? 7 : 5}
+            fill={isLast ? "var(--chirri-pink-deep)" : "#fff"}
+            stroke="var(--chirri-pink-deep)" strokeWidth={3}
+          />
+        );
+      })}
+      {coords.map((c, i) => {
+        const isLast = i === coords.length - 1;
+        return (
           <text
-            x={c.x}
-            y={c.y - 10}
+            key={`m${i}`}
+            x={c.x} y={h - 14}
             textAnchor="middle"
-            fontSize={12}
-            fontWeight={800}
-            fill="var(--chirri-black)"
-          >
-            {c.value.toLocaleString("es-AR")}
-          </text>
-          <text
-            x={c.x}
-            y={height + 20}
-            textAnchor="middle"
-            fontSize={11}
-            fill="var(--chirri-black)"
+            fontSize={11.5}
+            fontWeight={isLast ? 800 : 600}
+            fill={isLast ? "var(--chirri-black)" : "var(--chirri-muted)"}
           >
             {c.label}
           </text>
-        </g>
-      ))}
+        );
+      })}
     </svg>
   );
 }

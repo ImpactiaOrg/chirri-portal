@@ -5,15 +5,19 @@ type Props = {
   value: number;
   delta?: number | null;
   unit?: string;
+  comparisonLabel?: string;
+  color?: "paper" | "mint" | "pink" | "yellow";
 };
 
-export default function KpiTile({ label, value, delta, unit }: Props) {
+export default function KpiTile({
+  label, value, delta, unit, comparisonLabel, color = "paper",
+}: Props) {
   const isPositive = delta !== null && delta !== undefined && delta >= 0;
   const deltaLabel = formatDelta(delta ?? null);
 
   return (
     <div
-      className="card card-paper"
+      className={`card card-${color}`}
       style={{ padding: 20, display: "flex", flexDirection: "column", gap: 8 }}
     >
       <div className="eyebrow">{label}</div>
@@ -24,10 +28,13 @@ export default function KpiTile({ label, value, delta, unit }: Props) {
           lineHeight: 0.95,
           letterSpacing: "-0.03em",
           textTransform: "lowercase",
+          display: "flex",
+          alignItems: "baseline",
+          gap: 2,
         }}
       >
-        {formatCompact(value)}
-        {unit && <span style={{ fontSize: 22, marginLeft: 4 }}>{unit}</span>}
+        <span>{formatCompact(value)}</span>
+        {unit && <span style={{ fontSize: 24, fontWeight: 700 }}>{unit}</span>}
       </div>
       {deltaLabel && (
         <div
@@ -39,6 +46,11 @@ export default function KpiTile({ label, value, delta, unit }: Props) {
           aria-label={`Variación vs periodo anterior: ${deltaLabel}`}
         >
           {deltaLabel}
+          {comparisonLabel && (
+            <span style={{ color: "var(--chirri-muted)", fontWeight: 600, marginLeft: 6 }}>
+              {comparisonLabel}
+            </span>
+          )}
         </div>
       )}
     </div>

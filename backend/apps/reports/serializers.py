@@ -23,7 +23,10 @@ from .models import (
 class KpiTileSerializer(serializers.ModelSerializer):
     class Meta:
         model = KpiTile
-        fields = ("label", "value", "period_comparison", "order")
+        fields = (
+            "label", "value", "unit",
+            "period_comparison", "period_comparison_label", "order",
+        )
 
 
 class MetricsTableRowSerializer(serializers.ModelSerializer):
@@ -102,7 +105,7 @@ class ImageBlockSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImageBlock
         fields = BASE_BLOCK_FIELDS + (
-            "type", "image_url", "image_alt", "title", "caption", "overlay_position",
+            "type", "image_url", "image_alt", "title", "caption",
         )
 
     def get_type(self, obj) -> str:
@@ -182,7 +185,9 @@ class ChartBlockSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChartBlock
-        fields = BASE_BLOCK_FIELDS + ("type", "title", "network", "chart_type", "data_points")
+        fields = BASE_BLOCK_FIELDS + (
+            "type", "title", "description", "network", "chart_type", "data_points",
+        )
 
     def get_type(self, obj) -> str:
         return "ChartBlock"

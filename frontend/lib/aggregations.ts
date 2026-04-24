@@ -11,6 +11,6 @@ export function formatCompact(n: number): string {
 
 export function formatDelta(pct: number | null): string {
   if (pct === null || pct === undefined) return "";
-  const sign = pct >= 0 ? "↑" : "↓";
+  const sign = pct >= 0 ? "▲" : "▼";
   return `${sign} ${Math.abs(pct).toFixed(1)}%`;
 }
