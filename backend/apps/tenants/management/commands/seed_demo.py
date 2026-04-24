@@ -750,19 +750,6 @@ def _seed_full_layout(report) -> None:
         for i, (label, value) in enumerate(_X_FOLLOWERS, start=1)
     ])
 
-    # 12) ImageBlock — cierre visual del reporte, imagen full-width con overlay
-    hero = ImageBlock(
-        report=report, order=12,
-        title="El mes en fotos",
-        caption="Momentos destacados del contenido publicado.",
-        overlay_position="bottom",
-        image_alt="Collage visual del mes",
-    )
-    source = _pick_image("post")
-    with open(source, "rb") as fh:
-        hero.image.save(f"hero-{report.id}{source.suffix}", File(fh), save=False)
-    hero.save()
-
 
 def _seed_minimal_layout(report) -> None:
     """Minimal typed blocks for published reports that don't get the full layout.
@@ -793,15 +780,16 @@ _ENGAGEMENT_RATE_APRIL = [
 
 
 def _seed_all_blocks_layout(report) -> None:
-    """Kitchen-sink layout: usa los 6 subtipos de ReportBlock.
+    """Kitchen-sink layout: usa los 8 subtipos de ReportBlock.
 
     Pensado como fixture visual para QA del viewer de reportes — permite
     ver en una sola página cómo se renderiza cada block type con data real.
     Variantes incluidas:
       · TextImageBlock (con imagen, position=left) y (solo texto, 2 columnas)
+      · ImageBlock (hero con overlay)
       · KpiGridBlock con 4 tiles (con y sin delta)
       · MetricsTableBlock cross-network y por-red (Instagram)
-      · TopContentBlock POST y CREATOR
+      · TopContentsBlock + TopCreatorsBlock (DEV-129)
       · AttributionTableBlock con show_total
       · ChartBlock bar (followers IG) y line (engagement rate)
     """
@@ -919,9 +907,22 @@ def _seed_all_blocks_layout(report) -> None:
         for i, (label, value) in enumerate(_ENGAGEMENT_RATE_APRIL, start=1)
     ])
 
-    # 10) TextImageBlock — cierre solo texto, multicol
-    TextImageBlock.objects.create(
+    # 10) ImageBlock — hero visual antes del cierre textual
+    hero = ImageBlock(
         report=report, order=10,
+        title="El mes en fotos",
+        caption="Momentos destacados del contenido publicado.",
+        overlay_position="bottom",
+        image_alt="Collage visual del mes",
+    )
+    source = _pick_image("post")
+    with open(source, "rb") as fh:
+        hero.image.save(f"hero-{report.id}{source.suffix}", File(fh), save=False)
+    hero.save()
+
+    # 11) TextImageBlock — cierre solo texto, multicol
+    TextImageBlock.objects.create(
+        report=report, order=11,
         title="Qué probamos para mayo",
         body=(
             "Seguimos apostando al formato reel testimonial — los saves "
