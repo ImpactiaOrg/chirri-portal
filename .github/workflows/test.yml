@@ -70,6 +70,13 @@ jobs:
       - name: Boot dev stack
         run: docker compose up -d --wait
 
+      # The backend container has no healthcheck, so `up --wait` returns as
+      # soon as db+redis are healthy — `bootstrap.sh` (which runs migrate)
+      # may still be in flight. Block here until migrations are applied,
+      # otherwise `seed_demo` can race the schema. Idempotent.
+      - name: Apply migrations
+        run: docker compose exec -T backend python manage.py migrate --noinput
+
       - name: Seed demo data
         run: docker compose exec -T backend python manage.py seed_demo
 
