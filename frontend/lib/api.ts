@@ -185,6 +185,15 @@ export type TextImageBlockDto = BaseBlockFields & {
   image_url: string | null;
 };
 
+export type ImageBlockDto = BaseBlockFields & {
+  type: "ImageBlock";
+  image_url: string | null;
+  image_alt: string;
+  title: string;
+  caption: string;
+  overlay_position: "top" | "bottom" | "center" | "none";
+};
+
 export type KpiGridBlockDto = BaseBlockFields & {
   type: "KpiGridBlock";
   title: string;
@@ -233,6 +242,7 @@ export type ChartBlockDto = BaseBlockFields & {
 
 export type ReportBlockDto =
   | TextImageBlockDto
+  | ImageBlockDto
   | KpiGridBlockDto
   | MetricsTableBlockDto
   | TopContentsBlockDto

@@ -67,6 +67,7 @@ class ReportDetailView(RetrieveAPIView):
                 # concretos. Los children de cada subtipo se prefetchean por
                 # el related_name reverse del polymorphic child table.
                 "blocks",
+                "blocks__imageblock",
                 "blocks__kpigridblock__tiles",
                 "blocks__metricstableblock__rows",
                 "blocks__chartblock__data_points",

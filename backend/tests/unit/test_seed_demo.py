@@ -16,7 +16,7 @@ def test_seed_demo_creates_typed_blocks():
     from apps.reports.models import (
         Report, KpiGridBlock, MetricsTableBlock,
         TopContentsBlock, TopCreatorsBlock,
-        AttributionTableBlock, ChartBlock,
+        AttributionTableBlock, ChartBlock, ImageBlock,
     )
     call_command("seed_demo")
 
@@ -31,8 +31,8 @@ def test_seed_demo_creates_typed_blocks():
     )
     assert full_report is not None, "Expected an Educación Marzo General report"
 
-    # 11 blocks esperados
-    assert full_report.blocks.count() == 11
+    # 12 blocks esperados (+ ImageBlock hero desde DEV-130)
+    assert full_report.blocks.count() == 12
 
     # Cada subtipo está representado
     assert KpiGridBlock.objects.filter(report=full_report).count() == 1
@@ -41,6 +41,7 @@ def test_seed_demo_creates_typed_blocks():
     assert TopCreatorsBlock.objects.filter(report=full_report).count() == 1
     assert AttributionTableBlock.objects.filter(report=full_report).count() == 1
     assert ChartBlock.objects.filter(report=full_report).count() == 3  # IG + TK + X
+    assert ImageBlock.objects.filter(report=full_report).count() == 1  # hero
 
 
 @pytest.mark.django_db

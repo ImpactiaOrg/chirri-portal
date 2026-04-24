@@ -16,7 +16,7 @@ from polymorphic.admin import (
 
 from .models import (
     Report, ReportAttachment, ReportBlock,
-    TextImageBlock, KpiGridBlock, KpiTile,
+    TextImageBlock, ImageBlock, KpiGridBlock, KpiTile,
     MetricsTableBlock, MetricsTableRow,
     TopContentsBlock, TopContentItem,
     TopCreatorsBlock, TopCreatorItem,
@@ -111,6 +111,9 @@ class ReportBlockInline(StackedPolymorphicInline):
     class TextImageBlockInline(StackedPolymorphicInline.Child):
         model = TextImageBlock
 
+    class ImageBlockInline(StackedPolymorphicInline.Child):
+        model = ImageBlock
+
     class KpiGridBlockInline(StackedPolymorphicInline.Child):
         model = KpiGridBlock
 
@@ -132,6 +135,7 @@ class ReportBlockInline(StackedPolymorphicInline):
     model = ReportBlock
     child_inlines = (
         TextImageBlockInline,
+        ImageBlockInline,
         KpiGridBlockInline,
         MetricsTableBlockInline,
         TopContentsBlockInline,
@@ -176,7 +180,7 @@ class ReportBlockAdmin(PolymorphicParentModelAdmin):
     """Vista standalone de todos los blocks, polimórfica."""
     base_model = ReportBlock
     child_models = (
-        TextImageBlock, KpiGridBlock, MetricsTableBlock,
+        TextImageBlock, ImageBlock, KpiGridBlock, MetricsTableBlock,
         TopContentsBlock, TopCreatorsBlock, AttributionTableBlock, ChartBlock,
     )
     list_display = ("report", "order", "polymorphic_ctype")
@@ -204,6 +208,13 @@ class _BlockChildAdminBase(SortableAdminBase, PolymorphicChildModelAdmin):
 class TextImageBlockAdmin(_BlockChildAdminBase):
     list_display = ("report", "order", "title")
     search_fields = ("title", "body")
+
+
+@admin.register(ImageBlock)
+class ImageBlockAdmin(_BlockChildAdminBase):
+    list_display = ("report", "order", "title", "overlay_position")
+    list_filter = ("overlay_position",)
+    search_fields = ("title", "caption")
 
 
 @admin.register(KpiGridBlock)

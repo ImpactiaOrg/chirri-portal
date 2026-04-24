@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('reports', '0013_migrate_original_pdf_to_attachment'),
+        ('reports', '0014_chart_line_type'),
     ]
 
     operations = [

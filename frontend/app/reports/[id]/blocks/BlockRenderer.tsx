@@ -1,5 +1,6 @@
 import type { ReportBlockDto } from "@/lib/api";
 import TextImageBlock from "./TextImageBlock";
+import ImageBlock from "./ImageBlock";
 import KpiGridBlock from "./KpiGridBlock";
 import MetricsTableBlock from "./MetricsTableBlock";
 import TopContentsBlock from "./TopContentsBlock";
@@ -11,6 +12,8 @@ export default function BlockRenderer({ block }: { block: ReportBlockDto }) {
   switch (block.type) {
     case "TextImageBlock":
       return <TextImageBlock block={block} />;
+    case "ImageBlock":
+      return <ImageBlock block={block} />;
     case "KpiGridBlock":
       return <KpiGridBlock block={block} />;
     case "MetricsTableBlock":

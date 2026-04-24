@@ -8,7 +8,7 @@ from rest_framework import serializers
 
 from .models import (
     Report, ReportAttachment,
-    TextImageBlock, KpiGridBlock, KpiTile,
+    TextImageBlock, ImageBlock, KpiGridBlock, KpiTile,
     MetricsTableBlock, MetricsTableRow,
     TopContentsBlock, TopContentItem,
     TopCreatorsBlock, TopCreatorItem,
@@ -95,6 +95,23 @@ class TextImageBlockSerializer(serializers.ModelSerializer):
         return obj.image.url if obj.image else None
 
 
+class ImageBlockSerializer(serializers.ModelSerializer):
+    type = serializers.SerializerMethodField()
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ImageBlock
+        fields = BASE_BLOCK_FIELDS + (
+            "type", "image_url", "image_alt", "title", "caption", "overlay_position",
+        )
+
+    def get_type(self, obj) -> str:
+        return "ImageBlock"
+
+    def get_image_url(self, obj) -> str | None:
+        return obj.image.url if obj.image else None
+
+
 class KpiGridBlockSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     tiles = KpiTileSerializer(many=True, read_only=True)
@@ -175,6 +192,7 @@ class ChartBlockSerializer(serializers.ModelSerializer):
 
 _BLOCK_SERIALIZERS = {
     TextImageBlock: TextImageBlockSerializer,
+    ImageBlock: ImageBlockSerializer,
     KpiGridBlock: KpiGridBlockSerializer,
     MetricsTableBlock: MetricsTableBlockSerializer,
     TopContentsBlock: TopContentsBlockSerializer,

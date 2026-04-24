@@ -28,6 +28,7 @@ from apps.reports.models import (
     BrandFollowerSnapshot,
     ChartBlock,
     ChartDataPoint,
+    ImageBlock,
     KpiGridBlock,
     KpiTile,
     MetricsTableBlock,
@@ -61,7 +62,8 @@ _FALLBACK_IMAGES = [
 # al inicio para que re-ejecutar no acumule archivos con sufijo random de
 # FileSystemStorage.get_available_name (top_content llegó a tener 4500+).
 _SEED_MEDIA_SUBPATHS = (
-    "top_content", "top_creators", "report_blocks", "reports/attachments",
+    "top_content", "top_creators", "report_blocks", "image_blocks",
+    "reports/attachments",
 )
 
 
@@ -747,6 +749,19 @@ def _seed_full_layout(report) -> None:
                        value=Decimal(str(value)))
         for i, (label, value) in enumerate(_X_FOLLOWERS, start=1)
     ])
+
+    # 12) ImageBlock — cierre visual del reporte, imagen full-width con overlay
+    hero = ImageBlock(
+        report=report, order=12,
+        title="El mes en fotos",
+        caption="Momentos destacados del contenido publicado.",
+        overlay_position="bottom",
+        image_alt="Collage visual del mes",
+    )
+    source = _pick_image("post")
+    with open(source, "rb") as fh:
+        hero.image.save(f"hero-{report.id}{source.suffix}", File(fh), save=False)
+    hero.save()
 
 
 def _seed_minimal_layout(report) -> None:
