@@ -2,7 +2,8 @@ import type { ReportBlockDto } from "@/lib/api";
 import TextImageBlock from "./TextImageBlock";
 import KpiGridBlock from "./KpiGridBlock";
 import MetricsTableBlock from "./MetricsTableBlock";
-import TopContentBlock from "./TopContentBlock";
+import TopContentsBlock from "./TopContentsBlock";
+import TopCreatorsBlock from "./TopCreatorsBlock";
 import AttributionTableBlock from "./AttributionTableBlock";
 import ChartBlock from "./ChartBlock";
 
@@ -14,8 +15,10 @@ export default function BlockRenderer({ block }: { block: ReportBlockDto }) {
       return <KpiGridBlock block={block} />;
     case "MetricsTableBlock":
       return <MetricsTableBlock block={block} />;
-    case "TopContentBlock":
-      return <TopContentBlock block={block} />;
+    case "TopContentsBlock":
+      return <TopContentsBlock block={block} />;
+    case "TopCreatorsBlock":
+      return <TopCreatorsBlock block={block} />;
     case "AttributionTableBlock":
       return <AttributionTableBlock block={block} />;
     case "ChartBlock":

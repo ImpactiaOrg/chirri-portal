@@ -8,10 +8,13 @@ Usage:
 Post-DEV-116: usa blocks tipados (KpiGridBlock, MetricsTableBlock, TopContentBlock,
 AttributionTableBlock, ChartBlock). ReportMetric fue eliminado.
 """
+import random
+import shutil
 from datetime import date, datetime, timezone
 from decimal import Decimal
 from pathlib import Path
 
+from django.conf import settings
 from django.core.files import File
 from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
@@ -33,8 +36,10 @@ from apps.reports.models import (
     Report,
     ReportAttachment,
     TextImageBlock,
-    TopContent,
-    TopContentBlock,
+    TopContentsBlock,
+    TopContentItem,
+    TopCreatorsBlock,
+    TopCreatorItem,
 )
 from apps.tenants.models import Brand, Client
 from apps.users.models import ClientUser
@@ -43,6 +48,56 @@ DEMO_PASSWORD = "balanz2026"
 
 BALANZ_BLUE = "#0B2D5B"
 BALANZ_TEAL = "#00C9B7"
+
+_FIXTURES_DIR = Path(__file__).parent / "fixtures"
+_IMAGE_POOL_DIR = _FIXTURES_DIR / "images_pool"
+_IMG_EXTS = {".jpg", ".jpeg", ".png", ".webp"}
+_FALLBACK_IMAGES = [
+    "placeholder_post_1.jpg",
+    "placeholder_post_2.jpg",
+    "placeholder_creator_1.jpg",
+]
+# Subpaths debajo de MEDIA_ROOT que el seed regenera en cada run. Se borran
+# al inicio para que re-ejecutar no acumule archivos con sufijo random de
+# FileSystemStorage.get_available_name (top_content llegó a tener 4500+).
+_SEED_MEDIA_SUBPATHS = (
+    "top_content", "top_creators", "report_blocks", "reports/attachments",
+)
+
+
+def _pick_image(kind: str) -> Path:
+    """Elige aleatoriamente una imagen de `images_pool/{kind}/`.
+
+    kind="post" → feed/lifestyle/contenido (TopContent POST + intro TextImage).
+    kind="creator" → retrato para TopContent CREATOR.
+
+    Si la subcarpeta está vacía o no existe, cae a los placeholders históricos
+    — así el seed sigue funcionando incluso sin poblar el pool.
+    """
+    pool = _IMAGE_POOL_DIR / kind
+    if pool.is_dir():
+        candidates = [
+            p for p in pool.iterdir()
+            if p.is_file() and p.suffix.lower() in _IMG_EXTS
+        ]
+        if candidates:
+            return random.choice(candidates)
+    return _FIXTURES_DIR / random.choice(_FALLBACK_IMAGES)
+
+
+def _wipe_seed_media() -> None:
+    """Borra subpaths de MEDIA_ROOT que el seed regenera, solo en
+    FileSystemStorage. Con R2/S3 no tocamos nada: el bucket es compartido y
+    un rmtree remoto sería destructivo.
+    """
+    backend = settings.STORAGES.get("default", {}).get("BACKEND", "")
+    if "FileSystemStorage" not in backend:
+        return
+    media_root = Path(settings.MEDIA_ROOT)
+    for sub in _SEED_MEDIA_SUBPATHS:
+        target = media_root / sub
+        if target.exists():
+            shutil.rmtree(target, ignore_errors=True)
 
 
 class Command(BaseCommand):
@@ -56,6 +111,8 @@ class Command(BaseCommand):
         if wipe:
             self.stdout.write("Wiping existing Balanz data…")
             Client.objects.filter(name="Balanz").delete()
+
+        _wipe_seed_media()
 
         client = self._seed_client()
         brand = self._seed_brand(client)
@@ -369,8 +426,6 @@ class Command(BaseCommand):
         delete-then-create for per-report fixtures and update_or_create for
         brand-level snapshots.
         """
-        fixtures = Path(__file__).parent / "fixtures"
-
         # Poblar fixtures (TopContent, OneLink) en TODO reporte publicado.
         # Antes filtrábamos a la última period_start, pero eso dejaba a los
         # reportes Marzo sin datos en cuanto aparecía un reporte Abril, y
@@ -386,10 +441,49 @@ class Command(BaseCommand):
             "de downloads vía influencers. Acá va el detalle."
         )
 
-        top_content_specs = [
-            ("", "placeholder_post_1.jpg"),
-            ("", "placeholder_post_2.jpg"),
-            ("@pasaje.en.mano", "placeholder_creator_1.jpg"),
+        # Posts destacados (5 items, todos con la métrica "guardados").
+        # Captions inspirados en los reportes reales de Balanz/Ken Brown.
+        content_item_specs = [
+            {
+                "caption": "La web cam ideal para tu set up!",
+                "source_type": SourceType.PAID,
+                "views": 34_500, "likes": 6, "comments": 0, "shares": 1, "saves": 1,
+            },
+            {
+                "caption": "Infaltables para volver a la oficina",
+                "source_type": SourceType.INFLUENCER,
+                "views": 621, "likes": 6, "comments": 0, "shares": 0, "saves": 1,
+            },
+            {
+                "caption": "POV: Dejaste la incomodidad atrás",
+                "source_type": SourceType.ORGANIC,
+                "views": 26_900, "likes": 6, "comments": 0, "shares": 1, "saves": 2,
+            },
+            {
+                "caption": "POV: Tenés unos auriculares super versátiles",
+                "source_type": SourceType.INFLUENCER,
+                "views": 20_600, "likes": 6, "comments": 0, "shares": 0, "saves": 1,
+            },
+            {
+                "caption": "",
+                "source_type": SourceType.ORGANIC,
+                "views": 353, "likes": 8, "comments": 0, "shares": 0, "saves": 1,
+            },
+        ]
+        # Creadores destacados (3 items, sin saves).
+        creator_item_specs = [
+            {
+                "handle": "@antoroncatti",
+                "views": 8_849, "likes": None, "comments": 15, "shares": 2,
+            },
+            {
+                "handle": "@florsosa.ok",
+                "views": 4_210, "likes": 52, "comments": 9, "shares": 3,
+            },
+            {
+                "handle": "@pasaje.en.mano",
+                "views": 2_180, "likes": 34, "comments": 6, "shares": 1,
+            },
         ]
         onelink_specs = [
             ("@pasaje.en.mano", 1200, 180),
@@ -401,44 +495,55 @@ class Command(BaseCommand):
             report.intro_text = intro
             report.save(update_fields=["intro_text"])
 
-            post_block = TopContentBlock.objects.filter(
-                report=report, kind="POST",
-            ).first()
-            creator_block = TopContentBlock.objects.filter(
-                report=report, kind="CREATOR",
-            ).first()
+            contents_block = TopContentsBlock.objects.filter(report=report).first()
+            creators_block = TopCreatorsBlock.objects.filter(report=report).first()
             attribution_block = AttributionTableBlock.objects.filter(
                 report=report,
             ).first()
 
             # Delete-then-create for idempotency (rerun must not duplicate).
-            if post_block is not None:
-                TopContent.objects.filter(block=post_block).delete()
-            if creator_block is not None:
-                TopContent.objects.filter(block=creator_block).delete()
+            if contents_block is not None:
+                TopContentItem.objects.filter(block=contents_block).delete()
+            if creators_block is not None:
+                TopCreatorItem.objects.filter(block=creators_block).delete()
             if attribution_block is not None:
                 OneLinkAttribution.objects.filter(attribution_block=attribution_block).delete()
 
-            for i, (handle, fname) in enumerate(top_content_specs, start=1):
-                is_creator = bool(handle)
-                block = creator_block if is_creator else post_block
-                if block is None:
-                    continue  # skip if the report wasn't seeded with a matching block
-                tc = TopContent(
-                    block=block,
-                    kind=TopContent.Kind.CREATOR if is_creator else TopContent.Kind.POST,
-                    network=Network.INSTAGRAM,
-                    source_type=(
-                        SourceType.INFLUENCER if is_creator else SourceType.ORGANIC
-                    ),
-                    rank=i,
-                    handle=handle,
-                    caption=f"Contenido destacado #{i}",
-                    metrics={"likes": 500 * i, "reach": 10000 * i, "er": 3.5 + i * 0.4},
-                )
-                with open(fixtures / fname, "rb") as fh:
-                    tc.thumbnail.save(fname, File(fh), save=False)
-                tc.save()
+            if contents_block is not None:
+                for i, spec in enumerate(content_item_specs, start=1):
+                    item = TopContentItem(
+                        block=contents_block,
+                        order=i,
+                        caption=spec["caption"],
+                        source_type=spec["source_type"],
+                        views=spec["views"],
+                        likes=spec["likes"],
+                        comments=spec["comments"],
+                        shares=spec["shares"],
+                        saves=spec["saves"],
+                    )
+                    source = _pick_image("post")
+                    stable_name = f"topcontent-{contents_block.id}-{i}{source.suffix}"
+                    with open(source, "rb") as fh:
+                        item.thumbnail.save(stable_name, File(fh), save=False)
+                    item.save()
+
+            if creators_block is not None:
+                for i, spec in enumerate(creator_item_specs, start=1):
+                    item = TopCreatorItem(
+                        block=creators_block,
+                        order=i,
+                        handle=spec["handle"],
+                        views=spec["views"],
+                        likes=spec["likes"],
+                        comments=spec["comments"],
+                        shares=spec["shares"],
+                    )
+                    source = _pick_image("creator")
+                    stable_name = f"topcreator-{creators_block.id}-{i}{source.suffix}"
+                    with open(source, "rb") as fh:
+                        item.thumbnail.save(stable_name, File(fh), save=False)
+                    item.save()
 
             if attribution_block is not None:
                 for handle, clicks, downloads in onelink_specs:
@@ -594,13 +699,15 @@ def _seed_full_layout(report) -> None:
                         source_type=SourceType.INFLUENCER),
     ])
 
-    # 6) Top Posts
-    TopContentBlock.objects.create(
-        report=report, order=6, title="Posts del mes", kind="POST", limit=6,
+    # 6) Top Contenidos
+    TopContentsBlock.objects.create(
+        report=report, order=6, title="Posts del mes",
+        network=Network.INSTAGRAM, limit=6,
     )
-    # 7) Top Creators
-    TopContentBlock.objects.create(
-        report=report, order=7, title="Creators del mes", kind="CREATOR", limit=6,
+    # 7) Top Creadores
+    TopCreatorsBlock.objects.create(
+        report=report, order=7, title="Creators del mes",
+        network=Network.INSTAGRAM, limit=6,
     )
 
     # 8) Attribution table
@@ -649,11 +756,13 @@ def _seed_minimal_layout(report) -> None:
     pipeline has somewhere to attach its items. Keeps it simple: TOP_CONTENT
     (POST + CREATOR).
     """
-    TopContentBlock.objects.create(
-        report=report, order=1, title="Posts del mes", kind="POST", limit=6,
+    TopContentsBlock.objects.create(
+        report=report, order=1, title="Posts del mes",
+        network=Network.INSTAGRAM, limit=6,
     )
-    TopContentBlock.objects.create(
-        report=report, order=2, title="Creators del mes", kind="CREATOR", limit=6,
+    TopCreatorsBlock.objects.create(
+        report=report, order=2, title="Creators del mes",
+        network=Network.INSTAGRAM, limit=6,
     )
 
 
@@ -681,8 +790,6 @@ def _seed_all_blocks_layout(report) -> None:
       · AttributionTableBlock con show_total
       · ChartBlock bar (followers IG) y line (engagement rate)
     """
-    fixtures_dir = Path(__file__).parent / "fixtures"
-
     # 1) TextImageBlock — intro narrativa con imagen
     intro_img = TextImageBlock(
         report=report, order=1,
@@ -699,8 +806,9 @@ def _seed_all_blocks_layout(report) -> None:
         image_position="left",
         image_alt="Creator Flor Sosa grabando el reel de abril",
     )
-    with open(fixtures_dir / "placeholder_post_1.jpg", "rb") as fh:
-        intro_img.image.save("april_intro.jpg", File(fh), save=False)
+    source = _pick_image("post")
+    with open(source, "rb") as fh:
+        intro_img.image.save(f"intro-{report.id}{source.suffix}", File(fh), save=False)
     intro_img.save()
 
     # 2) KpiGridBlock — 4 tiles
@@ -759,13 +867,15 @@ def _seed_all_blocks_layout(report) -> None:
                         period_comparison=Decimal("10.4")),
     ])
 
-    # 5) TopContentBlock — Posts
-    TopContentBlock.objects.create(
-        report=report, order=5, title="Posts del mes", kind="POST", limit=6,
+    # 5) TopContentsBlock — Posts
+    TopContentsBlock.objects.create(
+        report=report, order=5, title="Posts del mes",
+        network=Network.INSTAGRAM, limit=6,
     )
-    # 6) TopContentBlock — Creators
-    TopContentBlock.objects.create(
-        report=report, order=6, title="Creators del mes", kind="CREATOR", limit=6,
+    # 6) TopCreatorsBlock — Creators
+    TopCreatorsBlock.objects.create(
+        report=report, order=6, title="Creators del mes",
+        network=Network.INSTAGRAM, limit=6,
     )
 
     # 7) AttributionTableBlock

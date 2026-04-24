@@ -1,8 +1,7 @@
 from django.db import models
 
 from apps.campaigns.models import Stage
-from .choices import Network, SourceType
-from .validators import validate_image_mimetype, validate_image_size
+from .choices import Network
 
 
 class Report(models.Model):
@@ -50,39 +49,6 @@ class Report(models.Model):
         if self.title:
             return self.title
         return f"{self.get_kind_display()} · {self.period_start:%b %Y}"
-
-
-class TopContent(models.Model):
-    class Kind(models.TextChoices):
-        POST = "POST", "Post destacado"
-        CREATOR = "CREATOR", "Creator destacado"
-
-    block = models.ForeignKey(
-        "TopContentBlock",
-        on_delete=models.CASCADE,
-        related_name="items",
-        help_text="Bloque TOP_CONTENT que renderiza este ítem en el viewer.",
-    )
-    kind = models.CharField(max_length=16, choices=Kind.choices)
-    network = models.CharField(max_length=16, choices=Network.choices)
-    source_type = models.CharField(max_length=16, choices=SourceType.choices)
-    rank = models.PositiveIntegerField(help_text="1-based ordering within (kind, network).")
-    handle = models.CharField(max_length=120, blank=True)
-    caption = models.TextField(blank=True)
-    thumbnail = models.ImageField(
-        upload_to="top_content/%Y/%m/",
-        blank=True,
-        validators=[validate_image_size, validate_image_mimetype],
-    )
-    post_url = models.URLField(blank=True)
-    metrics = models.JSONField(default=dict, blank=True)
-
-    class Meta:
-        ordering = ["block", "kind", "network", "rank"]
-        indexes = [models.Index(fields=["block", "kind"])]
-
-    def __str__(self):
-        return f"{self.block_id} · {self.kind}/{self.network} #{self.rank}"
 
 
 class BrandFollowerSnapshot(models.Model):

@@ -10,9 +10,11 @@ from .models import (
     Report, ReportAttachment,
     TextImageBlock, KpiGridBlock, KpiTile,
     MetricsTableBlock, MetricsTableRow,
-    TopContentBlock, AttributionTableBlock,
+    TopContentsBlock, TopContentItem,
+    TopCreatorsBlock, TopCreatorItem,
+    AttributionTableBlock,
     ChartBlock, ChartDataPoint,
-    TopContent, OneLinkAttribution,
+    OneLinkAttribution,
 )
 
 
@@ -40,10 +42,24 @@ class TopContentItemSerializer(serializers.ModelSerializer):
     thumbnail_url = serializers.SerializerMethodField()
 
     class Meta:
-        model = TopContent
+        model = TopContentItem
         fields = (
-            "kind", "network", "source_type", "rank", "handle",
-            "caption", "thumbnail_url", "post_url", "metrics",
+            "order", "thumbnail_url", "caption", "post_url", "source_type",
+            "views", "likes", "comments", "shares", "saves",
+        )
+
+    def get_thumbnail_url(self, obj) -> str | None:
+        return obj.thumbnail.url if obj.thumbnail else None
+
+
+class TopCreatorItemSerializer(serializers.ModelSerializer):
+    thumbnail_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TopCreatorItem
+        fields = (
+            "order", "thumbnail_url", "handle", "post_url",
+            "views", "likes", "comments", "shares",
         )
 
     def get_thumbnail_url(self, obj) -> str | None:
@@ -103,16 +119,32 @@ class MetricsTableBlockSerializer(serializers.ModelSerializer):
         return "MetricsTableBlock"
 
 
-class TopContentBlockSerializer(serializers.ModelSerializer):
+class TopContentsBlockSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     items = TopContentItemSerializer(many=True, read_only=True)
 
     class Meta:
-        model = TopContentBlock
-        fields = BASE_BLOCK_FIELDS + ("type", "title", "kind", "limit", "items")
+        model = TopContentsBlock
+        fields = BASE_BLOCK_FIELDS + (
+            "type", "title", "network", "period_label", "limit", "items",
+        )
 
     def get_type(self, obj) -> str:
-        return "TopContentBlock"
+        return "TopContentsBlock"
+
+
+class TopCreatorsBlockSerializer(serializers.ModelSerializer):
+    type = serializers.SerializerMethodField()
+    items = TopCreatorItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = TopCreatorsBlock
+        fields = BASE_BLOCK_FIELDS + (
+            "type", "title", "network", "period_label", "limit", "items",
+        )
+
+    def get_type(self, obj) -> str:
+        return "TopCreatorsBlock"
 
 
 class AttributionTableBlockSerializer(serializers.ModelSerializer):
@@ -145,7 +177,8 @@ _BLOCK_SERIALIZERS = {
     TextImageBlock: TextImageBlockSerializer,
     KpiGridBlock: KpiGridBlockSerializer,
     MetricsTableBlock: MetricsTableBlockSerializer,
-    TopContentBlock: TopContentBlockSerializer,
+    TopContentsBlock: TopContentsBlockSerializer,
+    TopCreatorsBlock: TopCreatorsBlockSerializer,
     AttributionTableBlock: AttributionTableBlockSerializer,
     ChartBlock: ChartBlockSerializer,
 }

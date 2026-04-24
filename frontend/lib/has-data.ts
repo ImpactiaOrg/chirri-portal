@@ -1,8 +1,14 @@
 import type { ReportDto } from "./api";
 
-export function hasTopContent(report: ReportDto, kind: "POST" | "CREATOR"): boolean {
+export function hasTopContents(report: ReportDto): boolean {
   return report.blocks.some(
-    (b) => b.type === "TopContentBlock" && (b.items ?? []).some((c) => c.kind === kind),
+    (b) => b.type === "TopContentsBlock" && (b.items ?? []).length > 0,
+  );
+}
+
+export function hasTopCreators(report: ReportDto): boolean {
+  return report.blocks.some(
+    (b) => b.type === "TopCreatorsBlock" && (b.items ?? []).length > 0,
   );
 }
 

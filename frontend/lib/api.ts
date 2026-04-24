@@ -138,19 +138,28 @@ export type ChartDataPointDto = {
 };
 
 export type TopContentItemDto = {
-  kind: "POST" | "CREATOR";
-  network: Network;
-  source_type: SourceType;
-  rank: number;
-  handle: string;
-  caption: string;
+  order: number;
   thumbnail_url: string | null;
+  caption: string;
   post_url: string;
-  metrics: Record<string, unknown>;
+  source_type: SourceType;
+  views: number | null;
+  likes: number | null;
+  comments: number | null;
+  shares: number | null;
+  saves: number | null;
 };
 
-// Back-compat alias: ContentCard still imports TopContentDto.
-export type TopContentDto = TopContentItemDto;
+export type TopCreatorItemDto = {
+  order: number;
+  thumbnail_url: string | null;
+  handle: string;
+  post_url: string;
+  views: number | null;
+  likes: number | null;
+  comments: number | null;
+  shares: number | null;
+};
 
 export type OneLinkEntryDto = {
   influencer_handle: string;
@@ -189,12 +198,22 @@ export type MetricsTableBlockDto = BaseBlockFields & {
   rows: MetricsTableRowDto[];
 };
 
-export type TopContentBlockDto = BaseBlockFields & {
-  type: "TopContentBlock";
+export type TopContentsBlockDto = BaseBlockFields & {
+  type: "TopContentsBlock";
   title: string;
-  kind: "POST" | "CREATOR";
+  network: Network | null;
+  period_label: string;
   limit: number;
   items: TopContentItemDto[];
+};
+
+export type TopCreatorsBlockDto = BaseBlockFields & {
+  type: "TopCreatorsBlock";
+  title: string;
+  network: Network | null;
+  period_label: string;
+  limit: number;
+  items: TopCreatorItemDto[];
 };
 
 export type AttributionTableBlockDto = BaseBlockFields & {
@@ -216,7 +235,8 @@ export type ReportBlockDto =
   | TextImageBlockDto
   | KpiGridBlockDto
   | MetricsTableBlockDto
-  | TopContentBlockDto
+  | TopContentsBlockDto
+  | TopCreatorsBlockDto
   | AttributionTableBlockDto
   | ChartBlockDto;
 

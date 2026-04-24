@@ -18,9 +18,11 @@ from .models import (
     Report, ReportAttachment, ReportBlock,
     TextImageBlock, KpiGridBlock, KpiTile,
     MetricsTableBlock, MetricsTableRow,
-    TopContentBlock, AttributionTableBlock,
+    TopContentsBlock, TopContentItem,
+    TopCreatorsBlock, TopCreatorItem,
+    AttributionTableBlock,
     ChartBlock, ChartDataPoint,
-    TopContent, OneLinkAttribution, BrandFollowerSnapshot,
+    OneLinkAttribution, BrandFollowerSnapshot,
 )
 
 
@@ -57,16 +59,26 @@ class ChartDataPointInline(SortableTabularInline):
     ordering = ("order",)
 
 
-class TopContentInline(SortableTabularInline):
-    """Inline de TopContent dentro de TopContentBlock admin.
-
-    TopContent usa `rank` (no `order`) como campo de ordering; el inline lo
-    declara explícitamente para que adminsortable2 lo use como drag field.
-    """
-    model = TopContent
+class TopContentItemInline(SortableTabularInline):
+    """Cajitas de 'Top contenidos' — posts/contenidos destacados (DEV-129)."""
+    model = TopContentItem
     extra = 0
-    fields = ("rank", "kind", "network", "source_type", "handle", "thumbnail", "post_url")
-    ordering = ("rank",)
+    fields = (
+        "order", "thumbnail", "caption", "source_type", "post_url",
+        "views", "likes", "comments", "shares", "saves",
+    )
+    ordering = ("order",)
+
+
+class TopCreatorItemInline(SortableTabularInline):
+    """Cajitas de 'Top creadores' — retratos con @handle (DEV-129)."""
+    model = TopCreatorItem
+    extra = 0
+    fields = (
+        "order", "thumbnail", "handle", "post_url",
+        "views", "likes", "comments", "shares",
+    )
+    ordering = ("order",)
 
 
 class OneLinkAttributionInline(admin.TabularInline):
@@ -105,8 +117,11 @@ class ReportBlockInline(StackedPolymorphicInline):
     class MetricsTableBlockInline(StackedPolymorphicInline.Child):
         model = MetricsTableBlock
 
-    class TopContentBlockInline(StackedPolymorphicInline.Child):
-        model = TopContentBlock
+    class TopContentsBlockInline(StackedPolymorphicInline.Child):
+        model = TopContentsBlock
+
+    class TopCreatorsBlockInline(StackedPolymorphicInline.Child):
+        model = TopCreatorsBlock
 
     class AttributionTableBlockInline(StackedPolymorphicInline.Child):
         model = AttributionTableBlock
@@ -119,7 +134,8 @@ class ReportBlockInline(StackedPolymorphicInline):
         TextImageBlockInline,
         KpiGridBlockInline,
         MetricsTableBlockInline,
-        TopContentBlockInline,
+        TopContentsBlockInline,
+        TopCreatorsBlockInline,
         AttributionTableBlockInline,
         ChartBlockInline,
     )
@@ -161,7 +177,7 @@ class ReportBlockAdmin(PolymorphicParentModelAdmin):
     base_model = ReportBlock
     child_models = (
         TextImageBlock, KpiGridBlock, MetricsTableBlock,
-        TopContentBlock, AttributionTableBlock, ChartBlock,
+        TopContentsBlock, TopCreatorsBlock, AttributionTableBlock, ChartBlock,
     )
     list_display = ("report", "order", "polymorphic_ctype")
     list_filter = ("polymorphic_ctype",)
@@ -203,11 +219,18 @@ class MetricsTableBlockAdmin(_BlockChildAdminBase):
     list_filter = ("network",)
 
 
-@admin.register(TopContentBlock)
-class TopContentBlockAdmin(_BlockChildAdminBase):
-    inlines = [TopContentInline]
-    list_display = ("report", "order", "title", "kind", "limit")
-    list_filter = ("kind",)
+@admin.register(TopContentsBlock)
+class TopContentsBlockAdmin(_BlockChildAdminBase):
+    inlines = [TopContentItemInline]
+    list_display = ("report", "order", "title", "network", "limit")
+    list_filter = ("network",)
+
+
+@admin.register(TopCreatorsBlock)
+class TopCreatorsBlockAdmin(_BlockChildAdminBase):
+    inlines = [TopCreatorItemInline]
+    list_display = ("report", "order", "title", "network", "limit")
+    list_filter = ("network",)
 
 
 @admin.register(AttributionTableBlock)
@@ -224,13 +247,6 @@ class ChartBlockAdmin(_BlockChildAdminBase):
 
 
 # -------- Standalone admins for debugging --------
-
-@admin.register(TopContent)
-class TopContentAdmin(admin.ModelAdmin):
-    list_display = ("block", "kind", "network", "rank", "handle")
-    list_filter = ("kind", "network", "source_type")
-    search_fields = ("handle", "caption")
-
 
 @admin.register(BrandFollowerSnapshot)
 class BrandFollowerSnapshotAdmin(admin.ModelAdmin):

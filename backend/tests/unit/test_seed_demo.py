@@ -15,7 +15,8 @@ def test_seed_demo_creates_typed_blocks():
     11 blocks tipados esperados."""
     from apps.reports.models import (
         Report, KpiGridBlock, MetricsTableBlock,
-        TopContentBlock, AttributionTableBlock, ChartBlock,
+        TopContentsBlock, TopCreatorsBlock,
+        AttributionTableBlock, ChartBlock,
     )
     call_command("seed_demo")
 
@@ -36,7 +37,8 @@ def test_seed_demo_creates_typed_blocks():
     # Cada subtipo está representado
     assert KpiGridBlock.objects.filter(report=full_report).count() == 1
     assert MetricsTableBlock.objects.filter(report=full_report).count() == 4  # mes a mes + IG + TK + X
-    assert TopContentBlock.objects.filter(report=full_report).count() == 2  # POST + CREATOR
+    assert TopContentsBlock.objects.filter(report=full_report).count() == 1
+    assert TopCreatorsBlock.objects.filter(report=full_report).count() == 1
     assert AttributionTableBlock.objects.filter(report=full_report).count() == 1
     assert ChartBlock.objects.filter(report=full_report).count() == 3  # IG + TK + X
 

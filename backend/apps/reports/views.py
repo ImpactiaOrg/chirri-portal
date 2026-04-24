@@ -70,7 +70,8 @@ class ReportDetailView(RetrieveAPIView):
                 "blocks__kpigridblock__tiles",
                 "blocks__metricstableblock__rows",
                 "blocks__chartblock__data_points",
-                "blocks__topcontentblock__items",
+                "blocks__topcontentsblock__items",
+                "blocks__topcreatorsblock__items",
                 "blocks__attributiontableblock__entries",
                 "attachments",
             )

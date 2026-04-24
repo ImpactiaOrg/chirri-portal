@@ -69,7 +69,8 @@ def test_admin_can_access_each_subtype_add_page(admin_client):
         ("reports", "textimageblock"),
         ("reports", "kpigridblock"),
         ("reports", "metricstableblock"),
-        ("reports", "topcontentblock"),
+        ("reports", "topcontentsblock"),
+        ("reports", "topcreatorsblock"),
         ("reports", "attributiontableblock"),
         ("reports", "chartblock"),
     ]
