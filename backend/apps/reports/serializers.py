@@ -7,7 +7,7 @@ se eliminaron porque dependían de ReportMetric, que ya no existe.
 from rest_framework import serializers
 
 from .models import (
-    Report,
+    Report, ReportAttachment,
     TextImageBlock, KpiGridBlock, KpiTile,
     MetricsTableBlock, MetricsTableRow,
     TopContentBlock, AttributionTableBlock,
@@ -170,6 +170,17 @@ class ReportBlockSerializer(serializers.Serializer):
 
 # ---------- Top-level Report serializer ----------
 
+class ReportAttachmentSerializer(serializers.ModelSerializer):
+    url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ReportAttachment
+        fields = ("id", "title", "url", "mime_type", "size_bytes", "kind", "order")
+
+    def get_url(self, obj) -> str | None:
+        return obj.file.url if obj.file else None
+
+
 class ReportDetailSerializer(serializers.ModelSerializer):
     stage_name = serializers.CharField(source="stage.name", read_only=True)
     stage_id = serializers.IntegerField(source="stage.id", read_only=True)
@@ -178,7 +189,7 @@ class ReportDetailSerializer(serializers.ModelSerializer):
     brand_name = serializers.CharField(source="stage.campaign.brand.name", read_only=True)
     display_title = serializers.CharField(read_only=True)
     blocks = ReportBlockSerializer(many=True, read_only=True)
-    original_pdf_url = serializers.SerializerMethodField()
+    attachments = ReportAttachmentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Report
@@ -188,8 +199,5 @@ class ReportDetailSerializer(serializers.ModelSerializer):
             "intro_text", "conclusions_text",
             "stage_id", "stage_name",
             "campaign_id", "campaign_name", "brand_name",
-            "blocks", "original_pdf_url",
+            "blocks", "attachments",
         )
-
-    def get_original_pdf_url(self, obj) -> str | None:
-        return obj.original_pdf.url if obj.original_pdf else None

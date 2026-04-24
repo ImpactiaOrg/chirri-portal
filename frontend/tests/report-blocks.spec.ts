@@ -61,7 +61,7 @@ test.describe("Report viewer · blocks", () => {
     ).toEqual([]);
   });
 
-  test("PDF download button absent when report has no original_pdf", async ({ page }) => {
+  test("Descargas section exposes the seeded PDF attachment", async ({ page }) => {
     await login(page);
     await page.goto("/campaigns");
     const activeSection = page
@@ -71,7 +71,14 @@ test.describe("Report viewer · blocks", () => {
     await page.locator('a[href^="/reports/"]').first().click();
     await expect(page).toHaveURL(/\/reports\/\d+$/);
 
-    // seed_demo doesn't upload PDFs, so button should not appear.
-    await expect(page.getByRole("link", { name: /descargar pdf original/i })).toHaveCount(0);
+    // seed_demo adjunta un PDF a todo reporte publicado (DEV-108).
+    await expect(page.getByText(/^descargas$/i).first()).toBeVisible();
+    const pdfLink = page
+      .getByRole("link", { name: /reporte \(pdf\)/i })
+      .first();
+    await expect(pdfLink).toBeVisible();
+
+    // The footer CTA points at the same first PDF_REPORT attachment.
+    await expect(page.getByRole("link", { name: /descargar reporte/i })).toBeVisible();
   });
 });
