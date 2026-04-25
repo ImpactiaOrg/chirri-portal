@@ -1,9 +1,9 @@
-"""Seed demo data from the design handoff (Balanz · De Ahorrista a Inversor).
+"""Seed demo data — fictional client "Aurora Foods" with full sample report set.
 
 Idempotent: running multiple times updates existing rows rather than duplicating.
 Usage:
     python manage.py seed_demo
-    python manage.py seed_demo --wipe    # delete Balanz first, then reseed
+    python manage.py seed_demo --wipe    # delete demo client first, then reseed
 
 Post-DEV-116: usa blocks tipados (KpiGridBlock, MetricsTableBlock, TopContentBlock,
 AttributionTableBlock, ChartBlock). ReportMetric fue eliminado.
@@ -45,10 +45,14 @@ from apps.reports.models import (
 from apps.tenants.models import Brand, Client
 from apps.users.models import ClientUser
 
-DEMO_PASSWORD = "balanz2026"
+DEMO_CLIENT_NAME = "Aurora Foods"
+DEMO_BRAND_NAME = "Aurora"
+DEMO_USER_EMAIL = "demo@chirripeppers.com"
+DEMO_USER_NAME = "Usuario Demo"
+DEMO_PASSWORD = "demo2026"
 
-BALANZ_BLUE = "#0B2D5B"
-BALANZ_TEAL = "#00C9B7"
+DEMO_PRIMARY_COLOR = "#E85A2C"   # terracotta — neutro y cálido
+DEMO_ACCENT_COLOR = "#F4C95D"    # mostaza
 
 _FIXTURES_DIR = Path(__file__).parent / "fixtures"
 _IMAGE_POOL_DIR = _FIXTURES_DIR / "images_pool"
@@ -103,16 +107,16 @@ def _wipe_seed_media() -> None:
 
 
 class Command(BaseCommand):
-    help = "Seed demo data from the design handoff (Balanz)."
+    help = "Seed demo data — fictional Aurora Foods client."
 
     def add_arguments(self, parser):
-        parser.add_argument("--wipe", action="store_true", help="Delete Balanz data before seeding.")
+        parser.add_argument("--wipe", action="store_true", help="Delete demo client data before seeding.")
 
     @transaction.atomic
     def handle(self, *args, wipe: bool = False, **options):
         if wipe:
-            self.stdout.write("Wiping existing Balanz data…")
-            Client.objects.filter(name="Balanz").delete()
+            self.stdout.write(f"Wiping existing {DEMO_CLIENT_NAME} data…")
+            Client.objects.filter(name=DEMO_CLIENT_NAME).delete()
 
         _wipe_seed_media()
 
@@ -133,16 +137,16 @@ class Command(BaseCommand):
         self.stdout.write(f"  Stages (active campaign): {len(stages)}")
         self.stdout.write(f"  Influencers linked: {len(influencers)}")
         self.stdout.write("\n  Login portal:")
-        self.stdout.write(self.style.WARNING(f"    email:    belen.rizzo@balanz.com"))
+        self.stdout.write(self.style.WARNING(f"    email:    {DEMO_USER_EMAIL}"))
         self.stdout.write(self.style.WARNING(f"    password: {DEMO_PASSWORD}"))
 
     def _seed_client(self) -> Client:
         client, _ = Client.objects.update_or_create(
-            name="Balanz",
+            name=DEMO_CLIENT_NAME,
             defaults={
                 "logo_url": "",
-                "primary_color": BALANZ_BLUE,
-                "secondary_color": BALANZ_TEAL,
+                "primary_color": DEMO_PRIMARY_COLOR,
+                "secondary_color": DEMO_ACCENT_COLOR,
             },
         )
         return client
@@ -150,16 +154,16 @@ class Command(BaseCommand):
     def _seed_brand(self, client: Client) -> Brand:
         brand, _ = Brand.objects.update_or_create(
             client=client,
-            name="Balanz",
-            defaults={"description": "Balanz · broker y app de inversiones."},
+            name=DEMO_BRAND_NAME,
+            defaults={"description": f"{DEMO_BRAND_NAME} · marca demo para mostrar el portal."},
         )
         return brand
 
     def _seed_user(self, client: Client) -> ClientUser:
         user, created = ClientUser.objects.get_or_create(
-            email="belen.rizzo@balanz.com",
+            email=DEMO_USER_EMAIL,
             defaults={
-                "full_name": "Belén Rizzo",
+                "full_name": DEMO_USER_NAME,
                 "client": client,
                 "role": ClientUser.Role.ADMIN_CLIENT,
                 "is_active": True,
@@ -444,7 +448,7 @@ class Command(BaseCommand):
         )
 
         # Posts destacados (5 items, todos con la métrica "guardados").
-        # Captions inspirados en los reportes reales de Balanz/Ken Brown.
+        # Captions inspirados en reportes reales (Ken Brown).
         content_item_specs = [
             {
                 "caption": "La web cam ideal para tu set up!",
