@@ -1,14 +1,20 @@
 name: Deploy
 
-# Deploy disabled auto-trigger until Hetzner env exists. Only manual
-# dispatch for now (workflow_dispatch). When infra is ready, re-add the
-# appropriate push trigger (likely `branches: [main]` unless a separate
-# deploy branch is re-introduced).
+# Deploy manual — disparado a mano (UI o `gh workflow run deploy.yml`).
+# No hay auto-trigger en push. Razón: un solo entorno (prod chirri.impactia.ai),
+# evitamos que cada merge interrumpa lo que esté corriendo. El workflow
+# acepta un `ref` opcional para deployar un branch/tag/commit específico
+# (default: main).
 on:
   workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch, tag o commit SHA a deployar"
+        required: false
+        default: main
 
 concurrency:
-  group: deploy-${{ github.ref }}
+  group: deploy-prod
   cancel-in-progress: false
 
 jobs:
@@ -16,53 +22,76 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Show what we're deploying
+        run: |
+          echo "ref:    ${{ inputs.ref }}"
+          echo "sha:    $(git rev-parse HEAD)"
+          echo "commit: $(git log -1 --format='%s' HEAD)"
 
       - name: Deploy to Hetzner
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HETZNER_HOST }}
-          username: ${{ secrets.HETZNER_USER }}
+          username: deploy
           key: ${{ secrets.HETZNER_SSH_KEY }}
-          port: ${{ secrets.HETZNER_PORT || 22 }}
           script: |
             set -euo pipefail
             cd /opt/chirri-portal
-            git fetch origin main
-            git reset --hard origin/main
-            docker compose -f docker-compose.prod.yml pull || true
-            docker compose -f docker-compose.prod.yml build
-            docker compose -f docker-compose.prod.yml up -d
-            docker compose -f docker-compose.prod.yml exec -T backend python manage.py migrate --noinput
-            docker compose -f docker-compose.prod.yml exec -T backend python manage.py collectstatic --noinput
+            git fetch origin
+            git reset --hard ${{ inputs.ref }} || git reset --hard origin/${{ inputs.ref }}
+
+            # Inject/refresh API secrets en .env. El resto del .env (DB
+            # password, MinIO, Django SECRET_KEY) se generó al bootstrap
+            # del server y no se toca desde CI.
+            if grep -q '^FIREWORKS_API_KEY=' .env 2>/dev/null; then
+              sed -i "s|^FIREWORKS_API_KEY=.*|FIREWORKS_API_KEY=${{ secrets.FIREWORKS_API_KEY }}|" .env
+            else
+              echo "FIREWORKS_API_KEY=${{ secrets.FIREWORKS_API_KEY }}" >> .env
+            fi
+
+            docker compose -f docker-compose.prod.yml build backend frontend
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans db redis minio
+            docker compose -f docker-compose.prod.yml up minio-init || true
+            docker compose -f docker-compose.prod.yml up -d --force-recreate backend celery frontend
+            docker compose -f docker-compose.prod.yml up -d --force-recreate nginx
             docker image prune -f
+
+            sleep 5
+            for i in $(seq 1 45); do
+              if curl -fsS -H "Host: chirri.impactia.ai" http://127.0.0.1/api/health/ > /dev/null; then
+                echo "✓ health check passed (attempt $i)"
+                exit 0
+              fi
+              sleep 2
+            done
+            echo "✗ health check failed after 45 attempts" >&2
+            docker compose -f docker-compose.prod.yml ps
+            docker compose -f docker-compose.prod.yml logs --tail=100 backend nginx
+            exit 1
 
   post_deploy_smoke:
     needs: deploy
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: ${{ needs.deploy.result == 'success' }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
       - name: Install frontend deps + Playwright
         working-directory: frontend
         run: |
-          npm ci
+          npm ci --legacy-peer-deps || npm install --legacy-peer-deps
           npx playwright install --with-deps chromium
-      - name: Wait for deploy to stabilise
-        run: |
-          for i in {1..30}; do
-            if curl -fsS "${{ secrets.DEPLOY_URL }}/api/health/"; then
-              echo "health check passed after $i attempts"
-              exit 0
-            fi
-            sleep 5
-          done
-          echo "health check never passed after 30 attempts" >&2
-          exit 1
-      - name: Run post-deploy smoke against DEPLOY_URL
+      - name: Smoke contra DEPLOY_URL
         working-directory: frontend
         env:
           PLAYWRIGHT_BASE_URL: ${{ secrets.DEPLOY_URL }}
-        run: npx playwright test --grep "Report viewer|Home smoke|Campaign detail" --reporter=line
+        run: npm run test:e2e:smoke
