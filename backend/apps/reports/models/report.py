@@ -1,8 +1,5 @@
 from django.db import models
 
-from apps.campaigns.models import Stage
-from .choices import Network
-
 
 class Report(models.Model):
     class Kind(models.TextChoices):
@@ -16,7 +13,7 @@ class Report(models.Model):
         DRAFT = "DRAFT", "Draft"
         PUBLISHED = "PUBLISHED", "Published"
 
-    stage = models.ForeignKey(Stage, on_delete=models.CASCADE, related_name="reports")
+    stage = models.ForeignKey("campaigns.Stage", on_delete=models.CASCADE, related_name="reports")
     kind = models.CharField(max_length=16, choices=Kind.choices, default=Kind.MENSUAL)
     period_start = models.DateField()
     period_end = models.DateField()
@@ -49,39 +46,3 @@ class Report(models.Model):
         if self.title:
             return self.title
         return f"{self.get_kind_display()} · {self.period_start:%b %Y}"
-
-
-class BrandFollowerSnapshot(models.Model):
-    brand = models.ForeignKey(
-        "tenants.Brand",
-        on_delete=models.CASCADE,
-        related_name="follower_snapshots",
-    )
-    network = models.CharField(max_length=16, choices=Network.choices)
-    as_of = models.DateField()
-    followers_count = models.PositiveIntegerField()
-
-    class Meta:
-        unique_together = [("brand", "network", "as_of")]
-        ordering = ["-as_of"]
-
-    def __str__(self):
-        return f"{self.brand_id}/{self.network} @ {self.as_of}: {self.followers_count}"
-
-
-class OneLinkAttribution(models.Model):
-    attribution_block = models.ForeignKey(
-        "AttributionTableBlock",
-        on_delete=models.CASCADE,
-        related_name="entries",
-    )
-    influencer_handle = models.CharField(max_length=120)
-    clicks = models.PositiveIntegerField(default=0)
-    app_downloads = models.PositiveIntegerField(default=0)
-
-    class Meta:
-        ordering = ["attribution_block", "-app_downloads"]
-        indexes = [models.Index(fields=["attribution_block"])]
-
-    def __str__(self):
-        return f"{self.attribution_block_id} · {self.influencer_handle}: {self.app_downloads}d/{self.clicks}c"

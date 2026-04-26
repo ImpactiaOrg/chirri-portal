@@ -20,8 +20,7 @@ from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from apps.campaigns.models import Campaign, NarrativeLine, Stage
-from apps.influencers.models import CampaignInfluencer, Influencer
+from apps.campaigns.models import Campaign, Stage
 from apps.reports.choices import Network, SourceType
 from apps.reports.models import (
     AttributionTableBlock,
@@ -50,6 +49,15 @@ DEMO_BRAND_NAME = "Aurora"
 DEMO_USER_EMAIL = "demo@chirripeppers.com"
 DEMO_USER_NAME = "Usuario Demo"
 DEMO_PASSWORD = "demo2026"
+
+# Superadmins globales (sin client). Idempotente: si el usuario ya existe en
+# la DB con password seteada, no se la pisamos — solo se crea si falta.
+SUPERADMINS = [
+    ("daniel@impactia.ai", "Daniel Zacharias"),
+    ("eugenio@impactia.ai", "Eugenio de Tomaso"),
+    ("vicky@chirripeppers.com", "Victoria de Tomaso"),
+    ("julian@chirripeppers.com", "Julián Montero Ciancio"),
+]
 
 DEMO_PRIMARY_COLOR = "#E85A2C"   # terracotta — neutro y cálido
 DEMO_ACCENT_COLOR = "#F4C95D"    # mostaza
@@ -123,10 +131,9 @@ class Command(BaseCommand):
         client = self._seed_client()
         brand = self._seed_brand(client)
         self._seed_user(client)
+        admins_created = self._seed_superadmins()
         campaigns = self._seed_campaigns(brand)
         stages = self._seed_stages(campaigns["ahorrista-inversor"])
-        narrative_lines = self._seed_narrative_lines(campaigns["ahorrista-inversor"])
-        influencers = self._seed_influencers(campaigns["ahorrista-inversor"], stages, narrative_lines)
         self._seed_reports(stages)
         self._seed_report_viewer_fixtures(brand)
 
@@ -135,10 +142,14 @@ class Command(BaseCommand):
         self.stdout.write(f"  Brand: {brand.name}")
         self.stdout.write(f"  Campaigns: {len(campaigns)} (1 active + 2 finished)")
         self.stdout.write(f"  Stages (active campaign): {len(stages)}")
-        self.stdout.write(f"  Influencers linked: {len(influencers)}")
         self.stdout.write("\n  Login portal:")
         self.stdout.write(self.style.WARNING(f"    email:    {DEMO_USER_EMAIL}"))
         self.stdout.write(self.style.WARNING(f"    password: {DEMO_PASSWORD}"))
+        if admins_created:
+            self.stdout.write(f"\n  Superadmins creados con password '{DEMO_PASSWORD}': {', '.join(admins_created)}")
+        self.stdout.write(self.style.SUCCESS(
+            f"  Total superadmins: {len(SUPERADMINS)} (passwords pre-existentes preservadas)"
+        ))
 
     def _seed_client(self) -> Client:
         client, _ = Client.objects.update_or_create(
@@ -173,6 +184,41 @@ class Command(BaseCommand):
             user.set_password(DEMO_PASSWORD)
             user.save()
         return user
+
+    def _seed_superadmins(self) -> list[str]:
+        """Crea/asegura los 4 superadmins globales del equipo (sin client).
+
+        Idempotente. Si el user ya existe (p.ej. lo creaste a mano en Hetzner
+        antes), NO toca el password ni los datos — solo garantiza que tenga
+        is_superuser/is_staff y client=None.
+
+        Devuelve la lista de emails que se crearon nuevos en este run.
+        """
+        created_emails: list[str] = []
+        for email, full_name in SUPERADMINS:
+            user, created = ClientUser.objects.get_or_create(
+                email=email,
+                defaults={
+                    "full_name": full_name,
+                    "client": None,
+                    "role": ClientUser.Role.ADMIN_CLIENT,
+                    "is_active": True,
+                    "is_staff": True,
+                    "is_superuser": True,
+                },
+            )
+            if created:
+                user.set_password(DEMO_PASSWORD)
+                user.save()
+                created_emails.append(email)
+            elif not (user.is_staff and user.is_superuser and user.client_id is None):
+                # User pre-existente sin flags de superadmin → upgrade in-place,
+                # sin tocar password.
+                user.is_staff = True
+                user.is_superuser = True
+                user.client = None
+                user.save(update_fields=["is_staff", "is_superuser", "client"])
+        return created_emails
 
     def _seed_campaigns(self, brand: Brand) -> dict[str, Campaign]:
         specs = [
@@ -244,99 +290,6 @@ class Command(BaseCommand):
                 },
             )
             out[slug] = stage
-        return out
-
-    def _seed_narrative_lines(self, campaign: Campaign) -> dict[str, NarrativeLine]:
-        specs = [
-            ("Testimonios personales", "Historias reales de gente que empezó desde cero."),
-            ("FOMO financiero", "Humor + punzada: 'todos invierten menos yo'."),
-            ("Educación simple", "Traducir tecnicismos a lenguaje cotidiano."),
-            ("Lo saqué del colchón", "El primer paso: dejar el efectivo parado."),
-            ("Rol del asesor", "La figura del asesor financiero como guía."),
-        ]
-        out: dict[str, NarrativeLine] = {}
-        for name, desc in specs:
-            nl, _ = NarrativeLine.objects.update_or_create(
-                campaign=campaign, name=name, defaults={"description": desc},
-            )
-            out[name] = nl
-        return out
-
-    def _seed_influencers(
-        self,
-        campaign: Campaign,
-        stages: dict[str, Stage],
-        narrative_lines: dict[str, NarrativeLine],
-    ) -> list[CampaignInfluencer]:
-        specs = [
-            {
-                "handle_ig": "@sofi.gonet", "followers_ig": 1_100_000, "er_ig": Decimal("4.8"),
-                "niche": "Lifestyle · finanzas personales",
-                "stage_slug": "validacion", "narrative": "Testimonios personales",
-                "fee_ars": Decimal("4800000"), "status": CampaignInfluencer.Status.MUST,
-                "notes": "Pico de downloads la noche de la publicación.",
-            },
-            {
-                "handle_ig": "@nacho.elizalde", "followers_ig": 540_000, "er_ig": Decimal("6.2"),
-                "niche": "Humor financiero",
-                "stage_slug": "awareness", "narrative": "FOMO financiero",
-                "fee_ars": Decimal("2900000"), "status": CampaignInfluencer.Status.MUST,
-                "notes": "Reel con 18% de guardados.",
-            },
-            {
-                "handle_ig": "@martibenza", "followers_ig": 1_000_000, "er_ig": Decimal("3.9"),
-                "niche": "Educación financiera para mujeres",
-                "stage_slug": "educacion", "narrative": "Educación simple",
-                "fee_ars": Decimal("4100000"), "status": CampaignInfluencer.Status.MUST,
-                "notes": "Audiencia femenina 25-34 respondió fuerte.",
-            },
-            {
-                "handle_ig": "@flor.sosa", "followers_ig": 470_000, "er_ig": Decimal("4.1"),
-                "niche": "Pop + finanzas",
-                "stage_slug": "conversion", "narrative": "Lo saqué del colchón",
-                "fee_ars": Decimal("2200000"), "status": CampaignInfluencer.Status.MUST,
-                "notes": "Próximo mes.",
-            },
-            {
-                "handle_ig": "@coni_fach", "followers_ig": 290_000, "er_ig": Decimal("5.3"),
-                "niche": "Educación",
-                "stage_slug": None, "narrative": "Educación simple",
-                "fee_ars": None, "status": CampaignInfluencer.Status.ALTERNATIVE,
-                "notes": "Propuesta.",
-            },
-            {
-                "handle_ig": "@jazmin.bardach", "followers_ig": 340_000, "er_ig": Decimal("4.6"),
-                "niche": "Asesoría financiera",
-                "stage_slug": None, "narrative": "Rol del asesor",
-                "fee_ars": None, "status": CampaignInfluencer.Status.NEGOTIATE_FEE,
-                "notes": "Propuesta.",
-            },
-        ]
-        out: list[CampaignInfluencer] = []
-        for spec in specs:
-            inf, _ = Influencer.objects.update_or_create(
-                handle_ig=spec["handle_ig"],
-                defaults={
-                    "followers_ig": spec["followers_ig"],
-                    "er_ig": spec["er_ig"],
-                    "niche": spec["niche"],
-                    "size_tier": (
-                        Influencer.SizeTier.MEGA if spec["followers_ig"] >= 1_000_000
-                        else Influencer.SizeTier.MACRO
-                    ),
-                },
-            )
-            ci, _ = CampaignInfluencer.objects.update_or_create(
-                campaign=campaign, influencer=inf,
-                defaults={
-                    "stage": stages.get(spec["stage_slug"]) if spec["stage_slug"] else None,
-                    "narrative_line": narrative_lines.get(spec["narrative"]),
-                    "status": spec["status"],
-                    "fee_ars": spec["fee_ars"],
-                    "notes": spec["notes"],
-                },
-            )
-            out.append(ci)
         return out
 
     def _seed_reports(self, stages: dict[str, Stage]) -> None:

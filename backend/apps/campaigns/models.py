@@ -58,18 +58,3 @@ class Stage(models.Model):
 
     def __str__(self):
         return f"{self.campaign.name} · {self.name}"
-
-
-class NarrativeLine(models.Model):
-    """A narrative voice of a campaign brief (e.g., 'FOMO financiero')."""
-
-    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name="narrative_lines")
-    name = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    tone = models.CharField(max_length=100, blank=True)
-
-    class Meta:
-        ordering = ["campaign", "name"]
-
-    def __str__(self):
-        return f"{self.campaign.name} · {self.name}"

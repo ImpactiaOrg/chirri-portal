@@ -29,9 +29,7 @@ INSTALLED_APPS = [
     "apps.tenants",
     "apps.users",
     "apps.campaigns",
-    "apps.influencers",
     "apps.reports",
-    "apps.scheduling",
 ]
 
 # Tenant scoping se hace dentro de cada view leyendo `request.user.client_id`.
