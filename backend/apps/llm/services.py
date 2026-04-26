@@ -50,6 +50,13 @@ def run_prompt(
             f"Prompt '{prompt_key}' has no model_hint and no model_override"
         )
 
+    if job is None:
+        job = LLMJob.objects.create(
+            consumer=prompt.consumer or "ad_hoc",
+            handler_path="apps.llm.services.run_prompt",
+            status=LLMJob.Status.RUNNING,
+        )
+
     rendered = _jinja.from_string(pv.body).render(**inputs)
     messages = _build_messages(rendered, images=images)
 
@@ -57,37 +64,96 @@ def run_prompt(
         {"type": "json_object"} if pv.response_format == "json_object" else None
     )
 
-    chat_resp = client.chat(
-        model=model, messages=messages, response_format=response_format,
+    max_retries = (
+        max_retries if max_retries is not None
+        else settings.LLM_DEFAULT_MAX_RETRIES
     )
 
-    cost = pricing.calculate_cost(
-        model, chat_resp.input_tokens, chat_resp.output_tokens,
+    last_call: LLMCall | None = None
+    last_error_type: str = ""
+    last_error_msg: str = ""
+    correction_msg: str | None = None
+
+    for attempt in range(max_retries + 1):
+        msgs = list(messages)
+        if correction_msg:
+            msgs.append({"role": "user", "content": correction_msg})
+
+        chat_resp = client.chat(
+            model=model, messages=msgs, response_format=response_format,
+        )
+        cost = pricing.calculate_cost(
+            model, chat_resp.input_tokens, chat_resp.output_tokens,
+        )
+
+        # Validate output if json_object.
+        parsed: dict | None = None
+        error_type = ""
+        error_msg = ""
+        try:
+            if pv.response_format == "json_object":
+                parsed = json.loads(chat_resp.content)
+                if pv.json_schema:
+                    jsonschema.validate(parsed, pv.json_schema)
+        except json.JSONDecodeError as exc:
+            error_type, error_msg = "json_decode", str(exc)
+        except jsonschema.ValidationError as exc:
+            error_type, error_msg = "schema_validation", exc.message
+
+        success = error_type == ""
+
+        last_call = LLMCall.objects.create(
+            job=job, prompt_version=pv,
+            provider=pricing.get_provider(model),
+            model=model,
+            input_tokens=chat_resp.input_tokens,
+            output_tokens=chat_resp.output_tokens,
+            duration_ms=chat_resp.duration_ms,
+            cost_usd=cost,
+            success=success,
+            error_type=error_type,
+            error_message=error_msg,
+            response_payload=(
+                {"content": chat_resp.content} if not success else None
+            ),
+        )
+
+        if success:
+            logger.info("llm.call_success", extra={
+                "call_id": last_call.pk, "job_id": getattr(job, "pk", None),
+                "model": model, "input_tokens": chat_resp.input_tokens,
+                "output_tokens": chat_resp.output_tokens,
+                "cost_usd": str(cost), "duration_ms": chat_resp.duration_ms,
+            })
+            return LLMResponse(
+                content=chat_resp.content, parsed=parsed, call=last_call,
+            )
+
+        last_error_type, last_error_msg = error_type, error_msg
+        logger.warning("llm.call_retry", extra={
+            "call_id": last_call.pk, "error_type": error_type, "attempt": attempt,
+        })
+        correction_msg = _correction_message(error_type, error_msg)
+
+    raise LLMValidationError(
+        f"After {max_retries + 1} attempts, last error: "
+        f"{last_error_type}: {last_error_msg}"
     )
 
-    call = LLMCall.objects.create(
-        job=job, prompt_version=pv,
-        provider=pricing.get_provider(model),
-        model=model,
-        input_tokens=chat_resp.input_tokens,
-        output_tokens=chat_resp.output_tokens,
-        duration_ms=chat_resp.duration_ms,
-        cost_usd=cost,
-        success=True,
-    )
 
-    parsed = None
-    if pv.response_format == "json_object":
-        parsed = json.loads(chat_resp.content)
-
-    logger.info("llm.call_success", extra={
-        "call_id": call.pk, "job_id": getattr(job, "pk", None),
-        "model": model, "input_tokens": chat_resp.input_tokens,
-        "output_tokens": chat_resp.output_tokens, "cost_usd": str(cost),
-        "duration_ms": chat_resp.duration_ms,
-    })
-
-    return LLMResponse(content=chat_resp.content, parsed=parsed, call=call)
+def _correction_message(error_type: str, error_msg: str) -> str:
+    if error_type == "json_decode":
+        return (
+            "Tu respuesta anterior no fue JSON válido. Devolvé exactamente "
+            "un objeto JSON, sin texto adicional, sin ```json fences. "
+            f"Error: {error_msg}"
+        )
+    if error_type == "schema_validation":
+        return (
+            "Tu respuesta JSON no respetó el schema. Corregí los campos "
+            f"que falten o sean del tipo incorrecto. Error: {error_msg}"
+        )
+    return f"Tu respuesta anterior tuvo un error: {error_msg}. Reintentá."
 
 
 def _build_messages(rendered_body: str, *, images: list[bytes] | None) -> list[dict]:
