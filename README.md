@@ -122,6 +122,36 @@ CI corre ambos en cada push/PR a `main` y `development` (`.github/workflows/test
 2. Push — `deploy.yml` redespliega la imagen previa (pineada por SHA, no `:latest`).
 3. Si hay que rollback de migración: `docker compose exec backend python manage.py migrate reports <prev>`. Las migraciones DEV-52 son aditivas (campos/modelos nuevos); el rollback no pierde datos de columnas existentes.
 
+## AI integration (DEV-84)
+
+`apps/llm/` provides the LLM infrastructure (provider-agnostic client,
+prompt versioning in DB, audit log of calls/cost, async jobs via Celery).
+
+### Use case A — PDF importer
+
+Julián sube un PDF legacy desde `/admin/reports/report/` → click
+"🤖 Importar desde PDF (AI)" → pick Cliente/Brand/Campaña/Etapa → upload.
+El sistema crea un `LLMJob`, encolea Celery, parsea con Fireworks Kimi K2
+vision, y crea un Report DRAFT.
+
+### Setup
+
+1. `LLM_FIREWORKS_API_KEY=...` en `.env` (ver `docs/ENV.md`).
+2. `docker compose exec backend python manage.py seed_prompts` para cargar
+   los prompts a la DB (idempotente).
+3. `docker compose exec backend python manage.py migrate` si es la primera vez.
+
+### Editar prompts
+
+`/admin/llm/prompt/` → click el prompt → "Nueva versión" → edit body +
+notes → guardar → "Set active" cuando estés listo. Diff side-by-side
+disponible para comparar versiones.
+
+### Spec & plan
+
+- Spec: `docs/superpowers/specs/2026-04-25-llm-integration-design.md`
+- Plan: `docs/superpowers/plans/2026-04-26-llm-integration.md`
+
 ## Documentación
 
 - Arquitectura y modelo de datos: `docs/superpowers/specs/2026-04-18-chirri-portal-foundation-design.md`

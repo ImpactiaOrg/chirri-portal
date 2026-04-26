@@ -33,6 +33,14 @@ Used when `USE_R2=1`. Unset locally to fall back to `backend/media/`.
 
 **Bucket setup:** `npx wrangler r2 bucket create chirri-media`.
 
+## LLM / AI integration (DEV-84)
+
+| Name | Purpose | Required |
+|------|---------|----------|
+| `LLM_FIREWORKS_API_KEY` | Fireworks API key. Without it the PDF importer raises `LLMConfigError`. Tests are mocked so they pass without the key. | For AI features |
+| `LLM_MAX_TOKENS_PER_CALL` | Hard cap per LLM call. Default `500000`. | No |
+| `LLM_MAX_COST_PER_JOB_USD` | Hard cap per LLM job (USD). Default `2.00`. | No |
+
 ## Frontend
 
 | Name | Purpose |
