@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     "apps.users",
     "apps.campaigns",
     "apps.reports",
+    "apps.llm",
 ]
 
 # Tenant scoping se hace dentro de cada view leyendo `request.user.client_id`.
@@ -161,3 +162,18 @@ CSRF_TRUSTED_ORIGINS = [
 CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://redis:6379/0")
 CELERY_RESULT_BACKEND = os.environ.get("REDIS_URL", "redis://redis:6379/0")
 CELERY_TIMEZONE = TIME_ZONE
+
+from decimal import Decimal  # noqa: E402
+
+# LLM integration (DEV-84)
+LLM_FIREWORKS_API_KEY = os.environ.get("LLM_FIREWORKS_API_KEY", "")
+LLM_MAX_TOKENS_PER_CALL = int(os.environ.get("LLM_MAX_TOKENS_PER_CALL", "500000"))
+LLM_MAX_COST_PER_JOB_USD = Decimal(os.environ.get("LLM_MAX_COST_PER_JOB_USD", "2.00"))
+LLM_DEFAULT_MAX_RETRIES = 1
+
+CELERY_BEAT_SCHEDULE = {
+    "llm-mark-stuck-jobs": {
+        "task": "apps.llm.tasks.mark_stuck_jobs_as_failed",
+        "schedule": 60.0,  # every minute
+    },
+}
