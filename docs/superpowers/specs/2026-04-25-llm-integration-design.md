@@ -26,7 +26,7 @@ Este ticket implementa **solo A** + el módulo compartido `apps/llm/` que va a s
 
 - No usar `arc-sdk` (decisión del owner, no para este sprint).
 - No copiar la arquitectura de Siga (`apps/llm/` con 7 providers, LLMRegistry singleton, hot-swap por DB) — overkill para nuestro scope.
-- No multi-provider en MVP — solo Fireworks. La abstracción del cliente queda lo suficientemente fina como para sumar Anthropic/OpenAI directos en el futuro sin reescribir.
+- No multi-provider activo en MVP — solo Fireworks corre en runtime. Pero el `client.py` se diseña con un `PROVIDERS` registry desde el día 1 para que sumar OpenAI / Anthropic / etc. sea trivial (agregar entrada al dict + env var + pricing). Ver "Multi-provider readiness" abajo.
 - No implementar B ni C en este ticket (se diseñan en sus propios spec/plan).
 - No prompt injection defense específico — el admin es staff-only, los inputs son archivos de cliente conocido.
 - No hard cap de costo diario org-wide (sí cap por call y por job, ver Failure Handling).
@@ -39,8 +39,8 @@ Este ticket implementa **solo A** + el módulo compartido `apps/llm/` que va a s
 ```
 backend/apps/llm/                           # infra compartida, domain-agnostic
   __init__.py
-  client.py              — wrapper único OpenAI(base_url=fireworks)
-  pricing.py             — dict {model: (input_per_1m, output_per_1m)} en USD
+  client.py              — PROVIDERS registry + get_client(provider) factory
+  pricing.py             — dict {model: (provider, input_per_1m, output_per_1m)} en USD
   services.py            — API pública: run_prompt() + dispatch_job()
   handlers.py            — registry de Celery handlers (string → import path)
   models/
@@ -261,21 +261,47 @@ class LLMCall(models.Model):
 ### `apps/llm/pricing.py`
 
 ```python
-# Precios en USD por 1M tokens. Actualizar manualmente cuando Fireworks cambie.
-# Source: https://fireworks.ai/pricing (cacheado 2026-04-25)
+# Precios en USD por 1M tokens. Actualizar manualmente cuando un provider
+# cambie precios. Cada modelo declara también su provider para que el
+# client sepa qué SDK/base_url usar.
+# Sources cacheados 2026-04-25: fireworks.ai/pricing, openai.com/pricing,
+# anthropic.com/pricing.
 MODEL_PRICING = {
+    # Fireworks
     "accounts/fireworks/models/kimi-k2-instruct-0905": {
+        "provider": "fireworks",
         "input_per_1m": Decimal("0.6"),
         "output_per_1m": Decimal("2.5"),
     },
     "accounts/fireworks/models/kimi-k2p5": {
+        "provider": "fireworks",
         "input_per_1m": Decimal("0.6"),
         "output_per_1m": Decimal("2.5"),
     },
-    # Sumar más modelos cuando se usen.
+    # Plantillas comentadas — descomentar al sumar provider:
+    # "gpt-4o": {
+    #     "provider": "openai",
+    #     "input_per_1m": Decimal("2.5"),
+    #     "output_per_1m": Decimal("10.0"),
+    # },
+    # "claude-sonnet-4-5": {
+    #     "provider": "anthropic",
+    #     "input_per_1m": Decimal("3.0"),
+    #     "output_per_1m": Decimal("15.0"),
+    # },
 }
 
-DEFAULT_PRICING = {"input_per_1m": Decimal("0"), "output_per_1m": Decimal("0")}
+DEFAULT_PRICING = {
+    "provider": "fireworks",
+    "input_per_1m": Decimal("0"),
+    "output_per_1m": Decimal("0"),
+}
+
+
+def get_provider(model: str) -> str:
+    """Deriva el provider del modelo. El consumer no lo elige a mano."""
+    return MODEL_PRICING.get(model, DEFAULT_PRICING)["provider"]
+
 
 def calculate_cost(model: str, input_tokens: int, output_tokens: int) -> Decimal:
     p = MODEL_PRICING.get(model, DEFAULT_PRICING)
@@ -284,6 +310,81 @@ def calculate_cost(model: str, input_tokens: int, output_tokens: int) -> Decimal
         + (Decimal(output_tokens) / Decimal(1_000_000)) * p["output_per_1m"]
     ).quantize(Decimal("0.000001"))
 ```
+
+## Multi-provider readiness
+
+`apps/llm/client.py` se diseña con un registry de providers desde el día 1, aunque solo Fireworks esté activo. El registry permite sumar OpenAI, Anthropic, Groq, etc. agregando 1 entrada al dict + 1 env var + 1 línea de pricing.
+
+```python
+# apps/llm/client.py
+from openai import OpenAI
+from django.conf import settings
+
+PROVIDERS = {
+    "fireworks": {
+        "base_url": "https://api.fireworks.ai/inference/v1",
+        "api_key_setting": "LLM_FIREWORKS_API_KEY",
+        "sdk": "openai",  # OpenAI-compatible
+    },
+    # Plantillas comentadas — descomentar al sumar provider:
+    # "openai": {
+    #     "base_url": None,  # default OpenAI
+    #     "api_key_setting": "LLM_OPENAI_API_KEY",
+    #     "sdk": "openai",
+    # },
+    # "groq": {
+    #     "base_url": "https://api.groq.com/openai/v1",
+    #     "api_key_setting": "LLM_GROQ_API_KEY",
+    #     "sdk": "openai",
+    # },
+    # "anthropic": {
+    #     "base_url": None,
+    #     "api_key_setting": "LLM_ANTHROPIC_API_KEY",
+    #     "sdk": "anthropic",  # SDK distinto, branch en client
+    # },
+}
+
+
+def get_client(provider: str):
+    cfg = PROVIDERS[provider]
+    api_key = getattr(settings, cfg["api_key_setting"], None)
+    if not api_key:
+        raise LLMConfigError(
+            f"Provider '{provider}' configurado pero falta env var "
+            f"{cfg['api_key_setting']}"
+        )
+    if cfg["sdk"] == "openai":
+        return OpenAI(api_key=api_key, base_url=cfg["base_url"])
+    elif cfg["sdk"] == "anthropic":
+        from anthropic import Anthropic  # lazy import — no instalar si no se usa
+        return Anthropic(api_key=api_key)
+    raise LLMConfigError(f"SDK desconocido: {cfg['sdk']}")
+```
+
+`client.chat()` (la función pública) recibe el `model` y deriva el provider via `pricing.get_provider(model)`. El consumer (y `services.run_prompt`) **no** elige provider a mano — pasa el `model` (que viene del `Prompt.model_hint` activo o de `model_override`) y el client resuelve.
+
+```python
+# apps/llm/client.py (continuación)
+def chat(model: str, messages: list, **kwargs) -> ChatResponse:
+    provider = pricing.get_provider(model)
+    client = get_client(provider)
+    cfg = PROVIDERS[provider]
+    if cfg["sdk"] == "openai":
+        return _chat_openai(client, model, messages, **kwargs)
+    elif cfg["sdk"] == "anthropic":
+        return _chat_anthropic(client, model, messages, **kwargs)
+```
+
+**Cómo cambia esto para OpenAI mañana**:
+
+1. Agregar `OPENAI_API_KEY` al `.env`.
+2. Descomentar entry `"openai"` en `PROVIDERS` y `"gpt-4o"` en `MODEL_PRICING`.
+3. Crear nueva `PromptVersion` del prompt con `model_hint="gpt-4o"`, hacer "Set active" desde admin.
+4. El próximo job que corra ese prompt va a OpenAI sin cambios de código.
+
+**Para Anthropic** sumás un paso más: `pip install anthropic` y descomentar el branch `_chat_anthropic` (que ya está stubbeado en el client). El resto idem.
+
+**Lo que NO se hace en MVP**: el branch `_chat_anthropic` no se implementa hasta que aparezca la necesidad. Pero la estructura del código lo soporta sin refactor.
 
 ## Python API
 
@@ -309,18 +410,20 @@ def run_prompt(
     """
     1. Resuelve Prompt(key=prompt_key).active_version.
     2. Renderiza prompt.body con `inputs` (Jinja2).
-    3. Llama Fireworks via apps.llm.client (chat completion).
+    3. Resuelve modelo: model_override > prompt_version.model_hint > raise.
+       Deriva provider del modelo via pricing.get_provider(model).
+    4. Llama via apps.llm.client.chat(model, messages, ...).
        - response_format según prompt_version.response_format.
        - images se pasan como image_url[base64] en messages.
-    4. Si response_format=json_object y prompt.json_schema set:
+    5. Si response_format=json_object y prompt.json_schema set:
        valida con jsonschema.validate(); si falla y retries > 0,
        retry con mensaje correctivo. Si después de retries falla,
        LLMCall.error_type="schema_validation", raise LLMValidationError.
-    5. Persiste LLMCall(job, prompt_version, model, tokens, cost,
+    6. Persiste LLMCall(job, prompt_version, model, tokens, cost,
        success, error_type, error_message).
-    6. Si payload > LLM_MAX_TOKENS_PER_CALL → bloquea ANTES del call,
+    7. Si payload > LLM_MAX_TOKENS_PER_CALL → bloquea ANTES del call,
        LLMCall.error_type="payload_too_large".
-    7. Si job.total_cost_usd + cost_estimate > LLM_MAX_COST_PER_JOB_USD →
+    8. Si job.total_cost_usd + cost_estimate > LLM_MAX_COST_PER_JOB_USD →
        bloquea, LLMCall.error_type="cost_exceeded".
     """
 
@@ -569,7 +672,7 @@ Fixtures:
 
 ## Security (P7)
 
-- **API key**: env var `FIREWORKS_API_KEY` solamente. Carga al boot via `settings.LLM_FIREWORKS_API_KEY`. Nunca en DB. En Hetzner queda en el secret manager cuando exista deploy.
+- **API keys**: env vars por provider, una por cada uno activo. MVP: solo `LLM_FIREWORKS_API_KEY`. Si mañana se suma OpenAI, agregás `LLM_OPENAI_API_KEY` al `.env`. Carga al boot via `settings.LLM_<PROVIDER>_API_KEY`. Nunca en DB. En Hetzner queda en el secret manager cuando exista deploy.
 - **Permissions**: 
   - `llm.add_prompt`, `llm.change_prompt`: staff (Euge/devs editan prompts).
   - `llm.view_llmjob`: staff con el permiso de su consumer (ej. `reports.add_report` para ver jobs del PDF parser).
@@ -637,6 +740,7 @@ Todo lo demás es interno (`client`, `pricing`, `tasks`, `handlers`).
 ## Acceptance criteria (DoD)
 
 - [ ] `apps/llm/` con los 4 módulos (`client`, `services`, `tasks`, `pricing`) y 3 modelos (`Prompt`, `LLMJob`, `LLMCall`).
+- [ ] `client.py` con `PROVIDERS` registry (Fireworks activo + plantillas comentadas para OpenAI/Anthropic/Groq); `get_client(provider)` resuelve SDK según `PROVIDERS[provider]["sdk"]`. Sumar un provider nuevo = descomentar entry + agregar pricing + env var, sin tocar `services` ni consumers.
 - [ ] Migración aplicable sin errores; rollback testeable (`migrate llm zero`).
 - [ ] `seed_prompts` carga la versión 1 de `parse_pdf_report` desde `apps/llm/seed/parse_pdf_report.md` a DB. Idempotente.
 - [ ] `dump_report_template` y `dump_report_example` siguen funcionando (no rompemos nada de DEV-83).
@@ -682,6 +786,7 @@ Ninguna — todas resueltas en el brainstorming del 2026-04-25.
 - **Use case C** (análisis ad-hoc): nuevo ticket. Reusa `apps/llm/`. Vive en el app de dominio (`apps/influencers/analyzers/`).
 - **Eval set + automated quality regression**: cuando tengamos N reportes parseados, podemos armar un "golden set" y correr el prompt contra ellos en CI para detectar regressions de calidad.
 - **Live contract test**: si Fireworks rompe contrato y nos morde, agregamos un `@pytest.mark.live` test nightly.
+- **Sumar más providers**: cuando aparezca el caso, descomentar la entry en `PROVIDERS` + agregar `MODEL_PRICING` + setear env var. Para Anthropic/Gemini (no OpenAI-compatible) hay que implementar el branch del SDK correspondiente en `client.chat()` — la estructura ya está stubbeada.
 - **Hot-swap de provider via admin**: si llega el día que rotamos providers seguido o queremos A/B testing entre Fireworks/Anthropic/etc., migramos a modelo `LLMSettings` estilo Siga (con cifrado Fernet, no plain text).
 - **Cost dashboard frontend** (Next.js): si los costos se vuelven significativos, mover el dashboard del admin a una vista Next.js con charts.
 - **Prompt eval UI**: vista en admin que corre un prompt sobre un input fijo y muestra outputs lado a lado de las últimas N versiones — útil para iterar prompts sin trigger jobs reales.
