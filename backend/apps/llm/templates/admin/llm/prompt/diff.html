@@ -1,0 +1,8 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>Diff: {{ prompt.key }} v{{ a.version }} ↔ v{{ b.version }}</h1>
+{{ diff_html|safe }}
+<p style="margin-top:1em;">
+  <a href="{% url 'admin:llm_prompt_change' prompt.pk %}">← Volver</a>
+</p>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>Nueva versión de {{ prompt.key }}</h1>
+<p>Versión activa actual: v{{ active.version|default:"—" }}.
+   Esta nueva versión NO se va a activar automáticamente.</p>
+<form method="post">
+  {% csrf_token %}
+  <fieldset class="module aligned">
+    <div class="form-row">
+      <label for="id_body">Body</label>
+      <textarea id="id_body" name="body" rows="20" cols="100">{{ active.body }}</textarea>
+    </div>
+    <div class="form-row">
+      <label for="id_notes">Notas</label>
+      <input type="text" id="id_notes" name="notes" maxlength="300">
+    </div>
+    <div class="form-row">
+      <label for="id_model_hint">Model hint</label>
+      <input type="text" id="id_model_hint" name="model_hint" maxlength="100"
+             value="{{ active.model_hint }}">
+    </div>
+    <div class="form-row">
+      <label for="id_response_format">Formato</label>
+      <select name="response_format" id="id_response_format">
+        <option value="text" {% if active.response_format == 'text' %}selected{% endif %}>text</option>
+        <option value="json_object" {% if active.response_format == 'json_object' %}selected{% endif %}>json_object</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label for="id_json_schema">JSON schema (opcional)</label>
+      <textarea id="id_json_schema" name="json_schema" rows="6" cols="100">{% if active.json_schema %}{{ active.json_schema|safe }}{% endif %}</textarea>
+    </div>
+  </fieldset>
+  <div class="submit-row">
+    <input type="submit" class="default" value="Crear versión">
+  </div>
+</form>
+{% endblock %}
