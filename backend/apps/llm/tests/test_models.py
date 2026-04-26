@@ -38,3 +38,37 @@ def test_prompt_version_unique_per_prompt():
     PromptVersion.objects.create(prompt=p, body="v1", version=1)
     with pytest.raises(Exception):
         PromptVersion.objects.create(prompt=p, body="dup", version=1)
+
+
+from decimal import Decimal
+
+from apps.llm.models import LLMCall, LLMJob
+from apps.llm.tests.factories import make_call, make_job, make_prompt
+
+
+@pytest.mark.django_db
+def test_llmjob_total_cost_denormalized_from_calls():
+    prompt = make_prompt()
+    job = make_job()
+    make_call(job=job, prompt_version=prompt.active_version,
+              input_tokens=100, output_tokens=200, cost_usd=Decimal("0.01"))
+    make_call(job=job, prompt_version=prompt.active_version,
+              input_tokens=50, output_tokens=25, cost_usd=Decimal("0.005"))
+    job.refresh_from_db()
+    assert job.total_input_tokens == 150
+    assert job.total_output_tokens == 225
+    assert job.total_cost_usd == Decimal("0.015000")
+
+
+@pytest.mark.django_db
+def test_llmjob_status_default_is_pending():
+    job = make_job()
+    assert job.status == LLMJob.Status.PENDING
+
+
+@pytest.mark.django_db
+def test_llmcall_only_persists_payload_on_failure_default():
+    """request_payload/response_payload are nullable; we set them only on errors."""
+    call = make_call()
+    assert call.request_payload is None
+    assert call.response_payload is None
