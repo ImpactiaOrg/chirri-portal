@@ -1,8 +1,8 @@
 import { expect, type Page } from "@playwright/test";
 
 export const SEED_USER = {
-  email: "belen.rizzo@balanz.com",
-  password: "balanz2026",
+  email: "demo@chirripeppers.com",
+  password: "demo2026",
 };
 
 export async function login(page: Page, creds = SEED_USER) {
