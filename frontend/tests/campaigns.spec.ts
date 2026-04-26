@@ -17,7 +17,7 @@ test.describe("Campaign detail smoke", () => {
     await expect(page).toHaveURL(/\/campaigns\/\d+$/);
 
     await expect(page.locator("h1").first()).toBeVisible();
-    await expect(page.getByText(/balanz/i).first()).toBeVisible();
+    await expect(page.getByText(/aurora/i).first()).toBeVisible();
     await expect(page.locator("h3").first()).toBeVisible();
     await expect(page.locator('a[href^="/reports/"]').first()).toBeVisible();
 

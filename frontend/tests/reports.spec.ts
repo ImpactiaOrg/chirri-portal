@@ -15,7 +15,7 @@ test.describe("Report viewer smoke", () => {
     // Header
     await expect(page.locator("h1").first()).toBeVisible();
     // Brand + campaign eyebrow
-    await expect(page.getByText(/balanz/i).first()).toBeVisible();
+    await expect(page.getByText(/aurora/i).first()).toBeVisible();
 
     // Block content is covered by report-blocks.spec.ts (which navigates to a
     // full Marzo report). Here we only verify the shell renders without errors;

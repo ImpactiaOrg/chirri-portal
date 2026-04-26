@@ -8,7 +8,7 @@ test.describe("Home smoke", () => {
     await login(page);
 
     await expect(page.getByText(/buen día/i)).toBeVisible();
-    await expect(page.getByText(/Chirri Portal · Balanz/i)).toBeVisible();
+    await expect(page.getByText(/Chirri Portal · Aurora/i)).toBeVisible();
     await expect(page.getByRole("link", { name: /Home/i })).toBeVisible();
 
     // If `apiFetch` throws ("Unexpected end of JSON input"), Next shows a
@@ -18,7 +18,7 @@ test.describe("Home smoke", () => {
 
   test("wrong credentials stay on /login with an error banner", async ({ page }) => {
     await page.goto("/login");
-    await page.fill("#email", "belen.rizzo@balanz.com");
+    await page.fill("#email", "demo@chirripeppers.com");
     await page.fill("#password", "wrong-password");
     await page.click('button[type="submit"]');
 
