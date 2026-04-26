@@ -114,3 +114,38 @@ def test_run_prompt_schema_violation_retries_then_raises(mock_chat, fireworks_ke
     assert mock_chat.call_count == 2
     calls = LLMCall.objects.all()
     assert all(c.error_type == "schema_validation" for c in calls)
+
+
+from apps.llm.exceptions import LLMCostExceededError
+
+
+@pytest.mark.django_db
+@patch("apps.llm.services.client.chat")
+def test_run_prompt_blocks_when_payload_exceeds_token_cap(mock_chat, settings):
+    settings.LLM_FIREWORKS_API_KEY = "sk-test"
+    settings.LLM_MAX_TOKENS_PER_CALL = 10
+    prompt = make_prompt(body="X" * 100_000)  # huge prompt
+    with pytest.raises(LLMCostExceededError):
+        run_prompt(prompt_key=prompt.key, inputs={})
+    mock_chat.assert_not_called()
+    # A failed LLMCall row was persisted with error_type=payload_too_large.
+    call = LLMCall.objects.get()
+    assert call.error_type == "payload_too_large"
+    assert call.success is False
+
+
+@pytest.mark.django_db
+@patch("apps.llm.services.client.chat")
+def test_run_prompt_blocks_when_job_total_cost_exceeds_cap(mock_chat, settings):
+    settings.LLM_FIREWORKS_API_KEY = "sk-test"
+    settings.LLM_MAX_COST_PER_JOB_USD = Decimal("0.001")
+    prompt = make_prompt()
+    job = make_job()
+    # Pre-load cost on the job above the cap.
+    job.total_cost_usd = Decimal("0.005")
+    job.save()
+    with pytest.raises(LLMCostExceededError):
+        run_prompt(prompt_key=prompt.key, inputs={}, job=job)
+    mock_chat.assert_not_called()
+    call = job.calls.get()
+    assert call.error_type == "cost_exceeded"

@@ -60,6 +60,38 @@ def run_prompt(
     rendered = _jinja.from_string(pv.body).render(**inputs)
     messages = _build_messages(rendered, images=images)
 
+    # Token cap (rough estimate: ~4 chars per token for English; we use 3
+    # as a safer rule of thumb to avoid undercount on prompts with code/JSON).
+    rendered_chars = sum(_message_char_count(m) for m in messages)
+    estimated_tokens = rendered_chars // 3
+    if estimated_tokens > settings.LLM_MAX_TOKENS_PER_CALL:
+        _record_blocked_call(
+            pv=pv, job=job, model=model,
+            error_type="payload_too_large",
+            error_message=(
+                f"Estimated {estimated_tokens} tokens > cap "
+                f"{settings.LLM_MAX_TOKENS_PER_CALL}"
+            ),
+        )
+        raise LLMCostExceededError(
+            f"Payload too large: ~{estimated_tokens} tokens > "
+            f"{settings.LLM_MAX_TOKENS_PER_CALL}"
+        )
+
+    if job is not None and job.total_cost_usd >= settings.LLM_MAX_COST_PER_JOB_USD:
+        _record_blocked_call(
+            pv=pv, job=job, model=model,
+            error_type="cost_exceeded",
+            error_message=(
+                f"Job total {job.total_cost_usd} USD already at/above cap "
+                f"{settings.LLM_MAX_COST_PER_JOB_USD}"
+            ),
+        )
+        raise LLMCostExceededError(
+            f"Job cost {job.total_cost_usd} USD exceeds cap "
+            f"{settings.LLM_MAX_COST_PER_JOB_USD}"
+        )
+
     response_format = (
         {"type": "json_object"} if pv.response_format == "json_object" else None
     )
@@ -154,6 +186,30 @@ def _correction_message(error_type: str, error_msg: str) -> str:
             f"que falten o sean del tipo incorrecto. Error: {error_msg}"
         )
     return f"Tu respuesta anterior tuvo un error: {error_msg}. Reintentá."
+
+
+def _message_char_count(message: dict) -> int:
+    content = message.get("content")
+    if isinstance(content, str):
+        return len(content)
+    if isinstance(content, list):
+        # image_url entries — count the base64 string length.
+        total = 0
+        for chunk in content:
+            if chunk.get("type") == "image_url":
+                total += len(chunk.get("image_url", {}).get("url", ""))
+        return total
+    return 0
+
+
+def _record_blocked_call(*, pv, job, model, error_type, error_message):
+    LLMCall.objects.create(
+        job=job, prompt_version=pv,
+        provider=pricing.get_provider(model),
+        model=model, input_tokens=0, output_tokens=0,
+        duration_ms=0, cost_usd=Decimal("0"),
+        success=False, error_type=error_type, error_message=error_message,
+    )
 
 
 def _build_messages(rendered_body: str, *, images: list[bytes] | None) -> list[dict]:
