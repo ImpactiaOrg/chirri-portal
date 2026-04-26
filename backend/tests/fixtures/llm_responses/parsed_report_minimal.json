@@ -1,0 +1,24 @@
+{
+  "kind": "MENSUAL",
+  "period_start": "2026-04-01",
+  "period_end": "2026-04-30",
+  "title": "Reporte mensual de prueba",
+  "intro_text": "",
+  "conclusions_text": "Cerramos bien.",
+  "layout": [[1, "intro"]],
+  "blocks": {
+    "intro": {
+      "type_name": "TextImageBlock",
+      "nombre": "intro",
+      "fields": {
+        "title": "Bienvenida",
+        "body": "Cuerpo del bloque.",
+        "image_alt": "",
+        "image_position": "top",
+        "columns": 1,
+        "imagen": ""
+      },
+      "items": []
+    }
+  }
+}
