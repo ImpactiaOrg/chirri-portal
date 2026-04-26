@@ -135,3 +135,87 @@ class PromptVersionAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+
+@admin.register(LLMJob)
+class LLMJobAdmin(admin.ModelAdmin):
+    list_display = ("pk", "consumer", "status", "triggered_by",
+                    "total_cost_display", "created_at", "finished_at")
+    list_filter = ("status", "consumer")
+    search_fields = ("consumer", "handler_path", "error_message")
+    readonly_fields = (
+        "consumer", "handler_path", "triggered_by", "status",
+        "input_metadata", "output_metadata", "error_message",
+        "total_input_tokens", "total_output_tokens", "total_cost_display",
+        "started_at", "finished_at", "created_at",
+        "result_content_type", "result_object_id",
+    )
+    fieldsets = (
+        (None, {"fields": (
+            "consumer", "handler_path", "triggered_by", "status",
+            "input_metadata", "output_metadata", "error_message",
+            "total_input_tokens", "total_output_tokens", "total_cost_display",
+            "started_at", "finished_at", "created_at",
+            "result_content_type", "result_object_id",
+        )}),
+    )
+
+    @admin.display(description="Costo USD")
+    def total_cost_display(self, obj):
+        # Hide costs unless user has the custom permission (or is superuser).
+        request = getattr(self, "_current_request", None)
+        if request is not None and not _user_can_view_costs(request.user):
+            return "—"
+        return f"${obj.total_cost_usd}"
+
+    def get_queryset(self, request):
+        self._current_request = request
+        return super().get_queryset(request)
+
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(LLMCall)
+class LLMCallAdmin(admin.ModelAdmin):
+    list_display = ("pk", "job", "model", "success", "input_tokens",
+                    "output_tokens", "cost_display", "duration_ms", "created_at")
+    list_filter = ("success", "error_type", "model")
+    search_fields = ("model", "error_message", "job__consumer")
+    readonly_fields = (
+        "job", "prompt_version", "provider", "model",
+        "input_tokens", "output_tokens", "duration_ms", "cost_display",
+        "success", "error_type", "error_message",
+        "request_payload", "response_payload", "created_at",
+    )
+
+    @admin.display(description="Costo USD")
+    def cost_display(self, obj):
+        request = getattr(self, "_current_request", None)
+        if request is not None and not _user_can_view_costs(request.user):
+            return "—"
+        return f"${obj.cost_usd}"
+
+    def get_queryset(self, request):
+        self._current_request = request
+        return super().get_queryset(request)
+
+    def has_module_permission(self, request):
+        # Restrict the entire LLMCall admin to superusers (PII risk in payloads).
+        return request.user.is_superuser
+
+    def has_view_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+def _user_can_view_costs(user) -> bool:
+    return user.is_superuser or user.has_perm("llm.view_costs")
