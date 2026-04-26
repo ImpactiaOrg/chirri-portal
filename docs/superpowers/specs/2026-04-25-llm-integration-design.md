@@ -1,6 +1,6 @@
 # LLM integration · `apps/llm/` + use case A (PDF parser)
 
-**Linear:** TBD (a crear cuando se restablezca el MCP de Linear)
+**Linear:** [DEV-84](https://linear.app/impactia/issue/DEV-84/llm-integration-foundation-use-case-a-pdf-parsedreport-vision)
 **Status:** Draft
 **Owner:** Daniel Zacharias
 **Date:** 2026-04-25
