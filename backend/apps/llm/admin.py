@@ -159,6 +159,7 @@ class LLMJobAdmin(admin.ModelAdmin):
             "result_content_type", "result_object_id",
         )}),
     )
+    change_form_template = "admin/llm/llmjob/change_form.html"
 
     @admin.display(description="Costo USD")
     def total_cost_display(self, obj):
@@ -174,6 +175,55 @@ class LLMJobAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom = [
+            path("<int:job_id>/status/",
+                 self.admin_site.admin_view(self.status_view),
+                 name="llm_llmjob_status"),
+        ]
+        return custom + urls
+
+    def status_view(self, request, job_id: int):
+        job = get_object_or_404(LLMJob, pk=job_id)
+        calls = list(job.calls.all().values(
+            "pk", "model", "success", "error_type", "input_tokens",
+            "output_tokens", "duration_ms", "cost_usd",
+        ))
+        for c in calls:
+            c["cost_usd"] = (
+                f"${c['cost_usd']}"
+                if _user_can_view_costs(request.user) else "—"
+            )
+        return JsonResponse({
+            "status": job.status,
+            "calls_count": len(calls),
+            "calls": calls,
+            "total_input_tokens": job.total_input_tokens,
+            "total_output_tokens": job.total_output_tokens,
+            "total_cost_usd": (
+                f"${job.total_cost_usd}"
+                if _user_can_view_costs(request.user) else "—"
+            ),
+            "result_url": _result_url(job),
+            "error_message": job.error_message,
+            "started_at": job.started_at.isoformat() if job.started_at else None,
+            "finished_at": job.finished_at.isoformat() if job.finished_at else None,
+        })
+
+
+def _result_url(job: LLMJob) -> str | None:
+    if not (job.result_content_type_id and job.result_object_id):
+        return None
+    ct = job.result_content_type
+    try:
+        return reverse(
+            f"admin:{ct.app_label}_{ct.model}_change",
+            args=[job.result_object_id],
+        )
+    except Exception:
+        return None
 
 
 @admin.register(LLMCall)

@@ -1,0 +1,82 @@
+{% extends "admin/change_form.html" %}
+{% block field_sets %}
+  {{ block.super }}
+
+  <div class="module" data-llm-job-status data-job-id="{{ original.pk }}"
+       data-status-url="{% url 'admin:llm_llmjob_status' original.pk %}">
+    <h2>Estado del job</h2>
+    <p>Status: <strong id="llm-job-status">{{ original.status }}</strong>
+       — elapsed: <span id="llm-job-elapsed">…</span></p>
+    <p id="llm-job-result-link" style="display:none;">
+      <a class="button" id="llm-job-result-anchor" href="#">Ver resultado →</a>
+    </p>
+    <table id="llm-job-calls-table"
+           style="border-collapse:collapse; margin-top:1em; width:100%;">
+      <thead>
+        <tr>
+          <th style="border:1px solid #ddd; padding:4px 8px;">#</th>
+          <th style="border:1px solid #ddd; padding:4px 8px;">Modelo</th>
+          <th style="border:1px solid #ddd; padding:4px 8px;">OK</th>
+          <th style="border:1px solid #ddd; padding:4px 8px;">In</th>
+          <th style="border:1px solid #ddd; padding:4px 8px;">Out</th>
+          <th style="border:1px solid #ddd; padding:4px 8px;">ms</th>
+          <th style="border:1px solid #ddd; padding:4px 8px;">$</th>
+          <th style="border:1px solid #ddd; padding:4px 8px;">Error</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <p>Total: <span id="llm-job-totals">…</span></p>
+    <p id="llm-job-slow-warning" style="display:none; color:#a04;">
+      Esto está tardando más de lo esperado. Si se queda en RUNNING > 10 min,
+      se va a marcar como FAILED automáticamente.
+    </p>
+  </div>
+
+  <script>
+  (function () {
+    const el = document.querySelector("[data-llm-job-status]");
+    if (!el) return;
+    const statusUrl = el.dataset.statusUrl;
+    const startedAt = Date.now();
+    const tbody = el.querySelector("#llm-job-calls-table tbody");
+    let timer = null;
+
+    async function tick() {
+      const resp = await fetch(statusUrl, {credentials: "same-origin"});
+      if (!resp.ok) return;
+      const data = await resp.json();
+      el.querySelector("#llm-job-status").textContent = data.status;
+      el.querySelector("#llm-job-totals").textContent =
+        `${data.total_input_tokens} in / ${data.total_output_tokens} out · ${data.total_cost_usd}`;
+      tbody.innerHTML = data.calls.map((c, i) => `
+        <tr>
+          <td style="border:1px solid #ddd; padding:4px 8px;">${i + 1}</td>
+          <td style="border:1px solid #ddd; padding:4px 8px;">${c.model}</td>
+          <td style="border:1px solid #ddd; padding:4px 8px;">${c.success ? "✓" : "✗"}</td>
+          <td style="border:1px solid #ddd; padding:4px 8px;">${c.input_tokens}</td>
+          <td style="border:1px solid #ddd; padding:4px 8px;">${c.output_tokens}</td>
+          <td style="border:1px solid #ddd; padding:4px 8px;">${c.duration_ms}</td>
+          <td style="border:1px solid #ddd; padding:4px 8px;">${c.cost_usd}</td>
+          <td style="border:1px solid #ddd; padding:4px 8px;">${c.error_type || ""}</td>
+        </tr>`).join("");
+      const elapsedSec = Math.floor((Date.now() - startedAt) / 1000);
+      el.querySelector("#llm-job-elapsed").textContent = `${elapsedSec}s`;
+      if (elapsedSec > 60) {
+        el.querySelector("#llm-job-slow-warning").style.display = "block";
+      }
+      if (data.status === "SUCCESS" && data.result_url) {
+        const link = el.querySelector("#llm-job-result-link");
+        link.style.display = "block";
+        link.querySelector("#llm-job-result-anchor").href = data.result_url;
+      }
+      if (data.status === "SUCCESS" || data.status === "FAILED") {
+        clearInterval(timer);
+      }
+    }
+
+    tick();
+    timer = setInterval(tick, 2000);
+  })();
+  </script>
+{% endblock %}
