@@ -1,0 +1,100 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block title %}Importar reporte desde PDF (AI) | {{ site_title|default:_("Django site admin") }}{% endblock %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans "Home" %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label='reports' %}">Reports</a>
+    &rsaquo; <a href="{% url 'admin:reports_report_changelist' %}">Reports</a>
+    &rsaquo; Importar desde PDF (AI)
+  </div>
+{% endblock %}
+
+{% block content %}
+  <h1>🤖 Importar reporte desde PDF (AI)</h1>
+
+  <p>
+    Subí un PDF del reporte legacy. El sistema lo manda a Fireworks (Kimi K2
+    vision), parsea el contenido y crea un Report en estado DRAFT que después
+    podés revisar/editar/publicar como cualquier otro.
+  </p>
+  <p>
+    <strong>Las imágenes se agregan después manualmente</strong> desde el admin
+    del reporte — esta primera versión no extrae imágenes del PDF.
+  </p>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <fieldset class="module aligned">
+      {% for field in form %}
+        <div class="form-row">
+          {{ field.label_tag }}
+          {{ field }}
+          {% if field.help_text %}<div class="help">{{ field.help_text|safe }}</div>{% endif %}
+          {% if field.errors %}
+            <ul class="errorlist">
+              {% for e in field.errors %}<li>{{ e }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </fieldset>
+    <div class="submit-row">
+      <input type="submit" class="default" value="Importar PDF">
+    </div>
+  </form>
+
+  <script>
+    (function () {
+      const cascadeUrl = "{% url 'admin:reports_report_import_cascade' 'LEVEL' %}";
+      const levels = ["client", "brand", "campaign", "stage"];
+      const selects = {};
+      levels.forEach(l => { selects[l] = document.querySelector(`select[name="${l}"]`); });
+
+      function repopulate(select, results, placeholderText) {
+        select.innerHTML = "";
+        const placeholder = document.createElement("option");
+        placeholder.value = ""; placeholder.textContent = placeholderText;
+        select.appendChild(placeholder);
+        results.forEach(r => {
+          const opt = document.createElement("option");
+          opt.value = r.id; opt.textContent = r.text;
+          select.appendChild(opt);
+        });
+        select.disabled = results.length === 0;
+      }
+
+      async function reload(level, parentId) {
+        if (!selects[level]) return;
+        if (!parentId) { repopulate(selects[level], [], "— primero elegí el padre —"); return; }
+        const url = cascadeUrl.replace("LEVEL", level) + "?parent=" + encodeURIComponent(parentId);
+        const resp = await fetch(url, {credentials: "same-origin"});
+        if (!resp.ok) return;
+        const data = await resp.json();
+        repopulate(selects[level], data.results, "— elegir —");
+      }
+
+      function onChange(parentLevel) {
+        const childMap = {client: "brand", brand: "campaign", campaign: "stage"};
+        const child = childMap[parentLevel];
+        if (!child) return;
+        reload(child, selects[parentLevel].value);
+        const downstream = levels.slice(levels.indexOf(child) + 1);
+        downstream.forEach(l => repopulate(selects[l], [], "— primero elegí el padre —"));
+      }
+
+      ["client", "brand", "campaign"].forEach(l => {
+        if (!selects[l]) return;
+        selects[l].addEventListener("change", () => onChange(l));
+      });
+
+      if (selects.client && !selects.client.value) {
+        ["brand", "campaign", "stage"].forEach(l =>
+          repopulate(selects[l], [], "— primero elegí el padre —")
+        );
+      }
+    })();
+  </script>
+{% endblock %}

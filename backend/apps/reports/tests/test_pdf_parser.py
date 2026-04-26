@@ -92,3 +92,62 @@ def test_run_pdf_parse_invalid_pdf_raises(settings):
     )
     with pytest.raises(Exception):
         pdf_parser._run_pdf_parse(job)
+
+
+import io as _io
+
+from django.contrib.auth import get_user_model
+from django.urls import reverse
+
+
+@pytest.fixture
+def superuser(db):
+    return get_user_model().objects.create_superuser(
+        email="su-pdf@x.com", password="pass",
+    )
+
+
+@pytest.mark.django_db
+def test_import_pdf_form_renders(client, superuser):
+    client.force_login(superuser)
+    resp = client.get(reverse("admin:reports_report_import_pdf"))
+    assert resp.status_code == 200
+    assert b"Importar desde PDF" in resp.content
+    assert b"<input type=\"file\"" in resp.content
+
+
+@pytest.mark.django_db
+@patch("apps.llm.services.run_llm_job.delay")
+def test_import_pdf_submit_creates_job_and_redirects(mock_delay, client, superuser, settings):
+    from django.core.files.uploadedfile import SimpleUploadedFile
+    settings.LLM_FIREWORKS_API_KEY = "sk-test"
+    _seed_prompt()
+    stage = make_stage()
+    client.force_login(superuser)
+
+    pdf_bytes = (FIXTURES / "sample.pdf").read_bytes()
+    upload = SimpleUploadedFile("sample.pdf", pdf_bytes,
+                                content_type="application/pdf")
+
+    resp = client.post(
+        reverse("admin:reports_report_import_pdf"),
+        {
+            "client": stage.campaign.brand.client_id,
+            "brand": stage.campaign.brand_id,
+            "campaign": stage.campaign_id,
+            "stage": stage.pk,
+            "file": upload,
+        },
+    )
+    assert resp.status_code in (302, 303)
+    # Redirected to the LLMJob status page.
+    assert "/admin/llm/llmjob/" in resp.url
+    assert mock_delay.called
+
+
+@pytest.mark.django_db
+def test_changelist_has_pdf_import_button(client, superuser):
+    client.force_login(superuser)
+    resp = client.get(reverse("admin:reports_report_changelist"))
+    assert resp.status_code == 200
+    assert b"Importar desde PDF (AI)" in resp.content

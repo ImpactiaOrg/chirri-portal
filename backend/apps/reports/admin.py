@@ -23,6 +23,8 @@ from .importers.excel_exporter import export as export_report_xlsx
 from .importers.excel_writer import build_template
 from .importers.forms import ImportReportForm
 from .importers.import_flow import import_bytes
+from .importers.pdf_form import ImportPdfForm
+from .importers.pdf_parser import submit_pdf as submit_pdf_parser
 
 logger = logging.getLogger(__name__)
 
@@ -235,6 +237,11 @@ class ReportAdmin(SortableAdminBase, PolymorphicInlineSupportMixin, admin.ModelA
                 self.admin_site.admin_view(self.import_cascade_view),
                 name="reports_report_import_cascade",
             ),
+            path(
+                "import-pdf/",
+                self.admin_site.admin_view(self.import_pdf_view),
+                name="reports_report_import_pdf",
+            ),
         ]
         return custom + urls
 
@@ -335,6 +342,41 @@ class ReportAdmin(SortableAdminBase, PolymorphicInlineSupportMixin, admin.ModelA
             "opts": self.model._meta,
         }
         return render(request, "admin/reports/report/import.html", context)
+
+    def import_pdf_view(self, request):
+        if not request.user.has_perm("reports.add_report"):
+            return HttpResponse(status=403)
+        if request.method == "POST":
+            form = ImportPdfForm(request.POST, request.FILES)
+            if form.is_valid():
+                stage = form.cleaned_data["stage"]
+                upload = form.cleaned_data["file"]
+                logger.info(
+                    "report_pdf_import_started",
+                    extra={
+                        "user_id": request.user.pk,
+                        "stage_id": stage.pk,
+                        "filename": upload.name,
+                        "size": upload.size,
+                    },
+                )
+                job = submit_pdf_parser(
+                    pdf_bytes=upload.read(),
+                    filename=upload.name,
+                    stage_id=stage.pk,
+                    user=request.user,
+                )
+                return redirect(reverse(
+                    "admin:llm_llmjob_change", args=[job.pk],
+                ))
+        else:
+            form = ImportPdfForm()
+
+        return render(request, "admin/reports/report/import_pdf.html", {
+            **self.admin_site.each_context(request),
+            "form": form,
+            "opts": self.model._meta,
+        })
 
 
 # -------- Polymorphic parent/child admins for standalone ReportBlock --------
