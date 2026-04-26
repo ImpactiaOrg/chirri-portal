@@ -17,6 +17,7 @@ from jinja2 import Environment, StrictUndefined
 from . import client, pricing
 from .exceptions import LLMConfigError, LLMCostExceededError, LLMValidationError
 from .models import LLMCall, LLMJob, Prompt, PromptVersion
+from .tasks import run_llm_job
 
 logger = logging.getLogger(__name__)
 
@@ -234,3 +235,22 @@ def _build_messages(rendered_body: str, *, images: list[bytes] | None) -> list[d
     else:
         messages.append({"role": "user", "content": "."})
     return messages
+
+
+def dispatch_job(
+    *,
+    consumer: str,
+    handler_path: str,
+    input_metadata: dict | None = None,
+    triggered_by=None,
+) -> LLMJob:
+    """Create a PENDING LLMJob and enqueue the worker. Returns the job."""
+    job = LLMJob.objects.create(
+        consumer=consumer,
+        handler_path=handler_path,
+        input_metadata=input_metadata or {},
+        triggered_by=triggered_by,
+        status=LLMJob.Status.PENDING,
+    )
+    run_llm_job.delay(job.pk)
+    return job
