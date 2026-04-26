@@ -29,7 +29,14 @@ npm run test:e2e:smoke                                  # smoke Playwright
 npm run test:battery                                    # unit + smoke
 ```
 
-Credenciales demo: `belen.rizzo@balanz.com` / `balanz2026`.
+Credenciales demo: `demo@chirripeppers.com` / `demo2026`.
+
+## Deploy — nunca disparar automáticamente
+
+`gh workflow run deploy.yml` solo cuando Dani lo pida explícitamente. No
+correr deploy por iniciativa propia, ni siquiera tras un push a `main`,
+ni después de un fix verde local. Si parece "obvio" deployar, igual
+preguntar antes.
 
 ## Gotchas que ya nos mordieron
 
