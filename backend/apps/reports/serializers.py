@@ -10,6 +10,7 @@ from .models import (
     Report, ReportAttachment,
     TextImageBlock, ImageBlock, KpiGridBlock, KpiTile,
     MetricsTableBlock, MetricsTableRow,
+    TableBlock, TableRow,
     TopContentsBlock, TopContentItem,
     TopCreatorsBlock, TopCreatorItem,
     AttributionTableBlock,
@@ -73,6 +74,12 @@ class OneLinkEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = OneLinkAttribution
         fields = ("influencer_handle", "clicks", "app_downloads")
+
+
+class TableRowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TableRow
+        fields = ("order", "is_header", "cells")
 
 
 # ---------- Subtype block serializers ----------
@@ -139,6 +146,18 @@ class MetricsTableBlockSerializer(serializers.ModelSerializer):
         return "MetricsTableBlock"
 
 
+class TableBlockSerializer(serializers.ModelSerializer):
+    type = serializers.SerializerMethodField()
+    rows = TableRowSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = TableBlock
+        fields = BASE_BLOCK_FIELDS + ("type", "title", "show_total", "rows")
+
+    def get_type(self, obj) -> str:
+        return "TableBlock"
+
+
 class TopContentsBlockSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     items = TopContentItemSerializer(many=True, read_only=True)
@@ -200,6 +219,7 @@ _BLOCK_SERIALIZERS = {
     ImageBlock: ImageBlockSerializer,
     KpiGridBlock: KpiGridBlockSerializer,
     MetricsTableBlock: MetricsTableBlockSerializer,
+    TableBlock: TableBlockSerializer,
     TopContentsBlock: TopContentsBlockSerializer,
     TopCreatorsBlock: TopCreatorsBlockSerializer,
     AttributionTableBlock: AttributionTableBlockSerializer,

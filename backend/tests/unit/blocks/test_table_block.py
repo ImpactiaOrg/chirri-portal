@@ -55,3 +55,33 @@ def test_table_block_polymorphic_returns_subtype():
     TableBlock.objects.create(report=report, order=1, title="X")
     fetched = ReportBlock.objects.filter(report=report).first()
     assert isinstance(fetched, TableBlock)
+
+
+@pytest.mark.django_db
+def test_table_block_serializes_with_polymorphic_dispatcher():
+    from apps.reports.serializers import ReportBlockSerializer
+    report = make_report()
+    block = TableBlock.objects.create(
+        report=report, order=1, title="IG", show_total=True,
+    )
+    TableRow.objects.create(
+        table_block=block, order=1, is_header=True,
+        cells=["Métrica", "Valor", "Δ"],
+    )
+    TableRow.objects.create(
+        table_block=block, order=2,
+        cells=["ORGANIC · reach", "312000", "+9.9%"],
+    )
+    data = ReportBlockSerializer(block).data
+    assert data["type"] == "TableBlock"
+    assert data["title"] == "IG"
+    assert data["show_total"] is True
+    assert len(data["rows"]) == 2
+    assert data["rows"][0] == {
+        "order": 1, "is_header": True,
+        "cells": ["Métrica", "Valor", "Δ"],
+    }
+    assert data["rows"][1] == {
+        "order": 2, "is_header": False,
+        "cells": ["ORGANIC · reach", "312000", "+9.9%"],
+    }
