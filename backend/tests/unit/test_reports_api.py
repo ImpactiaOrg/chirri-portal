@@ -33,10 +33,11 @@ class TestLatestReport:
         assert body["id"] == balanz_published_report.id
         assert body["title"] == "Reporte mensual de prueba"
         assert body["status"] == "PUBLISHED"
-        # Post-DEV-116: `metrics` array is gone. Data lives inside typed
-        # blocks (TableBlock.rows, KpiGridBlock.tiles, etc.).
+        # Task 3: blocks replaced by sections. Data lives inside
+        # Section → Widget hierarchy.
         assert "metrics" not in body
-        assert "blocks" in body
+        assert "blocks" not in body
+        assert "sections" in body
 
     def test_does_not_leak_other_tenants_reports(
         self, authed_rival, balanz_published_report

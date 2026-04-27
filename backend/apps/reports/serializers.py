@@ -1,35 +1,41 @@
-"""Report serializers - post-DEV-116.
+"""Report serializers — post Sections+Widgets refactor.
 
-ReportBlockSerializer es polimórfico: despacha a un sub-serializer por
-subtipo. Los campos agregados cross-report (yoy, q1_rollup, follower_snapshots)
-se eliminaron porque dependían de ReportMetric, que ya no existe.
+Estructura: Report → Section[] → Widget[] (polimórfico).
+Block legacy serializers se borran en Task 8.
 """
 from rest_framework import serializers
 
 from .models import (
-    Report, ReportAttachment,
-    TextImageBlock, ImageBlock, KpiGridBlock, KpiTile,
-    TableBlock, TableRow,
-    TopContentsBlock, TopContentItem,
-    TopCreatorsBlock, TopCreatorItem,
-    ChartBlock, ChartDataPoint,
+    Report, ReportAttachment, Section, Widget,
+    TextWidget, ImageWidget, TextImageWidget,
+    KpiGridWidget, KpiTileWidget,
+    TableWidget, TableRowWidget,
+    ChartWidget, ChartDataPointWidget,
+    TopContentsWidget, TopContentItemWidget,
+    TopCreatorsWidget, TopCreatorItemWidget,
 )
 
 
-# ---------- Child row serializers ----------
+# ---------- Child item / row serializers ----------
 
 class KpiTileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = KpiTile
+        model = KpiTileWidget
         fields = (
             "label", "value", "unit",
             "period_comparison", "period_comparison_label", "order",
         )
 
 
+class TableRowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TableRowWidget
+        fields = ("order", "is_header", "cells")
+
+
 class ChartDataPointSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ChartDataPoint
+        model = ChartDataPointWidget
         fields = ("label", "value", "order")
 
 
@@ -37,7 +43,7 @@ class TopContentItemSerializer(serializers.ModelSerializer):
     thumbnail_url = serializers.SerializerMethodField()
 
     class Meta:
-        model = TopContentItem
+        model = TopContentItemWidget
         fields = (
             "order", "thumbnail_url", "caption", "post_url", "source_type",
             "views", "likes", "comments", "shares", "saves",
@@ -51,7 +57,7 @@ class TopCreatorItemSerializer(serializers.ModelSerializer):
     thumbnail_url = serializers.SerializerMethodField()
 
     class Meta:
-        model = TopCreatorItem
+        model = TopCreatorItemWidget
         fields = (
             "order", "thumbnail_url", "handle", "post_url",
             "views", "likes", "comments", "shares",
@@ -61,149 +67,149 @@ class TopCreatorItemSerializer(serializers.ModelSerializer):
         return obj.thumbnail.url if obj.thumbnail else None
 
 
-class TableRowSerializer(serializers.ModelSerializer):
+# ---------- Widget subtype serializers ----------
+
+BASE_WIDGET_FIELDS = ("id", "order", "title", "instructions")
+
+
+class TextWidgetSerializer(serializers.ModelSerializer):
+    type = serializers.SerializerMethodField()
+
     class Meta:
-        model = TableRow
-        fields = ("order", "is_header", "cells")
+        model = TextWidget
+        fields = BASE_WIDGET_FIELDS + ("type", "body")
+
+    def get_type(self, obj) -> str:
+        return "TextWidget"
 
 
-# ---------- Subtype block serializers ----------
-
-BASE_BLOCK_FIELDS = ("id", "order", "instructions")
-
-
-class TextImageBlockSerializer(serializers.ModelSerializer):
+class ImageWidgetSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     image_url = serializers.SerializerMethodField()
 
     class Meta:
-        model = TextImageBlock
-        fields = BASE_BLOCK_FIELDS + (
-            "type", "title", "body", "columns", "image_position", "image_alt",
-            "image_url",
-        )
+        model = ImageWidget
+        fields = BASE_WIDGET_FIELDS + ("type", "image_url", "image_alt", "caption")
 
     def get_type(self, obj) -> str:
-        return "TextImageBlock"
+        return "ImageWidget"
 
     def get_image_url(self, obj) -> str | None:
         return obj.image.url if obj.image else None
 
 
-class ImageBlockSerializer(serializers.ModelSerializer):
+class TextImageWidgetSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     image_url = serializers.SerializerMethodField()
 
     class Meta:
-        model = ImageBlock
-        fields = BASE_BLOCK_FIELDS + (
-            "type", "image_url", "image_alt", "title", "caption",
+        model = TextImageWidget
+        fields = BASE_WIDGET_FIELDS + (
+            "type", "body", "columns", "image_position", "image_alt", "image_url",
         )
 
     def get_type(self, obj) -> str:
-        return "ImageBlock"
+        return "TextImageWidget"
 
     def get_image_url(self, obj) -> str | None:
         return obj.image.url if obj.image else None
 
 
-class KpiGridBlockSerializer(serializers.ModelSerializer):
+class KpiGridWidgetSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     tiles = KpiTileSerializer(many=True, read_only=True)
 
     class Meta:
-        model = KpiGridBlock
-        fields = BASE_BLOCK_FIELDS + ("type", "title", "tiles")
+        model = KpiGridWidget
+        fields = BASE_WIDGET_FIELDS + ("type", "tiles")
 
     def get_type(self, obj) -> str:
-        return "KpiGridBlock"
+        return "KpiGridWidget"
 
 
-class TableBlockSerializer(serializers.ModelSerializer):
+class TableWidgetSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     rows = TableRowSerializer(many=True, read_only=True)
 
     class Meta:
-        model = TableBlock
-        fields = BASE_BLOCK_FIELDS + ("type", "title", "show_total", "rows")
+        model = TableWidget
+        fields = BASE_WIDGET_FIELDS + ("type", "show_total", "rows")
 
     def get_type(self, obj) -> str:
-        return "TableBlock"
+        return "TableWidget"
 
 
-class TopContentsBlockSerializer(serializers.ModelSerializer):
-    type = serializers.SerializerMethodField()
-    items = TopContentItemSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = TopContentsBlock
-        fields = BASE_BLOCK_FIELDS + (
-            "type", "title", "network", "period_label", "limit", "items",
-        )
-
-    def get_type(self, obj) -> str:
-        return "TopContentsBlock"
-
-
-class TopCreatorsBlockSerializer(serializers.ModelSerializer):
-    type = serializers.SerializerMethodField()
-    items = TopCreatorItemSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = TopCreatorsBlock
-        fields = BASE_BLOCK_FIELDS + (
-            "type", "title", "network", "period_label", "limit", "items",
-        )
-
-    def get_type(self, obj) -> str:
-        return "TopCreatorsBlock"
-
-
-class ChartBlockSerializer(serializers.ModelSerializer):
+class ChartWidgetSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     data_points = ChartDataPointSerializer(many=True, read_only=True)
 
     class Meta:
-        model = ChartBlock
-        fields = BASE_BLOCK_FIELDS + (
-            "type", "title", "description", "network", "chart_type", "data_points",
-        )
+        model = ChartWidget
+        fields = BASE_WIDGET_FIELDS + ("type", "network", "chart_type", "data_points")
 
     def get_type(self, obj) -> str:
-        return "ChartBlock"
+        return "ChartWidget"
 
 
-# ---------- Polymorphic dispatcher (manual, sin dep externa) ----------
+class TopContentsWidgetSerializer(serializers.ModelSerializer):
+    type = serializers.SerializerMethodField()
+    items = TopContentItemSerializer(many=True, read_only=True)
 
-_BLOCK_SERIALIZERS = {
-    TextImageBlock: TextImageBlockSerializer,
-    ImageBlock: ImageBlockSerializer,
-    KpiGridBlock: KpiGridBlockSerializer,
-    TableBlock: TableBlockSerializer,
-    TopContentsBlock: TopContentsBlockSerializer,
-    TopCreatorsBlock: TopCreatorsBlockSerializer,
-    ChartBlock: ChartBlockSerializer,
+    class Meta:
+        model = TopContentsWidget
+        fields = BASE_WIDGET_FIELDS + ("type", "network", "period_label", "items")
+
+    def get_type(self, obj) -> str:
+        return "TopContentsWidget"
+
+
+class TopCreatorsWidgetSerializer(serializers.ModelSerializer):
+    type = serializers.SerializerMethodField()
+    items = TopCreatorItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = TopCreatorsWidget
+        fields = BASE_WIDGET_FIELDS + ("type", "network", "period_label", "items")
+
+    def get_type(self, obj) -> str:
+        return "TopCreatorsWidget"
+
+
+# ---------- Polymorphic dispatcher ----------
+
+_WIDGET_SERIALIZERS = {
+    TextWidget: TextWidgetSerializer,
+    ImageWidget: ImageWidgetSerializer,
+    TextImageWidget: TextImageWidgetSerializer,
+    KpiGridWidget: KpiGridWidgetSerializer,
+    TableWidget: TableWidgetSerializer,
+    ChartWidget: ChartWidgetSerializer,
+    TopContentsWidget: TopContentsWidgetSerializer,
+    TopCreatorsWidget: TopCreatorsWidgetSerializer,
 }
 
 
-class ReportBlockSerializer(serializers.Serializer):
-    """Polymorphic dispatcher. Acepta un ReportBlock (base o subtipo) y lo
-    serializa con el serializer correspondiente al subtipo real.
-
-    django-polymorphic devuelve la instancia del subtipo automáticamente
-    cuando hacés ReportBlock.objects.filter(...). Así que `obj` ya es el
-    subtipo concreto (TextImageBlock, KpiGridBlock, etc.) - no la base.
-    """
+class WidgetSerializer(serializers.Serializer):
+    """Polymorphic dispatcher. django-polymorphic devuelve la instancia subtipo."""
 
     def to_representation(self, obj):
-        serializer_class = _BLOCK_SERIALIZERS.get(type(obj))
+        serializer_class = _WIDGET_SERIALIZERS.get(type(obj))
         if serializer_class is None:
-            # Fallback defensivo: no debería pasar en prod.
             return {"id": obj.id, "order": obj.order, "type": type(obj).__name__}
         return serializer_class(obj, context=self.context).data
 
 
-# ---------- Top-level Report serializer ----------
+# ---------- Section ----------
+
+class SectionSerializer(serializers.ModelSerializer):
+    widgets = WidgetSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Section
+        fields = ("id", "order", "title", "layout", "instructions", "widgets")
+
+
+# ---------- Top-level Report ----------
 
 class ReportAttachmentSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
@@ -223,7 +229,7 @@ class ReportDetailSerializer(serializers.ModelSerializer):
     campaign_id = serializers.IntegerField(source="stage.campaign.id", read_only=True)
     brand_name = serializers.CharField(source="stage.campaign.brand.name", read_only=True)
     display_title = serializers.CharField(read_only=True)
-    blocks = ReportBlockSerializer(many=True, read_only=True)
+    sections = SectionSerializer(many=True, read_only=True)
     attachments = ReportAttachmentSerializer(many=True, read_only=True)
 
     class Meta:
@@ -234,5 +240,5 @@ class ReportDetailSerializer(serializers.ModelSerializer):
             "intro_text", "conclusions_text",
             "stage_id", "stage_name",
             "campaign_id", "campaign_name", "brand_name",
-            "blocks", "attachments",
+            "sections", "attachments",
         )

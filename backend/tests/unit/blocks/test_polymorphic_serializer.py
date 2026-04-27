@@ -4,6 +4,7 @@ import pytest
 from apps.reports.tests.factories import make_report
 
 
+@pytest.mark.skip(reason="legacy block serializers dropped in Task 3; ReportBlockSerializer removed. See Task 8.")
 @pytest.mark.django_db
 def test_serializer_dispatches_by_subtype():
     from apps.reports.models import (

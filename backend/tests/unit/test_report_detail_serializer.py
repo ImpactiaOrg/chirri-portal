@@ -15,15 +15,16 @@ def test_payload_has_no_legacy_fields():
 
 
 @pytest.mark.django_db
-def test_payload_includes_blocks_as_list():
-    from apps.reports.models import TextImageBlock
+def test_payload_includes_sections_as_list():
+    """Task 3: blocks replaced by sections in ReportDetailSerializer."""
+    from apps.reports.models import Section, TextWidget
     from apps.reports.serializers import ReportDetailSerializer
     report = make_report()
-    TextImageBlock.objects.create(
-        report=report, order=1, title="Hello", body="world",
-    )
+    s = Section.objects.create(report=report, order=1, title="Hello")
+    TextWidget.objects.create(section=s, order=1, body="world")
     data = ReportDetailSerializer(report).data
-    assert "blocks" in data
-    assert len(data["blocks"]) == 1
-    assert data["blocks"][0]["type"] == "TextImageBlock"
-    assert data["blocks"][0]["title"] == "Hello"
+    assert "sections" in data
+    assert "blocks" not in data
+    assert len(data["sections"]) == 1
+    assert data["sections"][0]["title"] == "Hello"
+    assert data["sections"][0]["widgets"][0]["type"] == "TextWidget"
