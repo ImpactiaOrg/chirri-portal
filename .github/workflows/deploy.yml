@@ -40,8 +40,20 @@ jobs:
           script: |
             set -euo pipefail
             cd /opt/chirri-portal
-            git fetch origin
-            git reset --hard ${{ inputs.ref }} || git reset --hard origin/${{ inputs.ref }}
+            git fetch origin --tags --prune
+            # Resolver el ref contra origin (no contra refs locales) — un branch
+            # local stale del nombre de inputs.ref haría que `git reset --hard <ref>`
+            # tuviera éxito sin actualizar el code, y deploys posteriores quedan
+            # clavados en commits viejos sin que nadie se entere (visto abr 2026:
+            # server 43 commits behind, deploys "exitosos" pero todos no-op).
+            REF='${{ inputs.ref }}'
+            if git rev-parse --verify "origin/$REF" >/dev/null 2>&1; then
+              git reset --hard "origin/$REF"
+            else
+              # Tag o SHA absoluto — usar tal cual.
+              git reset --hard "$REF"
+            fi
+            echo "Now at: $(git rev-parse --short HEAD) — $(git log -1 --format='%s')"
 
             # Inject/refresh API secrets en .env. El resto del .env (DB
             # password, MinIO, Django SECRET_KEY) se generó al bootstrap
