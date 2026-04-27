@@ -169,6 +169,12 @@ export type OneLinkEntryDto = {
   app_downloads: number;
 };
 
+export type TableRowDto = {
+  order: number;
+  is_header: boolean;
+  cells: string[];
+};
+
 // -- Block subtype DTOs (discriminated union on `type`) --
 
 type BaseBlockFields = {
@@ -206,6 +212,13 @@ export type MetricsTableBlockDto = BaseBlockFields & {
   title: string;
   network: Network | null;
   rows: MetricsTableRowDto[];
+};
+
+export type TableBlockDto = BaseBlockFields & {
+  type: "TableBlock";
+  title: string;
+  show_total: boolean;
+  rows: TableRowDto[];
 };
 
 export type TopContentsBlockDto = BaseBlockFields & {
@@ -247,6 +260,7 @@ export type ReportBlockDto =
   | ImageBlockDto
   | KpiGridBlockDto
   | MetricsTableBlockDto
+  | TableBlockDto
   | TopContentsBlockDto
   | TopCreatorsBlockDto
   | AttributionTableBlockDto

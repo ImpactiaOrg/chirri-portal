@@ -3,6 +3,7 @@ import TextImageBlock from "./TextImageBlock";
 import ImageBlock from "./ImageBlock";
 import KpiGridBlock from "./KpiGridBlock";
 import MetricsTableBlock from "./MetricsTableBlock";
+import TableBlock from "./TableBlock";
 import TopContentsBlock from "./TopContentsBlock";
 import TopCreatorsBlock from "./TopCreatorsBlock";
 import AttributionTableBlock from "./AttributionTableBlock";
@@ -18,6 +19,8 @@ export default function BlockRenderer({ block }: { block: ReportBlockDto }) {
       return <KpiGridBlock block={block} />;
     case "MetricsTableBlock":
       return <MetricsTableBlock block={block} />;
+    case "TableBlock":
+      return <TableBlock block={block} />;
     case "TopContentsBlock":
       return <TopContentsBlock block={block} />;
     case "TopCreatorsBlock":
@@ -27,7 +30,6 @@ export default function BlockRenderer({ block }: { block: ReportBlockDto }) {
     case "ChartBlock":
       return <ChartBlock block={block} />;
     default: {
-      // Exhaustiveness check — all union members are handled above.
       const _exhaustive: never = block;
       console.warn("unknown_block_type", (_exhaustive as { type: string }).type);
       return null;
