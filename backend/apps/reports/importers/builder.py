@@ -11,16 +11,14 @@ from django.core.files.base import ContentFile
 from django.db import transaction
 
 from apps.reports.models import (
-    AttributionTableBlock,
     ChartBlock,
     ChartDataPoint,
     ImageBlock,
     KpiGridBlock,
     KpiTile,
-    MetricsTableBlock,
-    MetricsTableRow,
-    OneLinkAttribution,
     Report,
+    TableBlock,
+    TableRow,
     TextImageBlock,
     TopContentItem,
     TopContentsBlock,
@@ -97,22 +95,20 @@ def _build_kpis(report, order, pb: ParsedBlock, images):
     ])
 
 
-def _build_metricstables(report, order, pb: ParsedBlock, images):
-    block = MetricsTableBlock.objects.create(
+def _build_tables(report, order, pb: ParsedBlock, images):
+    block = TableBlock.objects.create(
         report=report, order=order,
         title=pb.fields["block_title"],
-        network=pb.fields.get("block_network"),
+        show_total=pb.fields.get("block_show_total", False),
     )
-    MetricsTableRow.objects.bulk_create([
-        MetricsTableRow(
-            metrics_table_block=block,
-            order=item.get("item_orden") or (idx + 1),
-            metric_name=item["metric_name"],
-            value=item["value"],
-            source_type=item.get("source_type"),
-            period_comparison=item.get("period_comparison"),
+    TableRow.objects.bulk_create([
+        TableRow(
+            table_block=block,
+            order=item["row_orden"],
+            is_header=item.get("is_header", False),
+            cells=item["cells"],
         )
-        for idx, item in enumerate(pb.items)
+        for item in pb.items
     ])
 
 
@@ -164,23 +160,6 @@ def _build_topcreators(report, order, pb: ParsedBlock, images):
         child.save()
 
 
-def _build_attribution(report, order, pb: ParsedBlock, images):
-    block = AttributionTableBlock.objects.create(
-        report=report, order=order,
-        title=pb.fields["block_title"],
-        show_total=pb.fields.get("block_show_total", True),
-    )
-    OneLinkAttribution.objects.bulk_create([
-        OneLinkAttribution(
-            attribution_block=block,
-            influencer_handle=item["handle"],
-            clicks=item.get("clicks") or 0,
-            app_downloads=item.get("app_downloads") or 0,
-        )
-        for item in pb.items
-    ])
-
-
 def _build_chart(report, order, pb: ParsedBlock, images):
     block = ChartBlock.objects.create(
         report=report, order=order,
@@ -203,10 +182,9 @@ _BUILDERS = {
     "TextImageBlock": _build_textimage,
     "ImageBlock": _build_imagen,
     "KpiGridBlock": _build_kpis,
-    "MetricsTableBlock": _build_metricstables,
+    "TableBlock": _build_tables,
     "TopContentsBlock": _build_topcontents,
     "TopCreatorsBlock": _build_topcreators,
-    "AttributionTableBlock": _build_attribution,
     "ChartBlock": _build_chart,
 }
 

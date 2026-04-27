@@ -14,13 +14,11 @@ from pathlib import PurePosixPath
 from openpyxl.worksheet.worksheet import Worksheet
 
 from apps.reports.models import (
-    AttributionTableBlock,
     ChartBlock,
     ImageBlock,
     KpiGridBlock,
-    MetricsTableBlock,
-    OneLinkAttribution,
     Report,
+    TableBlock,
     TextImageBlock,
     TopContentsBlock,
     TopCreatorsBlock,
@@ -42,10 +40,9 @@ def export(report: Report) -> BytesIO:
     _populate_textimage(wb[s.SHEET_TEXTIMAGE], report, names)
     _populate_imagenes(wb[s.SHEET_IMAGENES], report, names)
     _populate_kpis(wb[s.SHEET_KPIS], report, names)
-    _populate_metricstables(wb[s.SHEET_METRICSTABLES], report, names)
+    _populate_tables(wb[s.SHEET_TABLES], report, names)
     _populate_topcontents(wb[s.SHEET_TOPCONTENTS], report, names)
     _populate_topcreators(wb[s.SHEET_TOPCREATORS], report, names)
-    _populate_attribution(wb[s.SHEET_ATTRIBUTION], report, names)
     _populate_charts(wb[s.SHEET_CHARTS], report, names)
 
     return to_bytes(wb)
@@ -141,22 +138,23 @@ def _populate_kpis(
             row += 1
 
 
-def _populate_metricstables(
+def _populate_tables(
     ws: Worksheet, report: Report, names: dict[int, str]
 ) -> None:
     row = 2
-    for block in MetricsTableBlock.objects.filter(report=report).order_by("order"):
+    for block in TableBlock.objects.filter(report=report).order_by("order"):
         for r in block.rows.all().order_by("order"):
-            _write_row(ws, row, s.METRICSTABLES_HEADERS, {
+            cells_padded = list(r.cells) + [""] * (8 - len(r.cells))
+            values = {
                 "nombre": names[block.pk],
                 "block_title": block.title,
-                "block_network": s.NETWORK_LABELS.get(block.network, ""),
-                "item_orden": r.order,
-                "metric_name": r.metric_name,
-                "value": _num(r.value),
-                "source_type": s.SOURCE_TYPE_LABELS.get(r.source_type, ""),
-                "period_comparison": _num(r.period_comparison),
-            })
+                "block_show_total": "TRUE" if block.show_total else "FALSE",
+                "row_orden": r.order,
+                "is_header": "TRUE" if r.is_header else "FALSE",
+            }
+            for i, cell in enumerate(cells_padded[:8], start=1):
+                values[f"cell_{i}"] = cell
+            _write_row(ws, row, s.TABLES_HEADERS, values)
             row += 1
 
 
@@ -206,38 +204,6 @@ def _populate_topcreators(
                 "likes": item.likes,
                 "comments": item.comments,
                 "shares": item.shares,
-            })
-            row += 1
-
-
-def _populate_attribution(
-    ws: Worksheet, report: Report, names: dict[int, str]
-) -> None:
-    row = 2
-    for block in AttributionTableBlock.objects.filter(report=report).order_by("order"):
-        entries = OneLinkAttribution.objects.filter(attribution_block=block)
-        entries = list(entries)
-        if not entries:
-            _write_row(ws, row, s.ATTRIBUTION_HEADERS, {
-                "nombre": names[block.pk],
-                "block_title": block.title,
-                "block_show_total": "TRUE" if block.show_total else "FALSE",
-                "item_orden": "",
-                "handle": "",
-                "clicks": "",
-                "app_downloads": "",
-            })
-            row += 1
-            continue
-        for i, entry in enumerate(entries, start=1):
-            _write_row(ws, row, s.ATTRIBUTION_HEADERS, {
-                "nombre": names[block.pk],
-                "block_title": block.title,
-                "block_show_total": "TRUE" if block.show_total else "FALSE",
-                "item_orden": i,
-                "handle": entry.influencer_handle,
-                "clicks": entry.clicks,
-                "app_downloads": entry.app_downloads,
             })
             row += 1
 

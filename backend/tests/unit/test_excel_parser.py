@@ -17,16 +17,14 @@ from apps.reports.importers.excel_exporter import export
 from apps.reports.importers.excel_parser import parse
 from apps.reports.importers.excel_writer import build_template, to_bytes
 from apps.reports.models import (
-    AttributionTableBlock,
     ChartBlock,
     ChartDataPoint,
     ImageBlock,
     KpiGridBlock,
     KpiTile,
-    MetricsTableBlock,
-    MetricsTableRow,
-    OneLinkAttribution,
     Report,
+    TableBlock,
+    TableRow,
     TextImageBlock,
     TopContentItem,
     TopContentsBlock,
@@ -157,7 +155,7 @@ def test_parse_kpi_denormalized_consistency_violation():
 # ---------------------------------------------------------------------------
 @pytest.fixture
 def full_report(db):
-    """Report con 1 instancia de cada block type (8 blocks), sin imágenes."""
+    """Report con 1 instancia de cada block type (7 blocks), sin imágenes."""
     stage = make_stage()
     report = Report.objects.create(
         stage=stage,
@@ -187,12 +185,14 @@ def full_report(db):
         value=Decimal("1000"), period_comparison=Decimal("5.0"),
     )
 
-    mt = MetricsTableBlock.objects.create(
-        report=report, order=4, title="Mes", network="INSTAGRAM",
+    tbl = TableBlock.objects.create(report=report, order=4, title="Mes")
+    TableRow.objects.create(
+        table_block=tbl, order=1, is_header=True,
+        cells=["Métrica", "Valor"],
     )
-    MetricsTableRow.objects.create(
-        metrics_table_block=mt, order=1, metric_name="reach",
-        value=Decimal("500"), source_type="ORGANIC",
+    TableRow.objects.create(
+        table_block=tbl, order=2,
+        cells=["reach", "500"],
     )
 
     tc = TopContentsBlock.objects.create(
@@ -212,16 +212,8 @@ def full_report(db):
         block=tcr, order=1, handle="@test", views=200,
     )
 
-    attr = AttributionTableBlock.objects.create(
-        report=report, order=7, title="Attr", show_total=True,
-    )
-    OneLinkAttribution.objects.create(
-        attribution_block=attr, influencer_handle="@sofi",
-        clicks=100, app_downloads=20,
-    )
-
     chart = ChartBlock.objects.create(
-        report=report, order=8, title="Followers",
+        report=report, order=7, title="Followers",
         network="INSTAGRAM", chart_type="bar",
     )
     ChartDataPoint.objects.create(
@@ -271,15 +263,16 @@ def test_roundtrip_export_parse_build_reconstructs_same_shape(full_report, db):
     assert TextImageBlock.objects.filter(report=new_report).count() == 1
     assert ImageBlock.objects.filter(report=new_report).count() == 1
     assert KpiGridBlock.objects.filter(report=new_report).count() == 1
-    assert MetricsTableBlock.objects.filter(report=new_report).count() == 1
+    assert TableBlock.objects.filter(report=new_report).count() == 1
     assert TopContentsBlock.objects.filter(report=new_report).count() == 1
     assert TopCreatorsBlock.objects.filter(report=new_report).count() == 1
-    assert AttributionTableBlock.objects.filter(report=new_report).count() == 1
     assert ChartBlock.objects.filter(report=new_report).count() == 1
 
     # Items anidados
     new_kpi = KpiGridBlock.objects.get(report=new_report)
     assert new_kpi.tiles.count() == 1
+    new_tbl = TableBlock.objects.get(report=new_report)
+    assert new_tbl.rows.count() == 2
     new_chart = ChartBlock.objects.get(report=new_report)
     assert new_chart.data_points.count() == 2
 
@@ -299,7 +292,7 @@ def test_roundtrip_preserves_block_order(full_report, db):
     orders = list(
         new_report.blocks.all().order_by("order").values_list("order", flat=True)
     )
-    assert orders == [1, 2, 3, 4, 5, 6, 7, 8]
+    assert orders == [1, 2, 3, 4, 5, 6, 7]
 
 
 def test_builder_rolls_back_on_failure(db, full_report, monkeypatch):
@@ -367,3 +360,40 @@ def _add_layout(ws, rows: list[tuple[int, str]]) -> None:
     for i, (orden, nombre) in enumerate(rows, start=1):
         ws.cell(row=header_row + i, column=1, value=orden)
         ws.cell(row=header_row + i, column=2, value=nombre)
+
+
+# ---------------------------------------------------------------------------
+# TableBlock roundtrip
+# ---------------------------------------------------------------------------
+@pytest.mark.django_db
+def test_table_block_roundtrip_export_then_parse():
+    """Exportar un report con TableBlock y volverlo a parsear devuelve la misma estructura."""
+    from apps.reports.importers.excel_exporter import export
+    from apps.reports.importers.excel_parser import parse
+    from apps.reports.tests.factories import make_report
+
+    report = make_report()
+    block = TableBlock.objects.create(
+        report=report, order=1, title="IG", show_total=True,
+    )
+    TableRow.objects.bulk_create([
+        TableRow(table_block=block, order=1, is_header=True,
+                 cells=["Métrica", "Valor", "Δ"]),
+        TableRow(table_block=block, order=2,
+                 cells=["ORGANIC · reach", "312000", "+9.9%"]),
+    ])
+
+    xlsx_bytes = export(report).getvalue()
+    parsed, errors = parse(xlsx_bytes)
+    assert errors == []
+    assert parsed is not None
+
+    table_blocks = [b for b in parsed.blocks.values() if b.type_name == "TableBlock"]
+    assert len(table_blocks) == 1
+    pb = table_blocks[0]
+    assert pb.fields["block_title"] == "IG"
+    assert pb.fields["block_show_total"] is True
+    assert len(pb.items) == 2
+    assert pb.items[0]["is_header"] is True
+    assert pb.items[0]["cells"] == ["Métrica", "Valor", "Δ"]
+    assert pb.items[1]["cells"] == ["ORGANIC · reach", "312000", "+9.9%"]

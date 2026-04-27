@@ -47,10 +47,9 @@ def build_skeleton() -> Workbook:
         s.SHEET_TEXTIMAGE,
         s.SHEET_IMAGENES,
         s.SHEET_KPIS,
-        s.SHEET_METRICSTABLES,
+        s.SHEET_TABLES,
         s.SHEET_TOPCONTENTS,
         s.SHEET_TOPCREATORS,
-        s.SHEET_ATTRIBUTION,
         s.SHEET_CHARTS,
     ):
         _build_tabular_sheet(wb, sheet_name, s.SHEET_HEADERS[sheet_name])
@@ -190,11 +189,12 @@ _INSTRUCCIONES_SECTIONS = [
     {
         "heading": "A. Cómo llenar el Excel",
         "lines": [
-            "· Cada reporte tiene un único archivo xlsx con 10 hojas (esta + Reporte + 8 hojas de blocks).",
+            "· Cada reporte tiene un único archivo xlsx con 9 hojas (esta + Reporte + 7 hojas de blocks).",
             "· La hoja Reporte tiene arriba la data escalar (tipo, fechas, título, intro, conclusiones) y abajo el Layout — ahí definís el orden en que aparecen los bloques.",
             "· Cada bloque tiene un 'nombre' único en todo el archivo (ej. 'intro', 'kpis_mes', 'hero'). Máximo 60 caracteres, minúsculas, números, guion y guion bajo.",
             "· El Layout referencia cada bloque por su 'nombre'. El parser deduce el tipo de la hoja donde aparece ese nombre — por eso no puede repetirse entre hojas.",
-            "· Hojas con sub-items (Kpis, MetricsTables, TopContents, TopCreators, Attribution, Charts): los campos del parent (ej. block_title) se repiten en cada row del item. Agrupamos por 'nombre'.",
+            "· Hojas con sub-items (Kpis, Tables, TopContents, TopCreators, Charts): los campos del parent (ej. block_title) se repiten en cada row del item. Agrupamos por 'nombre'.",
+            "· Hoja Tables: tabla genérica con cell_1..cell_8 (variables, dejá vacíos los que no usás). is_header=TRUE marca filas de encabezado. block_show_total=TRUE agrega una fila Total al final con la suma de las columnas numéricas.",
             "· Hojas sin items (TextImage, Imagenes): una fila = un block.",
             "· Hojas vacías significan 'no hay blocks de este tipo en el reporte'. No se rompe nada.",
             "· Fechas en formato DD/MM/YYYY. Booleans como TRUE/FALSE. Decimales con punto.",
@@ -235,7 +235,7 @@ _INSTRUCCIONES_SECTIONS = [
             "· Cada 'nombre' del Layout debe existir en exactamente una hoja de blocks.",
             "· En hojas denormalizadas, los block_* fields deben ser idénticos en todos los rows con el mismo 'nombre'.",
             "· 'imagen' filenames case-sensitive, extensiones .jpg|.jpeg|.png|.webp, deben existir en images/ del ZIP.",
-            "· Enums: 'tipo' ∈ {Influencer, General, Quincenal, Mensual, Cierre de etapa}. 'block_network' ∈ {Instagram, TikTok, X, (vacío)}. 'source_type' ∈ {Orgánico, Influencer, Pauta, (vacío)}. 'image_position' ∈ {left, right, top}. 'chart_type' ∈ {bar, line}. 'block_show_total' ∈ {TRUE, FALSE}.",
+            "· Enums: 'tipo' ∈ {Influencer, General, Quincenal, Mensual, Cierre de etapa}. 'block_network' ∈ {Instagram, TikTok, X, (vacío)}. 'source_type' ∈ {Orgánico, Influencer, Pauta, (vacío)}. 'image_position' ∈ {left, right, top}. 'chart_type' ∈ {bar, line}. 'block_show_total' ∈ {TRUE, FALSE}. 'is_header' ∈ {TRUE, FALSE}.",
             "",
             "Ejemplo canónico (few-shot):",
             "· python manage.py dump_report_example (sin args) escupe un xlsx con el reporte Abril del seed — cubre los 8 block types. Es la fuente de verdad ante dudas de formato.",

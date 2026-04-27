@@ -330,23 +330,83 @@ def _parse_kpis(ws: Worksheet) -> tuple[list[ParsedBlock], list[ImporterError]]:
     )
 
 
-def _parse_metricstables(ws: Worksheet) -> tuple[list[ParsedBlock], list[ImporterError]]:
-    return _parse_denormalized(
-        ws, s.SHEET_METRICSTABLES, s.METRICSTABLES_HEADERS,
-        type_name="MetricsTableBlock",
-        block_field_cols=("block_title", "block_network"),
-        item_field_cols=(
-            "item_orden", "metric_name", "value", "source_type", "period_comparison",
-        ),
-        numeric_item_cols={"value", "period_comparison"},
-        enum_item_cols={
-            "source_type": (s.SOURCE_TYPE_FROM_LABEL, True),  # (label_map, blank_ok)
-        },
-        enum_block_cols={
-            "block_network": (s.NETWORK_FROM_LABEL, True),
-        },
-        required_item_cols=("metric_name", "value"),
-    )
+def _parse_tables(ws: Worksheet) -> tuple[list[ParsedBlock], list[ImporterError]]:
+    """Parser de la hoja Tables: agrupa filas por 'nombre', cada fila es una row.
+
+    block_title + block_show_total deben ser consistentes entre filas del mismo
+    block. Las celdas se leen de cell_1..cell_8 y se truncan al último no-vacío.
+    """
+    errors: list[ImporterError] = []
+    groups: dict[str, dict] = {}
+
+    for row_idx, row in _iter_data_rows(ws, s.TABLES_HEADERS):
+        nombre = _valid_nombre(row, s.SHEET_TABLES, row_idx, errors)
+        if nombre is None:
+            continue
+
+        block_title = _str(row.get("block_title"))
+        block_show_total = _coerce_bool(row.get("block_show_total"))
+        is_header = _coerce_bool(row.get("is_header"))
+        row_orden = _coerce_int(row.get("row_orden"))
+        if row_orden is None or row_orden < 1:
+            errors.append(ImporterError(
+                sheet=s.SHEET_TABLES, row=row_idx, column="row_orden",
+                reason=f"entero ≥ 1 esperado, recibí '{row.get('row_orden')}'",
+            ))
+            continue
+
+        cells_raw = [row.get(col) for col in s.TABLE_CELL_COLS]
+        # Truncar después del último no-vacío.
+        last_non_blank = -1
+        for i, v in enumerate(cells_raw):
+            if not _is_blank(v):
+                last_non_blank = i
+        cells = [_str(v) for v in cells_raw[: last_non_blank + 1]]
+
+        if nombre not in groups:
+            groups[nombre] = {
+                "title": block_title,
+                "show_total": block_show_total,
+                "rows": [],
+            }
+        else:
+            existing = groups[nombre]
+            if existing["title"] != block_title:
+                errors.append(ImporterError(
+                    sheet=s.SHEET_TABLES, row=row_idx, column="block_title",
+                    reason=(
+                        f"valor '{block_title}' difiere del usado antes para "
+                        f"'{nombre}' ('{existing['title']}'). "
+                        "Los block_* fields deben ser idénticos en todas las filas."
+                    ),
+                ))
+            if existing["show_total"] != block_show_total:
+                errors.append(ImporterError(
+                    sheet=s.SHEET_TABLES, row=row_idx, column="block_show_total",
+                    reason=(
+                        f"valor '{block_show_total}' difiere del usado antes para "
+                        f"'{nombre}' ('{existing['show_total']}')."
+                    ),
+                ))
+        groups[nombre]["rows"].append({
+            "row_orden": row_orden,
+            "is_header": is_header,
+            "cells": cells,
+        })
+
+    result = [
+        ParsedBlock(
+            type_name="TableBlock",
+            nombre=nombre,
+            fields={
+                "block_title": data["title"],
+                "block_show_total": data["show_total"],
+            },
+            items=sorted(data["rows"], key=lambda r: r["row_orden"]),
+        )
+        for nombre, data in groups.items()
+    ]
+    return result, errors
 
 
 def _parse_topcontents(ws: Worksheet) -> tuple[list[ParsedBlock], list[ImporterError]]:
@@ -390,28 +450,6 @@ def _parse_topcreators(ws: Worksheet) -> tuple[list[ParsedBlock], list[ImporterE
     )
 
 
-def _parse_attribution(ws: Worksheet) -> tuple[list[ParsedBlock], list[ImporterError]]:
-    blocks, errors = _parse_denormalized(
-        ws, s.SHEET_ATTRIBUTION, s.ATTRIBUTION_HEADERS,
-        type_name="AttributionTableBlock",
-        block_field_cols=("block_title", "block_show_total"),
-        item_field_cols=("item_orden", "handle", "clicks", "app_downloads"),
-        numeric_item_cols={"clicks", "app_downloads"},
-        required_item_cols=(),
-    )
-    # `block_show_total` es boolean — normalizar TRUE/FALSE a python bool.
-    for pb in blocks:
-        raw = pb.fields.get("block_show_total")
-        pb.fields["block_show_total"] = _coerce_bool(raw)
-    # Si un block no tiene items (solo block-level row), eso es válido — admite
-    # Attribution vacío (marca sin app). Filtramos el item "placeholder" si solo
-    # tenía block fields. El exporter escribe una row con item_orden vacío
-    # cuando no hay items; la reconocemos acá.
-    for pb in blocks:
-        pb.items = [it for it in pb.items if not _is_blank(it.get("handle"))]
-    return blocks, errors
-
-
 def _parse_charts(ws: Worksheet) -> tuple[list[ParsedBlock], list[ImporterError]]:
     blocks, errors = _parse_denormalized(
         ws, s.SHEET_CHARTS, s.CHARTS_HEADERS,
@@ -442,10 +480,9 @@ _BLOCK_PARSERS: dict[str, Callable[[Worksheet], tuple[list[ParsedBlock], list[Im
     s.SHEET_TEXTIMAGE: _parse_textimage,
     s.SHEET_IMAGENES: _parse_imagenes,
     s.SHEET_KPIS: _parse_kpis,
-    s.SHEET_METRICSTABLES: _parse_metricstables,
+    s.SHEET_TABLES: _parse_tables,
     s.SHEET_TOPCONTENTS: _parse_topcontents,
     s.SHEET_TOPCREATORS: _parse_topcreators,
-    s.SHEET_ATTRIBUTION: _parse_attribution,
     s.SHEET_CHARTS: _parse_charts,
 }
 

@@ -15,10 +15,9 @@ SHEET_REPORTE = "Reporte"
 SHEET_TEXTIMAGE = "TextImage"
 SHEET_IMAGENES = "Imagenes"
 SHEET_KPIS = "Kpis"
-SHEET_METRICSTABLES = "MetricsTables"
+SHEET_TABLES = "Tables"
 SHEET_TOPCONTENTS = "TopContents"
 SHEET_TOPCREATORS = "TopCreators"
-SHEET_ATTRIBUTION = "Attribution"
 SHEET_CHARTS = "Charts"
 
 SHEETS_IN_ORDER = [
@@ -27,10 +26,9 @@ SHEETS_IN_ORDER = [
     SHEET_TEXTIMAGE,
     SHEET_IMAGENES,
     SHEET_KPIS,
-    SHEET_METRICSTABLES,
+    SHEET_TABLES,
     SHEET_TOPCONTENTS,
     SHEET_TOPCREATORS,
-    SHEET_ATTRIBUTION,
     SHEET_CHARTS,
 ]
 
@@ -92,10 +90,14 @@ KPIS_HEADERS = [
     "nombre", "block_title", "item_orden", "label", "value", "period_comparison",
 ]
 
-METRICSTABLES_HEADERS = [
-    "nombre", "block_title", "block_network", "item_orden",
-    "metric_name", "value", "source_type", "period_comparison",
+TABLES_HEADERS = [
+    "nombre", "block_title", "block_show_total",
+    "row_orden", "is_header",
+    "cell_1", "cell_2", "cell_3", "cell_4",
+    "cell_5", "cell_6", "cell_7", "cell_8",
 ]
+
+TABLE_CELL_COLS = [f"cell_{i}" for i in range(1, 9)]
 
 TOPCONTENTS_HEADERS = [
     "nombre", "block_title", "block_network", "block_period_label", "block_limit",
@@ -109,11 +111,6 @@ TOPCREATORS_HEADERS = [
     "views", "likes", "comments", "shares",
 ]
 
-ATTRIBUTION_HEADERS = [
-    "nombre", "block_title", "block_show_total",
-    "item_orden", "handle", "clicks", "app_downloads",
-]
-
 CHARTS_HEADERS = [
     "nombre", "block_title", "block_network", "chart_type",
     "point_orden", "point_label", "point_value",
@@ -123,10 +120,9 @@ SHEET_HEADERS = {
     SHEET_TEXTIMAGE: TEXTIMAGE_HEADERS,
     SHEET_IMAGENES: IMAGENES_HEADERS,
     SHEET_KPIS: KPIS_HEADERS,
-    SHEET_METRICSTABLES: METRICSTABLES_HEADERS,
+    SHEET_TABLES: TABLES_HEADERS,
     SHEET_TOPCONTENTS: TOPCONTENTS_HEADERS,
     SHEET_TOPCREATORS: TOPCREATORS_HEADERS,
-    SHEET_ATTRIBUTION: ATTRIBUTION_HEADERS,
     SHEET_CHARTS: CHARTS_HEADERS,
 }
 
@@ -141,12 +137,11 @@ DROPDOWNS = {
     (SHEET_REPORTE, "tipo"): list(KIND_LABELS.values()),
     (SHEET_TEXTIMAGE, "image_position"): IMAGE_POSITION_VALUES,
     (SHEET_TEXTIMAGE, "columns"): COLUMNS_VALUES,
-    (SHEET_METRICSTABLES, "block_network"): _NETWORK_BLANK,
-    (SHEET_METRICSTABLES, "source_type"): _SOURCE_BLANK,
+    (SHEET_TABLES, "block_show_total"): BOOL_VALUES,
+    (SHEET_TABLES, "is_header"): BOOL_VALUES,
     (SHEET_TOPCONTENTS, "block_network"): _NETWORK_BLANK,
     (SHEET_TOPCONTENTS, "source_type"): _SOURCE_BLANK,
     (SHEET_TOPCREATORS, "block_network"): _NETWORK_BLANK,
-    (SHEET_ATTRIBUTION, "block_show_total"): BOOL_VALUES,
     (SHEET_CHARTS, "block_network"): _NETWORK_BLANK,
     (SHEET_CHARTS, "chart_type"): CHART_TYPE_VALUES,
 }
@@ -165,10 +160,9 @@ TYPE_PREFIX = {
     "TextImageBlock": "textimage",
     "ImageBlock": "imagen",
     "KpiGridBlock": "kpi",
-    "MetricsTableBlock": "metrics",
+    "TableBlock": "table",
     "TopContentsBlock": "topcontents",
     "TopCreatorsBlock": "topcreators",
-    "AttributionTableBlock": "attribution",
     "ChartBlock": "chart",
 }
 

@@ -1,7 +1,7 @@
 """Smoke + shape tests del template writer y exporter (DEV-83 · Etapa 1).
 
 No cubren el parser (Etapa 2). El foco es que el archivo que ve Julián
-tenga las 10 hojas en orden, headers correctos, dropdowns en los enums
+tenga las 9 hojas en orden, headers correctos, dropdowns en los enums
 y que la hoja Instrucciones cubra A/B/C/D.
 """
 from datetime import date, datetime, timezone
@@ -15,16 +15,14 @@ from apps.reports.importers import schema as s
 from apps.reports.importers.excel_exporter import export
 from apps.reports.importers.excel_writer import build_template
 from apps.reports.models import (
-    AttributionTableBlock,
     ChartBlock,
     ChartDataPoint,
     ImageBlock,
     KpiGridBlock,
     KpiTile,
-    MetricsTableBlock,
-    MetricsTableRow,
-    OneLinkAttribution,
     Report,
+    TableBlock,
+    TableRow,
     TextImageBlock,
     TopContentsBlock,
     TopContentItem,
@@ -37,7 +35,7 @@ from apps.reports.tests.factories import make_stage
 # ---------------------------------------------------------------------------
 # Template writer — no DB
 # ---------------------------------------------------------------------------
-def test_template_has_10_sheets_in_order():
+def test_template_has_9_sheets_in_order():
     buf = build_template()
     wb = load_workbook(buf)
     assert wb.sheetnames == s.SHEETS_IN_ORDER
@@ -132,12 +130,14 @@ def tiny_report(db):
         value=Decimal("5.5"), period_comparison=None,
     )
 
-    mt = MetricsTableBlock.objects.create(
-        report=report, order=4, title="Mes a mes", network=None,
+    tbl = TableBlock.objects.create(report=report, order=4, title="Mes a mes")
+    TableRow.objects.create(
+        table_block=tbl, order=1, is_header=True,
+        cells=["Métrica", "Valor", "Δ"],
     )
-    MetricsTableRow.objects.create(
-        metrics_table_block=mt, order=1, metric_name="reach",
-        value=Decimal("500"), source_type="ORGANIC",
+    TableRow.objects.create(
+        table_block=tbl, order=2,
+        cells=["reach", "500", "+5%"],
     )
 
     tc = TopContentsBlock.objects.create(
@@ -157,16 +157,8 @@ def tiny_report(db):
         block=tcr, order=1, handle="@test", views=200,
     )
 
-    attr = AttributionTableBlock.objects.create(
-        report=report, order=7, title="OneLink", show_total=True,
-    )
-    OneLinkAttribution.objects.create(
-        attribution_block=attr, influencer_handle="@creator",
-        clicks=100, app_downloads=25,
-    )
-
     chart = ChartBlock.objects.create(
-        report=report, order=8, title="Followers",
+        report=report, order=7, title="Followers",
         network="INSTAGRAM", chart_type="bar",
     )
     ChartDataPoint.objects.create(
@@ -211,15 +203,15 @@ def test_exporter_populates_reporte_kv_and_layout(tiny_report):
     assert kv["intro"] == "Intro de prueba"
     assert kv["conclusiones"] == "Conclusiones de prueba"
 
-    # Layout: 8 blocks, orden 1..8 con nombres `{prefix}_1`
+    # Layout: 7 blocks, orden 1..7 con nombres `{prefix}_1`
     layout_rows = _read_layout(ws)
-    assert len(layout_rows) == 8
+    assert len(layout_rows) == 7
     orders = [r["orden"] for r in layout_rows]
-    assert orders == [1, 2, 3, 4, 5, 6, 7, 8]
+    assert orders == [1, 2, 3, 4, 5, 6, 7]
     nombres = [r["nombre"] for r in layout_rows]
     expected = [
-        "textimage_1", "imagen_1", "kpi_1", "metrics_1",
-        "topcontents_1", "topcreators_1", "attribution_1", "chart_1",
+        "textimage_1", "imagen_1", "kpi_1", "table_1",
+        "topcontents_1", "topcreators_1", "chart_1",
     ]
     assert nombres == expected
 
