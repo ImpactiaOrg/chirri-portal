@@ -1,4 +1,4 @@
-"""Seed demo data — fictional client "Aurora Foods" with full sample report set.
+"""Seed demo data — fictional client "Nimbus Studio" with full sample report set.
 
 Idempotent: running multiple times updates existing rows rather than duplicating.
 Usage:
@@ -43,8 +43,8 @@ from apps.reports.models import (
 from apps.tenants.models import Brand, Client
 from apps.users.models import ClientUser
 
-DEMO_CLIENT_NAME = "Aurora Foods"
-DEMO_BRAND_NAME = "Aurora"
+DEMO_CLIENT_NAME = "Nimbus Studio"
+DEMO_BRAND_NAME = "Nimbus"
 DEMO_USER_EMAIL = "demo@chirripeppers.com"
 DEMO_USER_NAME = "Usuario Demo"
 DEMO_PASSWORD = "demo2026"
@@ -114,7 +114,7 @@ def _wipe_seed_media() -> None:
 
 
 class Command(BaseCommand):
-    help = "Seed demo data — fictional Aurora Foods client."
+    help = "Seed demo data — fictional Nimbus Studio client."
 
     def add_arguments(self, parser):
         parser.add_argument("--wipe", action="store_true", help="Delete demo client data before seeding.")
@@ -132,7 +132,7 @@ class Command(BaseCommand):
         self._seed_user(client)
         admins_created = self._seed_superadmins()
         campaigns = self._seed_campaigns(brand)
-        stages = self._seed_stages(campaigns["ahorrista-inversor"])
+        stages = self._seed_stages(campaigns["curiosos-a-fans"])
         self._seed_reports(stages)
         self._seed_report_viewer_fixtures(brand)
 
@@ -222,23 +222,24 @@ class Command(BaseCommand):
     def _seed_campaigns(self, brand: Brand) -> dict[str, Campaign]:
         specs = [
             {
-                "slug": "ahorrista-inversor",
-                "name": "De Ahorrista a Inversor",
+                "slug": "curiosos-a-fans",
+                "name": "De Curiosos a Fans",
                 "status": Campaign.Status.ACTIVE,
                 "start_date": date(2026, 1, 1),
                 "end_date": None,
                 "brief": (
-                    "Acompañar al ahorrista argentino en su viaje a inversor. "
-                    "4 actos: Awareness, Educación, Validación, Conversión."
+                    "Llevar a la audiencia desde el primer interés hasta volverse "
+                    "fans activos. 4 actos: Awareness, Educación, Validación, "
+                    "Conversión."
                 ),
             },
             {
-                "slug": "harry-potter-2025",
-                "name": "Harry Potter × Yelmo",
+                "slug": "festival-otono-2025",
+                "name": "Co-lab Festival",
                 "status": Campaign.Status.FINISHED,
                 "start_date": date(2025, 10, 1),
                 "end_date": date(2026, 2, 28),
-                "brief": "Campaña cinematográfica alrededor del estreno. Cobranded con Yelmo cines.",
+                "brief": "Activación con un festival cultural local. Cobranded con un partner de prensa.",
             },
             {
                 "slug": "lanzamiento-app",
@@ -246,7 +247,7 @@ class Command(BaseCommand):
                 "status": Campaign.Status.FINISHED,
                 "start_date": date(2025, 6, 1),
                 "end_date": date(2025, 9, 30),
-                "brief": "Relanzamiento de la app con onboarding nuevo. Foco en descargas + primera inversión.",
+                "brief": "Relanzamiento de la app con onboarding nuevo. Foco en descargas + primera activación.",
             },
         ]
         out: dict[str, Campaign] = {}
@@ -263,10 +264,10 @@ class Command(BaseCommand):
     def _seed_stages(self, campaign: Campaign) -> dict[str, Stage]:
         specs = [
             ("awareness", 1, Stage.Kind.AWARENESS, "Awareness",
-             "Plantar la idea: 'hay un mundo más allá del plazo fijo'.",
+             "Plantar la curiosidad: 'hay algo más interesante de lo que pensás'.",
              date(2026, 1, 1), date(2026, 2, 28)),
             ("educacion", 2, Stage.Kind.EDUCATION, "Educación",
-             "Bajar tecnicismos. Traducir CEDEARs, Bonos, FCI a humano.",
+             "Bajar tecnicismos. Traducir lo complejo a lenguaje simple.",
              date(2026, 2, 1), date(2026, 3, 31)),
             ("validacion", 3, Stage.Kind.VALIDATION, "Validación",
              "Testimonios reales. 'Yo tampoco sabía nada y empecé'.",
@@ -298,7 +299,7 @@ class Command(BaseCommand):
             # stage_slug, kind, period_start, period_end, title, status, published, conclusions
             ("awareness", Report.Kind.CIERRE_ETAPA, date(2026, 2, 1), date(2026, 2, 28),
              "Cierre de Awareness", Report.Status.PUBLISHED, pub(2026, 3, 5),
-             "Plantamos la duda. El 'hay algo más que el plazo fijo' llegó."),
+             "Plantamos la curiosidad. La idea de que 'hay algo más' empezó a circular."),
             ("awareness", Report.Kind.GENERAL, date(2026, 1, 1), date(2026, 1, 31),
              "Reporte general · Enero", Report.Status.PUBLISHED, pub(2026, 2, 2),
              "Primer mes de campaña. Baseline establecido."),
@@ -307,26 +308,26 @@ class Command(BaseCommand):
              "Reporte general · Marzo", Report.Status.PUBLISHED, pub(2026, 4, 2),
              (
                  "Marzo fue el mes donde la campaña dejó de ser un experimento y "
-                 "empezó a tener patrón. El carrusel de los 5 errores del ahorrista "
+                 "empezó a tener patrón. El carrusel de los 5 errores comunes "
                  "se volvió el contenido más guardado del trimestre (8.2K saves)."
              )),
             ("educacion", Report.Kind.INFLUENCER, date(2026, 3, 1), date(2026, 3, 31),
              "Reporte de influencers · Marzo", Report.Status.PUBLISHED, pub(2026, 4, 2),
-             "Marti Benza llevó la narrativa 'educación simple' al prime del mes."),
+             "Nora Vidal llevó la narrativa 'simple, no simplista' al prime del mes."),
             ("educacion", Report.Kind.GENERAL, date(2026, 2, 1), date(2026, 2, 28),
              "Reporte general · Febrero", Report.Status.PUBLISHED, pub(2026, 3, 3),
              "Crecimiento sostenido en guardados."),
 
             ("validacion", Report.Kind.GENERAL, date(2026, 3, 1), date(2026, 3, 31),
              "Reporte general · Marzo", Report.Status.PUBLISHED, pub(2026, 4, 2),
-             "Sofi Gonet disparó el pico de downloads la noche del reel."),
+             "Marina Reyes disparó el pico de downloads la noche del reel."),
             ("validacion", Report.Kind.INFLUENCER, date(2026, 3, 1), date(2026, 3, 31),
              "Reporte de influencers · Marzo", Report.Status.PUBLISHED, pub(2026, 4, 2),
              "Testimonios personales — la narrativa más performante del trimestre."),
 
             ("conversion", Report.Kind.GENERAL, date(2026, 4, 1), date(2026, 5, 31),
              "Plan de la etapa", Report.Status.DRAFT, None,
-             "Borrador del plan de conversión. Llegada de Flor Sosa."),
+             "Borrador del plan de conversión. Llegada de Leo Cárdenas."),
 
             # Kitchen-sink: usa TODOS los widget types (TextImage + KpiGrid +
             # MetricsTable + TopContent + Attribution + Chart bar+line).
@@ -334,8 +335,8 @@ class Command(BaseCommand):
             ("conversion", Report.Kind.GENERAL, date(2026, 4, 1), date(2026, 4, 30),
              "Reporte general · Abril", Report.Status.PUBLISHED, pub(2026, 5, 2),
              (
-                 "Abril arrancó la etapa de conversión. Flor Sosa debutó con el "
-                 "reel 'lo saqué del colchón' y disparó un pico de downloads "
+                 "Abril arrancó la etapa de conversión. Leo Cárdenas debutó con el "
+                 "reel 'lo intenté y funcionó' y disparó un pico de downloads "
                  "sostenido. El mes cerró con el mejor ratio click→download de "
                  "la campaña y la cohorte de usuarios nuevos duplicó a la de "
                  "marzo."
@@ -422,22 +423,22 @@ class Command(BaseCommand):
         # Creadores destacados (3 items, sin saves).
         creator_item_specs = [
             {
-                "handle": "@antoroncatti",
+                "handle": "@marina.creates",
                 "views": 8_849, "likes": None, "comments": 15, "shares": 2,
             },
             {
-                "handle": "@florsosa.ok",
+                "handle": "@leo.weekly",
                 "views": 4_210, "likes": 52, "comments": 9, "shares": 3,
             },
             {
-                "handle": "@pasaje.en.mano",
+                "handle": "@nora.daily",
                 "views": 2_180, "likes": 34, "comments": 6, "shares": 1,
             },
         ]
         onelink_specs = [
-            ("@pasaje.en.mano", 1200, 180),
-            ("@financierapopular", 800, 95),
-            ("@pymes_ar", 400, 30),
+            ("@nora.daily", 1200, 180),
+            ("@studio.crew", 800, 95),
+            ("@lab.collective", 400, 30),
         ]
 
         for report in target_reports:
@@ -736,7 +737,7 @@ def _seed_all_blocks_layout(report) -> None:
         section=sec, order=1,
         body=(
             "Abril fue la primera bajada real del mensaje de conversión. "
-            "Flor Sosa entró con un reel testimonial que marcó la agenda "
+            "Leo Cárdenas entró con un reel testimonial que marcó la agenda "
             "del mes y el resto de la comunidad orgánica lo amplificó con "
             "comentarios propios.\n\n"
             "La conversión medida por OneLink creció 32% mes a mes y la "
@@ -744,7 +745,7 @@ def _seed_all_blocks_layout(report) -> None:
         ),
         columns=1,
         image_position="left",
-        image_alt="Creator Flor Sosa grabando el reel de abril",
+        image_alt="Creator Leo Cárdenas grabando el reel de abril",
     )
     source = _pick_image("post")
     with open(source, "rb") as fh:
