@@ -12,5 +12,8 @@ from .blocks.top_contents import TopContentsBlock, TopContentItem  # noqa: F401
 from .blocks.top_creators import TopCreatorsBlock, TopCreatorItem  # noqa: F401
 from .blocks.chart import ChartBlock, ChartDataPoint  # noqa: F401
 
+from .section import Section  # noqa: F401
+from .widgets.base_widget import Widget  # noqa: F401
+
 # Attachments (DEV-108):
 from .attachments import ReportAttachment  # noqa: F401
