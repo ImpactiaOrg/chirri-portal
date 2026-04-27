@@ -56,7 +56,10 @@ export default function TextImageBlock({ block }: { block: TextImageBlockDto }) 
             style={{
               columnCount: block.columns,
               columnGap: 24,
-              maxWidth: 720,
+              // Sin imagen el body toma todo el card; con imagen lo
+              // limitamos a 720 para que la imagen tenga aire al lado.
+              maxWidth: hasImage ? 720 : "100%",
+              flex: hasImage ? "0 1 auto" : "1 1 auto",
               whiteSpace: "pre-wrap",
               fontSize: 18,
               lineHeight: 1.5,
