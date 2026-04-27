@@ -91,11 +91,11 @@ export default function ChartWidget({ widget }: { widget: ChartWidgetDto }) {
           <div
             className="font-display"
             style={{
-              fontSize: "clamp(20px, 2.4vw, 32px)",
+              fontSize: 32,
               lineHeight: 1.1,
               letterSpacing: "-0.02em",
               fontWeight: 700,
-              maxWidth: "100%",
+              maxWidth: "70%",
               marginTop: 4,
             }}
           >
@@ -110,7 +110,7 @@ export default function ChartWidget({ widget }: { widget: ChartWidgetDto }) {
           position: "relative",
           zIndex: 1,
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+          gridTemplateColumns: "minmax(220px, 0.7fr) minmax(360px, 1.3fr)",
           gap: 32,
           alignItems: "center",
         }}

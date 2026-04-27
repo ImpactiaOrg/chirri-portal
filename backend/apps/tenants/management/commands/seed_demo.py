@@ -816,11 +816,8 @@ def _seed_all_blocks_layout(report) -> None:
     sec = Section.objects.create(report=report, order=7, title="Atribución OneLink")
     TableWidget.objects.create(section=sec, order=1, show_total=True)
 
-    # 8) Followers section — 2 widgets side-by-side (IG + Facebook)
-    sec = Section.objects.create(
-        report=report, order=8, title="Followers",
-        layout=Section.Layout.COLUMNS_2,
-    )
+    # 8) Followers section — 2 widgets stacked (IG + Facebook)
+    sec = Section.objects.create(report=report, order=8, title="Followers")
     ig = ChartWidget.objects.create(
         section=sec, order=1,
         network=Network.INSTAGRAM, chart_type="bar",
