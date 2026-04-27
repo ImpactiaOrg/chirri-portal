@@ -171,6 +171,13 @@ LLM_MAX_TOKENS_PER_CALL = int(os.environ.get("LLM_MAX_TOKENS_PER_CALL", "500000"
 LLM_MAX_COST_PER_JOB_USD = Decimal(os.environ.get("LLM_MAX_COST_PER_JOB_USD", "2.00"))
 LLM_DEFAULT_MAX_RETRIES = 1
 
+# Report export (DEV-133)
+FRONTEND_INTERNAL_URL = os.environ.get(
+    "FRONTEND_INTERNAL_URL", "http://frontend:3000",
+)
+EXPORT_PDF_TIMEOUT_S = int(os.environ.get("EXPORT_PDF_TIMEOUT_S", "30"))
+EXPORT_R2_PREFIX = "exports"
+
 CELERY_BEAT_SCHEDULE = {
     "llm-mark-stuck-jobs": {
         "task": "apps.llm.tasks.mark_stuck_jobs_as_failed",
