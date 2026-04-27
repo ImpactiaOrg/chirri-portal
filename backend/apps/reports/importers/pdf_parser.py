@@ -21,7 +21,7 @@ from apps.llm.models import LLMJob
 from apps.llm.services import dispatch_job, run_prompt
 
 from .builder import build_report
-from .parsed import ParsedBlock, ParsedReport
+from .parsed import ParsedReport, ParsedSection, ParsedWidget
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ def _run_pdf_parse(job: LLMJob) -> None:
     job.result = report
     job.output_metadata = {
         "report_id": report.pk,
-        "blocks": report.blocks.count(),
+        "sections": report.sections.count(),
         "title": report.title,
     }
     job.save()
@@ -89,17 +89,65 @@ def _render_pdf_to_pngs(pdf_bytes: bytes) -> list[bytes]:
 def _parsed_report_from_dict(d: dict, *, stage_id: int) -> ParsedReport:
     """Convert the LLM JSON output into the ParsedReport dataclass.
 
-    The LLM mirrors the ParsedReport shape directly, so this is mostly a
-    1:1 copy with the tuple casting that JSON loses.
+    Expected LLM JSON shape (Sections + Widgets):
+    {
+      "kind": "MENSUAL",
+      "period_start": "2026-03-01",
+      "period_end": "2026-03-31",
+      "title": "...",
+      "intro_text": "...",
+      "conclusions_text": "...",
+      "sections": [
+        {
+          "nombre": "kpis",
+          "title": "KPIs del mes",
+          "layout": "stack",
+          "order": 1,
+          "instructions": ""
+        },
+        ...
+      ],
+      "widgets": [
+        {
+          "type_name": "KpiGridWidget",
+          "section_nombre": "kpis",
+          "widget_orden": 1,
+          "widget_title": "",
+          "fields": {},
+          "items": [
+            {"label": "Reach", "value": "2840000", "unit": "", ...},
+            ...
+          ]
+        },
+        ...
+      ]
+    }
     """
     from datetime import date as _date
-    blocks = {
-        nombre: ParsedBlock(
-            type_name=b["type_name"], nombre=nombre,
-            fields=b.get("fields", {}), items=b.get("items", []),
+
+    sections = [
+        ParsedSection(
+            nombre=sec["nombre"],
+            title=sec["title"],
+            layout=sec.get("layout", "stack"),
+            order=int(sec["order"]),
+            instructions=sec.get("instructions", ""),
         )
-        for nombre, b in d["blocks"].items()
-    }
+        for sec in d.get("sections", [])
+    ]
+
+    widgets_by_section: dict[str, list[ParsedWidget]] = {}
+    for w in d.get("widgets", []):
+        pw = ParsedWidget(
+            type_name=w["type_name"],
+            section_nombre=w["section_nombre"],
+            widget_orden=int(w.get("widget_orden", 1)),
+            widget_title=w.get("widget_title", ""),
+            fields=w.get("fields", {}),
+            items=w.get("items", []),
+        )
+        widgets_by_section.setdefault(pw.section_nombre, []).append(pw)
+
     return ParsedReport(
         stage_id=stage_id,
         kind=d["kind"],
@@ -108,6 +156,7 @@ def _parsed_report_from_dict(d: dict, *, stage_id: int) -> ParsedReport:
         title=d["title"],
         intro_text=d.get("intro_text", ""),
         conclusions_text=d.get("conclusions_text", ""),
-        layout=[(int(o), n) for o, n in d["layout"]],
-        blocks=blocks,
+        sections=sections,
+        widgets_by_section=widgets_by_section,
+        image_refs=set(),
     )

@@ -8,11 +8,11 @@ from rest_framework import serializers
 from .models import (
     Report, ReportAttachment, Section, Widget,
     TextWidget, ImageWidget, TextImageWidget,
-    KpiGridWidget, KpiTileWidget,
-    TableWidget, TableRowWidget,
-    ChartWidget, ChartDataPointWidget,
-    TopContentsWidget, TopContentItemWidget,
-    TopCreatorsWidget, TopCreatorItemWidget,
+    KpiGridWidget, KpiTile,
+    TableWidget, TableRow,
+    ChartWidget, ChartDataPoint,
+    TopContentsWidget, TopContentItem,
+    TopCreatorsWidget, TopCreatorItem,
 )
 
 
@@ -20,7 +20,7 @@ from .models import (
 
 class KpiTileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = KpiTileWidget
+        model = KpiTile
         fields = (
             "label", "value", "unit",
             "period_comparison", "period_comparison_label", "order",
@@ -29,13 +29,13 @@ class KpiTileSerializer(serializers.ModelSerializer):
 
 class TableRowSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TableRowWidget
+        model = TableRow
         fields = ("order", "is_header", "cells")
 
 
 class ChartDataPointSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ChartDataPointWidget
+        model = ChartDataPoint
         fields = ("label", "value", "order")
 
 
@@ -43,7 +43,7 @@ class TopContentItemSerializer(serializers.ModelSerializer):
     thumbnail_url = serializers.SerializerMethodField()
 
     class Meta:
-        model = TopContentItemWidget
+        model = TopContentItem
         fields = (
             "order", "thumbnail_url", "caption", "post_url", "source_type",
             "views", "likes", "comments", "shares", "saves",
@@ -57,7 +57,7 @@ class TopCreatorItemSerializer(serializers.ModelSerializer):
     thumbnail_url = serializers.SerializerMethodField()
 
     class Meta:
-        model = TopCreatorItemWidget
+        model = TopCreatorItem
         fields = (
             "order", "thumbnail_url", "handle", "post_url",
             "views", "likes", "comments", "shares",

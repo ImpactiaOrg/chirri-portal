@@ -11,8 +11,8 @@ class KpiGridWidget(Widget):
         verbose_name_plural = "KPI Grid Widgets"
 
 
-class KpiTileWidget(models.Model):
-    """KPI tile linked to KpiGridWidget. Imported as KpiTile in models/__init__.py."""
+class KpiTile(models.Model):
+    """KPI tile linked to KpiGridWidget."""
 
     widget = models.ForeignKey(
         KpiGridWidget, on_delete=models.CASCADE, related_name="tiles",

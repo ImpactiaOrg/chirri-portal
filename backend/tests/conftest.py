@@ -113,8 +113,8 @@ def balanz_published_report(balanz_stage):
         published_at=timezone.now(),
         conclusions_text="Cerramos bien.",
     )
-    # DEV-116 Task 2.5: ReportMetric gone. Metrics now live inside KpiGridBlock /
-    # TableBlock, created per-test when needed.
+    # Task 8: Sections + Widgets only. Data lives inside KpiGridWidget / TableWidget,
+    # created per-test when needed.
     return r
 
 

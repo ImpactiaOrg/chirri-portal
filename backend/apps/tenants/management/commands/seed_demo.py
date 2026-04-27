@@ -23,21 +23,21 @@ from apps.campaigns.models import Campaign, Stage
 from apps.reports.choices import Network, SourceType
 from apps.reports.models import (
     BrandFollowerSnapshot,
-    ChartDataPointWidget,
+    ChartDataPoint,
     ChartWidget,
     ImageWidget,
     KpiGridWidget,
-    KpiTileWidget,
+    KpiTile,
     Report,
     ReportAttachment,
     Section,
-    TableRowWidget,
+    TableRow,
     TableWidget,
     TextImageWidget,
     TextWidget,
-    TopContentItemWidget,
+    TopContentItem,
     TopContentsWidget,
-    TopCreatorItemWidget,
+    TopCreatorItem,
     TopCreatorsWidget,
 )
 from apps.tenants.models import Brand, Client
@@ -452,15 +452,15 @@ class Command(BaseCommand):
 
             # Delete-then-create for idempotency (rerun must not duplicate).
             if contents_widget is not None:
-                TopContentItemWidget.objects.filter(widget=contents_widget).delete()
+                TopContentItem.objects.filter(widget=contents_widget).delete()
             if creators_widget is not None:
-                TopCreatorItemWidget.objects.filter(widget=creators_widget).delete()
+                TopCreatorItem.objects.filter(widget=creators_widget).delete()
             if onelink_widget is not None:
                 onelink_widget.rows.all().delete()
 
             if contents_widget is not None:
                 for i, spec in enumerate(content_item_specs, start=1):
-                    item = TopContentItemWidget(
+                    item = TopContentItem(
                         widget=contents_widget,
                         order=i,
                         caption=spec["caption"],
@@ -479,7 +479,7 @@ class Command(BaseCommand):
 
             if creators_widget is not None:
                 for i, spec in enumerate(creator_item_specs, start=1):
-                    item = TopCreatorItemWidget(
+                    item = TopCreatorItem(
                         widget=creators_widget,
                         order=i,
                         handle=spec["handle"],
@@ -495,11 +495,11 @@ class Command(BaseCommand):
                     item.save()
 
             if onelink_widget is not None:
-                TableRowWidget.objects.bulk_create([
-                    TableRowWidget(widget=onelink_widget, order=1, is_header=True,
+                TableRow.objects.bulk_create([
+                    TableRow(widget=onelink_widget, order=1, is_header=True,
                                    cells=["Influencer", "Clicks", "Descargas"]),
                     *[
-                        TableRowWidget(
+                        TableRow(
                             widget=onelink_widget,
                             order=i + 2,
                             cells=[handle, str(clicks), str(downloads)],
@@ -576,14 +576,14 @@ def _seed_full_layout(report) -> None:
     # 1) KPI Grid
     sec = Section.objects.create(report=report, order=1, title="KPIs del mes")
     kpi_grid = KpiGridWidget.objects.create(section=sec, order=1)
-    KpiTileWidget.objects.bulk_create([
-        KpiTileWidget(widget=kpi_grid, order=1,
+    KpiTile.objects.bulk_create([
+        KpiTile(widget=kpi_grid, order=1,
                       label="Reach total", value=Decimal("2840000")),
-        KpiTileWidget(widget=kpi_grid, order=2,
+        KpiTile(widget=kpi_grid, order=2,
                       label="Reach orgánico", value=Decimal("412000"),
                       period_comparison=Decimal("6.1"),
                       period_comparison_label="vs feb"),
-        KpiTileWidget(widget=kpi_grid, order=3,
+        KpiTile(widget=kpi_grid, order=3,
                       label="Reach influencer", value=Decimal("2430000"),
                       period_comparison=Decimal("14.8"),
                       period_comparison_label="vs feb"),
@@ -592,54 +592,54 @@ def _seed_full_layout(report) -> None:
     # 2) Mes a mes — cross-network
     sec = Section.objects.create(report=report, order=2, title="Mes a mes")
     w = TableWidget.objects.create(section=sec, order=1, show_total=False)
-    TableRowWidget.objects.bulk_create([
-        TableRowWidget(widget=w, order=1, is_header=True,
+    TableRow.objects.bulk_create([
+        TableRow(widget=w, order=1, is_header=True,
                        cells=["Métrica", "Valor", "Δ"]),
-        TableRowWidget(widget=w, order=2,
+        TableRow(widget=w, order=2,
                        cells=["ORGANIC · engagement_rate", "4.8", "+0.3%"]),
-        TableRowWidget(widget=w, order=3,
+        TableRow(widget=w, order=3,
                        cells=["ORGANIC · followers_gained", "18400", "+24%"]),
     ])
 
     # 3) Instagram — reach per source_type
     sec = Section.objects.create(report=report, order=3, title="Instagram")
     w = TableWidget.objects.create(section=sec, order=1, show_total=False)
-    TableRowWidget.objects.bulk_create([
-        TableRowWidget(widget=w, order=1, is_header=True,
+    TableRow.objects.bulk_create([
+        TableRow(widget=w, order=1, is_header=True,
                        cells=["Métrica", "Valor", "Δ"]),
-        TableRowWidget(widget=w, order=2,
+        TableRow(widget=w, order=2,
                        cells=["ORGANIC · reach", "284000", "+6.1%"]),
-        TableRowWidget(widget=w, order=3,
+        TableRow(widget=w, order=3,
                        cells=["PAID · reach", "512000", ""]),
-        TableRowWidget(widget=w, order=4,
+        TableRow(widget=w, order=4,
                        cells=["INFLUENCER · reach", "1640000", "+14.8%"]),
     ])
 
     # 4) TikTok
     sec = Section.objects.create(report=report, order=4, title="TikTok")
     w = TableWidget.objects.create(section=sec, order=1, show_total=False)
-    TableRowWidget.objects.bulk_create([
-        TableRowWidget(widget=w, order=1, is_header=True,
+    TableRow.objects.bulk_create([
+        TableRow(widget=w, order=1, is_header=True,
                        cells=["Métrica", "Valor", "Δ"]),
-        TableRowWidget(widget=w, order=2,
+        TableRow(widget=w, order=2,
                        cells=["ORGANIC · reach", "98000", ""]),
-        TableRowWidget(widget=w, order=3,
+        TableRow(widget=w, order=3,
                        cells=["PAID · reach", "180000", ""]),
-        TableRowWidget(widget=w, order=4,
+        TableRow(widget=w, order=4,
                        cells=["INFLUENCER · reach", "620000", ""]),
     ])
 
     # 5) X / Twitter
     sec = Section.objects.create(report=report, order=5, title="X / Twitter")
     w = TableWidget.objects.create(section=sec, order=1, show_total=False)
-    TableRowWidget.objects.bulk_create([
-        TableRowWidget(widget=w, order=1, is_header=True,
+    TableRow.objects.bulk_create([
+        TableRow(widget=w, order=1, is_header=True,
                        cells=["Métrica", "Valor", "Δ"]),
-        TableRowWidget(widget=w, order=2,
+        TableRow(widget=w, order=2,
                        cells=["ORGANIC · reach", "30000", ""]),
-        TableRowWidget(widget=w, order=3,
+        TableRow(widget=w, order=3,
                        cells=["PAID · reach", "42000", ""]),
-        TableRowWidget(widget=w, order=4,
+        TableRow(widget=w, order=4,
                        cells=["INFLUENCER · reach", "170000", ""]),
     ])
 
@@ -658,24 +658,24 @@ def _seed_full_layout(report) -> None:
     # 9) Chart IG — line
     sec = Section.objects.create(report=report, order=9, title="Followers")
     w = ChartWidget.objects.create(section=sec, order=1, network=Network.INSTAGRAM, chart_type="line")
-    ChartDataPointWidget.objects.bulk_create([
-        ChartDataPointWidget(widget=w, order=i, label=label, value=Decimal(str(value)))
+    ChartDataPoint.objects.bulk_create([
+        ChartDataPoint(widget=w, order=i, label=label, value=Decimal(str(value)))
         for i, (label, value) in enumerate(_IG_FOLLOWERS, start=1)
     ])
 
     # 10) Chart TikTok — bar
     sec = Section.objects.create(report=report, order=10, title="Followers")
     w = ChartWidget.objects.create(section=sec, order=1, network=Network.TIKTOK, chart_type="bar")
-    ChartDataPointWidget.objects.bulk_create([
-        ChartDataPointWidget(widget=w, order=i, label=label, value=Decimal(str(value)))
+    ChartDataPoint.objects.bulk_create([
+        ChartDataPoint(widget=w, order=i, label=label, value=Decimal(str(value)))
         for i, (label, value) in enumerate(_TIKTOK_FOLLOWERS, start=1)
     ])
 
     # 11) Chart X — bar
     sec = Section.objects.create(report=report, order=11, title="Followers")
     w = ChartWidget.objects.create(section=sec, order=1, network=Network.X, chart_type="bar")
-    ChartDataPointWidget.objects.bulk_create([
-        ChartDataPointWidget(widget=w, order=i, label=label, value=Decimal(str(value)))
+    ChartDataPoint.objects.bulk_create([
+        ChartDataPoint(widget=w, order=i, label=label, value=Decimal(str(value)))
         for i, (label, value) in enumerate(_X_FOLLOWERS, start=1)
     ])
 
@@ -742,18 +742,18 @@ def _seed_all_blocks_layout(report) -> None:
     # 2) KpiGridWidget — 4 tiles
     sec = Section.objects.create(report=report, order=2, title="KPIs del mes")
     kpi_grid = KpiGridWidget.objects.create(section=sec, order=1)
-    KpiTileWidget.objects.bulk_create([
-        KpiTileWidget(widget=kpi_grid, order=1,
+    KpiTile.objects.bulk_create([
+        KpiTile(widget=kpi_grid, order=1,
                       label="Reach total", value=Decimal("3120000"),
                       period_comparison=Decimal("9.9"),
                       period_comparison_label="vs mar"),
-        KpiTileWidget(widget=kpi_grid, order=2,
+        KpiTile(widget=kpi_grid, order=2,
                       label="Engagement rate", value=Decimal("5.3"), unit="%",
                       period_comparison=Decimal("0.5"),
                       period_comparison_label="vs mar"),
-        KpiTileWidget(widget=kpi_grid, order=3,
+        KpiTile(widget=kpi_grid, order=3,
                       label="App downloads", value=Decimal("310")),
-        KpiTileWidget(widget=kpi_grid, order=4,
+        KpiTile(widget=kpi_grid, order=4,
                       label="Click→download", value=Decimal("12.8"), unit="%",
                       period_comparison=Decimal("3.1"),
                       period_comparison_label="vs mar"),
@@ -762,28 +762,28 @@ def _seed_all_blocks_layout(report) -> None:
     # 3) TableWidget — cross-network (Mes a mes)
     sec = Section.objects.create(report=report, order=3, title="Mes a mes")
     w = TableWidget.objects.create(section=sec, order=1, show_total=False)
-    TableRowWidget.objects.bulk_create([
-        TableRowWidget(widget=w, order=1, is_header=True,
+    TableRow.objects.bulk_create([
+        TableRow(widget=w, order=1, is_header=True,
                        cells=["Métrica", "Valor", "Δ"]),
-        TableRowWidget(widget=w, order=2,
+        TableRow(widget=w, order=2,
                        cells=["ORGANIC · engagement_rate", "5.3", "+0.5%"]),
-        TableRowWidget(widget=w, order=3,
+        TableRow(widget=w, order=3,
                        cells=["ORGANIC · followers_gained", "21300", "+15.7%"]),
-        TableRowWidget(widget=w, order=4,
+        TableRow(widget=w, order=4,
                        cells=["INFLUENCER · app_downloads", "310", "+32%"]),
     ])
 
     # 4) TableWidget — Instagram
     sec = Section.objects.create(report=report, order=4, title="Instagram")
     w = TableWidget.objects.create(section=sec, order=1, show_total=False)
-    TableRowWidget.objects.bulk_create([
-        TableRowWidget(widget=w, order=1, is_header=True,
+    TableRow.objects.bulk_create([
+        TableRow(widget=w, order=1, is_header=True,
                        cells=["Métrica", "Valor", "Δ"]),
-        TableRowWidget(widget=w, order=2,
+        TableRow(widget=w, order=2,
                        cells=["ORGANIC · reach", "312000", "+9.9%"]),
-        TableRowWidget(widget=w, order=3,
+        TableRow(widget=w, order=3,
                        cells=["PAID · reach", "594000", "+16.0%"]),
-        TableRowWidget(widget=w, order=4,
+        TableRow(widget=w, order=4,
                        cells=["INFLUENCER · reach", "1810000", "+10.4%"]),
     ])
 
@@ -802,16 +802,16 @@ def _seed_all_blocks_layout(report) -> None:
     # 8) ChartWidget bar — Followers IG
     sec = Section.objects.create(report=report, order=8, title="Followers")
     w = ChartWidget.objects.create(section=sec, order=1, network=Network.INSTAGRAM, chart_type="bar")
-    ChartDataPointWidget.objects.bulk_create([
-        ChartDataPointWidget(widget=w, order=i, label=label, value=Decimal(str(value)))
+    ChartDataPoint.objects.bulk_create([
+        ChartDataPoint(widget=w, order=i, label=label, value=Decimal(str(value)))
         for i, (label, value) in enumerate(_IG_FOLLOWERS_APRIL, start=1)
     ])
 
     # 9) ChartWidget line — Engagement rate evolution
     sec = Section.objects.create(report=report, order=9, title="Engagement rate")
     w = ChartWidget.objects.create(section=sec, order=1, network=None, chart_type="line")
-    ChartDataPointWidget.objects.bulk_create([
-        ChartDataPointWidget(widget=w, order=i, label=label, value=value)
+    ChartDataPoint.objects.bulk_create([
+        ChartDataPoint(widget=w, order=i, label=label, value=value)
         for i, (label, value) in enumerate(_ENGAGEMENT_RATE_APRIL, start=1)
     ])
 

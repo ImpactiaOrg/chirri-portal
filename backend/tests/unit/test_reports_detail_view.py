@@ -32,12 +32,12 @@ class TestReportDetail:
         res = authed_balanz.get(self._url(99999))
         assert res.status_code == 404
 
-    def test_response_shape_post_dev116(self, authed_balanz, balanz_published_report):
-        """Post-DEV-116: report detail returns only `blocks` as the data surface.
-        `metrics`, `onelink`, `follower_snapshots`, `q1_rollup`, `yoy` all
-        eliminated — their data lives inside typed blocks as snapshots."""
+    def test_response_shape_sections_widgets(self, authed_balanz, balanz_published_report):
+        """Post-Task-8: report detail returns `sections` (not `blocks`) as the data surface.
+        Legacy fields (`blocks`, `metrics`, `onelink`, `follower_snapshots`, etc.)
+        are all gone — data lives inside typed widgets as snapshots."""
         res = authed_balanz.get(self._url(balanz_published_report.pk))
         assert res.status_code == 200
-        assert "blocks" in res.data
-        for gone in ("onelink", "follower_snapshots", "q1_rollup", "yoy", "metrics"):
+        assert "sections" in res.data
+        for gone in ("blocks", "onelink", "follower_snapshots", "q1_rollup", "yoy", "metrics"):
             assert gone not in res.data, f"legacy field {gone} should be gone"

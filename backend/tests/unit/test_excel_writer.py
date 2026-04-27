@@ -15,20 +15,20 @@ from apps.reports.importers import schema as s
 from apps.reports.importers.excel_exporter import export
 from apps.reports.importers.excel_writer import build_template
 from apps.reports.models import (
-    ChartDataPointWidget,
+    ChartDataPoint,
     ChartWidget,
     ImageWidget,
     KpiGridWidget,
-    KpiTileWidget,
+    KpiTile,
     Report,
     Section,
-    TableRowWidget,
+    TableRow,
     TableWidget,
     TextImageWidget,
     TextWidget,
-    TopContentItemWidget,
+    TopContentItem,
     TopContentsWidget,
-    TopCreatorItemWidget,
+    TopCreatorItem,
     TopCreatorsWidget,
 )
 from apps.reports.tests.factories import make_stage
@@ -133,21 +133,21 @@ def tiny_report(db):
     )
 
     kpi = KpiGridWidget.objects.create(section=section, order=3, title="KPIs")
-    KpiTileWidget.objects.create(
+    KpiTile.objects.create(
         widget=kpi, order=1, label="Reach",
         value=Decimal("1000"), period_comparison=Decimal("5.0"),
     )
-    KpiTileWidget.objects.create(
+    KpiTile.objects.create(
         widget=kpi, order=2, label="Engagement",
         value=Decimal("5.5"), period_comparison=None,
     )
 
     tbl = TableWidget.objects.create(section=section, order=4, title="Mes a mes")
-    TableRowWidget.objects.create(
+    TableRow.objects.create(
         widget=tbl, order=1, is_header=True,
         cells=["Métrica", "Valor", "Δ"],
     )
-    TableRowWidget.objects.create(
+    TableRow.objects.create(
         widget=tbl, order=2,
         cells=["reach", "500", "+5%"],
     )
@@ -156,7 +156,7 @@ def tiny_report(db):
         section=section, order=5, title="Top posts",
         network="INSTAGRAM", period_label="abril",
     )
-    TopContentItemWidget.objects.create(
+    TopContentItem.objects.create(
         widget=tc, order=1, caption="Post 1",
         source_type="ORGANIC", views=100, likes=10,
     )
@@ -165,7 +165,7 @@ def tiny_report(db):
         section=section, order=6, title="Top creators",
         network="INSTAGRAM", period_label="abril",
     )
-    TopCreatorItemWidget.objects.create(
+    TopCreatorItem.objects.create(
         widget=tcr, order=1, handle="@test", views=200,
     )
 
@@ -173,10 +173,10 @@ def tiny_report(db):
         section=section, order=7, title="Followers",
         network="INSTAGRAM", chart_type="bar",
     )
-    ChartDataPointWidget.objects.create(
+    ChartDataPoint.objects.create(
         widget=chart, order=1, label="Ene", value=Decimal("100"),
     )
-    ChartDataPointWidget.objects.create(
+    ChartDataPoint.objects.create(
         widget=chart, order=2, label="Feb", value=Decimal("120"),
     )
 

@@ -14,9 +14,10 @@ from django.urls import reverse
 from apps.reports.importers.excel_exporter import export
 from apps.reports.importers.excel_writer import build_template
 from apps.reports.models import (
-    ImageBlock,
+    ImageWidget,
     Report,
-    TextImageBlock,
+    Section,
+    TextImageWidget,
 )
 from apps.reports.tests.factories import make_stage
 
@@ -37,7 +38,7 @@ def staff_no_perms(db):
 
 @pytest.fixture
 def minimal_report(db):
-    """Report con 1 TextImageBlock + 1 ImageBlock (para probar download_example)."""
+    """Report con 1 TextImageWidget + 1 ImageWidget (para probar download_example)."""
     from django.core.files.base import ContentFile
     stage = make_stage()
     report = Report.objects.create(
@@ -46,11 +47,13 @@ def minimal_report(db):
         title="Minimal", intro_text="", conclusions_text="",
         status=Report.Status.DRAFT,
     )
-    TextImageBlock.objects.create(
-        report=report, order=1, title="Intro", body="B",
+    sec = Section.objects.create(report=report, order=1, title="Intro")
+    TextImageWidget.objects.create(
+        section=sec, order=1, title="Intro", body="B",
         image_position="top", columns=1,
     )
-    img = ImageBlock(report=report, order=2, title="Hero", caption="")
+    sec2 = Section.objects.create(report=report, order=2, title="Hero")
+    img = ImageWidget(section=sec2, order=1, title="Hero", caption="")
     img.image.save("hero.jpg", ContentFile(b"fake"), save=False)
     img.save()
     return report
@@ -109,13 +112,14 @@ def test_import_get_shows_form(client, superuser):
 
 
 def test_import_post_valid_xlsx_creates_draft(client, superuser, minimal_report):
-    """Roundtrip: export(minimal_report) → admin POST → nuevo Report DRAFT."""
+    """Roundtrip: export(minimal_report) → admin POST → nuevo Report DRAFT.
+    Regression: Bug reports.pdf_parser — minimal_report uses TextImageWidget + ImageWidget."""
     client.force_login(superuser)
     # Generar xlsx exportado del report existente; la columna `imagen` del
-    # ImageBlock lo hace relevante pero solo con xlsx pelado (sin ZIP) el
+    # ImageWidget lo hace relevante pero solo con xlsx pelado (sin ZIP) el
     # parser espera que no haya imágenes referenciadas. Usamos minimal_report
-    # pero borramos su ImageBlock para simplificar.
-    ImageBlock.objects.filter(report=minimal_report).delete()
+    # pero borramos su ImageWidget para simplificar.
+    ImageWidget.objects.filter(section__report=minimal_report).delete()
     xlsx_bytes = export(minimal_report).getvalue()
 
     upload = SimpleUploadedFile(

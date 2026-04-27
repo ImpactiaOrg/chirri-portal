@@ -5,11 +5,11 @@ from decimal import Decimal
 from apps.reports.models import (
     Section, Widget,
     TextWidget, ImageWidget, TextImageWidget,
-    KpiGridWidget, KpiTileWidget as KpiTile,
-    TableWidget, TableRowWidget as TableRow,
-    ChartWidget, ChartDataPointWidget as ChartDataPoint,
-    TopContentsWidget, TopContentItemWidget as TopContentItem,
-    TopCreatorsWidget, TopCreatorItemWidget as TopCreatorItem,
+    KpiGridWidget, KpiTile,
+    TableWidget, TableRow,
+    ChartWidget, ChartDataPoint,
+    TopContentsWidget, TopContentItem,
+    TopCreatorsWidget, TopCreatorItem,
 )
 from apps.reports.tests.factories import make_report
 

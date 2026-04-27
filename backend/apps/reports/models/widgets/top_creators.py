@@ -24,8 +24,8 @@ class TopCreatorsWidget(Widget):
         verbose_name_plural = "Top Creadores Widgets"
 
 
-class TopCreatorItemWidget(models.Model):
-    """Top creator item linked to TopCreatorsWidget. Imported as TopCreatorItem in models/__init__.py."""
+class TopCreatorItem(models.Model):
+    """Top creator item linked to TopCreatorsWidget."""
 
     widget = models.ForeignKey(
         TopCreatorsWidget, on_delete=models.CASCADE, related_name="items",

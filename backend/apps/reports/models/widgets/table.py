@@ -19,8 +19,8 @@ class TableWidget(Widget):
         verbose_name_plural = "Table Widgets"
 
 
-class TableRowWidget(models.Model):
-    """Table row linked to TableWidget. Imported as TableRow in models/__init__.py."""
+class TableRow(models.Model):
+    """Table row linked to TableWidget."""
 
     widget = models.ForeignKey(
         TableWidget, on_delete=models.CASCADE, related_name="rows",

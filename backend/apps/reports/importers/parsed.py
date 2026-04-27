@@ -1,7 +1,4 @@
-"""Datos parseados del xlsx — input al builder (post sections-widgets-redesign).
-
-ParsedBlock kept as a legacy compat shim for pdf_parser.py (Task 8 will drop it).
-"""
+"""Datos parseados del xlsx — input al builder (post sections-widgets-redesign)."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -39,15 +36,3 @@ class ParsedReport:
     sections: list[ParsedSection]
     widgets_by_section: dict[str, list[ParsedWidget]]
     image_refs: set[str]
-
-
-# ---------------------------------------------------------------------------
-# Legacy compat — Task 8 will remove this after pdf_parser.py is updated.
-# ---------------------------------------------------------------------------
-@dataclass
-class ParsedBlock:
-    """Legacy block dataclass used by pdf_parser.py (pre-sections-widgets)."""
-    type_name: str
-    nombre: str
-    fields: dict
-    items: list[dict] = field(default_factory=list)

@@ -4,10 +4,10 @@ from decimal import Decimal
 
 from apps.reports.models import (
     Section,
-    TextWidget, KpiGridWidget, KpiTileWidget,
-    TableWidget, TableRowWidget,
-    ChartWidget, ChartDataPointWidget,
-    TopContentsWidget, TopContentItemWidget,
+    TextWidget, KpiGridWidget, KpiTile,
+    TableWidget, TableRow,
+    ChartWidget, ChartDataPoint,
+    TopContentsWidget, TopContentItem,
 )
 from apps.reports.serializers import WidgetSerializer, SectionSerializer
 from apps.reports.tests.factories import make_report
@@ -29,8 +29,8 @@ def test_table_widget_serializes_with_rows():
     report = make_report()
     s = Section.objects.create(report=report, order=1)
     w = TableWidget.objects.create(section=s, order=1, title="IG", show_total=True)
-    TableRowWidget.objects.create(widget=w, order=1, is_header=True, cells=["A", "B"])
-    TableRowWidget.objects.create(widget=w, order=2, cells=["1", "2"])
+    TableRow.objects.create(widget=w, order=1, is_header=True, cells=["A", "B"])
+    TableRow.objects.create(widget=w, order=2, cells=["1", "2"])
     data = WidgetSerializer(w).data
     assert data["type"] == "TableWidget"
     assert data["title"] == "IG"
@@ -45,7 +45,7 @@ def test_kpi_grid_widget_serializes_with_tiles():
     report = make_report()
     s = Section.objects.create(report=report, order=1)
     w = KpiGridWidget.objects.create(section=s, order=1)
-    KpiTileWidget.objects.create(widget=w, order=1, label="Reach", value=Decimal("100"))
+    KpiTile.objects.create(widget=w, order=1, label="Reach", value=Decimal("100"))
     data = WidgetSerializer(w).data
     assert data["type"] == "KpiGridWidget"
     assert len(data["tiles"]) == 1
@@ -73,7 +73,7 @@ def test_chart_widget_serializes_with_datapoints():
     report = make_report()
     s = Section.objects.create(report=report, order=1)
     w = ChartWidget.objects.create(section=s, order=1, chart_type="line", network="INSTAGRAM")
-    ChartDataPointWidget.objects.create(widget=w, order=1, label="Ene", value=Decimal("10"))
+    ChartDataPoint.objects.create(widget=w, order=1, label="Ene", value=Decimal("10"))
     data = WidgetSerializer(w).data
     assert data["type"] == "ChartWidget"
     assert data["chart_type"] == "line"
@@ -86,7 +86,7 @@ def test_top_contents_widget_serializes_with_items():
     report = make_report()
     s = Section.objects.create(report=report, order=1)
     w = TopContentsWidget.objects.create(section=s, order=1, period_label="Marzo", network="INSTAGRAM")
-    TopContentItemWidget.objects.create(widget=w, order=1, caption="Post 1")
+    TopContentItem.objects.create(widget=w, order=1, caption="Post 1")
     data = WidgetSerializer(w).data
     assert data["type"] == "TopContentsWidget"
     assert data["period_label"] == "Marzo"

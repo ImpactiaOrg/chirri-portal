@@ -23,11 +23,11 @@ from .importers.pdf_parser import submit_pdf as submit_pdf_parser
 from .models import (
     Report, ReportAttachment, Section, Widget,
     TextWidget, ImageWidget, TextImageWidget,
-    KpiGridWidget, KpiTileWidget,
-    TableWidget, TableRowWidget,
-    ChartWidget, ChartDataPointWidget,
-    TopContentsWidget, TopContentItemWidget,
-    TopCreatorsWidget, TopCreatorItemWidget,
+    KpiGridWidget, KpiTile,
+    TableWidget, TableRow,
+    ChartWidget, ChartDataPoint,
+    TopContentsWidget, TopContentItem,
+    TopCreatorsWidget, TopCreatorItem,
     BrandFollowerSnapshot,
 )
 
@@ -37,28 +37,28 @@ logger = logging.getLogger(__name__)
 # ---------- Child item / row inlines ----------
 
 class KpiTileInline(SortableTabularInline):
-    model = KpiTileWidget
+    model = KpiTile
     extra = 0
     fields = ("order", "label", "value", "unit", "period_comparison", "period_comparison_label")
     ordering = ("order",)
 
 
 class TableRowInline(SortableTabularInline):
-    model = TableRowWidget
+    model = TableRow
     extra = 0
     fields = ("order", "is_header", "cells")
     ordering = ("order",)
 
 
 class ChartDataPointInline(SortableTabularInline):
-    model = ChartDataPointWidget
+    model = ChartDataPoint
     extra = 0
     fields = ("order", "label", "value")
     ordering = ("order",)
 
 
 class TopContentItemInline(SortableTabularInline):
-    model = TopContentItemWidget
+    model = TopContentItem
     extra = 0
     fields = (
         "order", "thumbnail", "caption", "source_type", "post_url",
@@ -68,7 +68,7 @@ class TopContentItemInline(SortableTabularInline):
 
 
 class TopCreatorItemInline(SortableTabularInline):
-    model = TopCreatorItemWidget
+    model = TopCreatorItem
     extra = 0
     fields = (
         "order", "thumbnail", "handle", "post_url",

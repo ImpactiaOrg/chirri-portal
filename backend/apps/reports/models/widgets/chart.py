@@ -25,8 +25,8 @@ class ChartWidget(Widget):
         verbose_name_plural = "Chart Widgets"
 
 
-class ChartDataPointWidget(models.Model):
-    """Chart data point linked to ChartWidget. Imported as ChartDataPoint in models/__init__.py."""
+class ChartDataPoint(models.Model):
+    """Chart data point linked to ChartWidget."""
 
     widget = models.ForeignKey(
         ChartWidget, on_delete=models.CASCADE, related_name="data_points",

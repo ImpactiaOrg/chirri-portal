@@ -51,7 +51,7 @@ def test_seed_demo_creates_sections_and_widgets():
 @pytest.mark.django_db
 def test_seed_demo_table_widget_has_header_and_rows():
     """Verifica que los TableWidget de métricas tienen header row y data rows."""
-    from apps.reports.models import TableWidget, TableRowWidget, Report, Section
+    from apps.reports.models import TableWidget, TableRow, Report, Section
     call_command("seed_demo")
     full_report = Report.objects.filter(
         stage__kind="EDUCATION", kind="GENERAL", period_start__month=3,
@@ -72,7 +72,7 @@ def test_seed_demo_table_widget_has_header_and_rows():
 @pytest.mark.django_db
 def test_seed_demo_attribution_table_has_show_total_and_rows():
     """Verifica que la tabla de atribución tiene show_total=True y rows seeded."""
-    from apps.reports.models import TableWidget, TableRowWidget, Report
+    from apps.reports.models import TableWidget, TableRow, Report
     call_command("seed_demo")
     full_report = Report.objects.filter(
         stage__kind="EDUCATION", kind="GENERAL", period_start__month=3,

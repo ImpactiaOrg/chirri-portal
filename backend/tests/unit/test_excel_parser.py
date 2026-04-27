@@ -17,20 +17,20 @@ from apps.reports.importers.excel_exporter import export
 from apps.reports.importers.excel_parser import parse
 from apps.reports.importers.excel_writer import build_template, to_bytes
 from apps.reports.models import (
-    ChartDataPointWidget,
+    ChartDataPoint,
     ChartWidget,
     ImageWidget,
     KpiGridWidget,
-    KpiTileWidget,
+    KpiTile,
     Report,
     Section,
-    TableRowWidget,
+    TableRow,
     TableWidget,
     TextImageWidget,
     TextWidget,
-    TopContentItemWidget,
+    TopContentItem,
     TopContentsWidget,
-    TopCreatorItemWidget,
+    TopCreatorItem,
     TopCreatorsWidget,
 )
 from apps.reports.tests.factories import make_stage
@@ -211,33 +211,33 @@ def full_report(db):
     img_widget.save()
 
     kpi = KpiGridWidget.objects.create(section=section, order=4, title="KPIs")
-    KpiTileWidget.objects.create(
+    KpiTile.objects.create(
         widget=kpi, order=1, label="Reach",
         value=Decimal("1000"), period_comparison=Decimal("5.0"),
     )
 
     tbl = TableWidget.objects.create(section=section, order=5, title="Mes")
-    TableRowWidget.objects.create(widget=tbl, order=1, is_header=True, cells=["Métrica", "Valor"])
-    TableRowWidget.objects.create(widget=tbl, order=2, cells=["reach", "500"])
+    TableRow.objects.create(widget=tbl, order=1, is_header=True, cells=["Métrica", "Valor"])
+    TableRow.objects.create(widget=tbl, order=2, cells=["reach", "500"])
 
     tc = TopContentsWidget.objects.create(
         section=section, order=6, title="Top posts",
         network="INSTAGRAM", period_label="abril",
     )
-    TopContentItemWidget.objects.create(widget=tc, order=1, caption="P1", source_type="ORGANIC", views=100)
+    TopContentItem.objects.create(widget=tc, order=1, caption="P1", source_type="ORGANIC", views=100)
 
     tcr = TopCreatorsWidget.objects.create(
         section=section, order=7, title="Creators",
         network="INSTAGRAM", period_label="abril",
     )
-    TopCreatorItemWidget.objects.create(widget=tcr, order=1, handle="@test", views=200)
+    TopCreatorItem.objects.create(widget=tcr, order=1, handle="@test", views=200)
 
     chart = ChartWidget.objects.create(
         section=section, order=8, title="Followers",
         network="INSTAGRAM", chart_type="bar",
     )
-    ChartDataPointWidget.objects.create(widget=chart, order=1, label="Ene", value=Decimal("100"))
-    ChartDataPointWidget.objects.create(widget=chart, order=2, label="Feb", value=Decimal("120"))
+    ChartDataPoint.objects.create(widget=chart, order=1, label="Ene", value=Decimal("100"))
+    ChartDataPoint.objects.create(widget=chart, order=2, label="Feb", value=Decimal("120"))
 
     return report
 
@@ -343,8 +343,8 @@ def test_section_widget_roundtrip_export_then_parse():
     s_obj = Section.objects.create(report=report, order=1, title="Análisis", layout=Section.Layout.STACK)
     TextWidget.objects.create(section=s_obj, order=1, title="", body="Marzo arrancó con...")
     tw = TableWidget.objects.create(section=s_obj, order=2, title="IG", show_total=True)
-    TableRowWidget.objects.create(widget=tw, order=1, is_header=True, cells=["Métrica", "Valor", "Δ"])
-    TableRowWidget.objects.create(widget=tw, order=2, cells=["ORGANIC · reach", "312000", "+9.9%"])
+    TableRow.objects.create(widget=tw, order=1, is_header=True, cells=["Métrica", "Valor", "Δ"])
+    TableRow.objects.create(widget=tw, order=2, cells=["ORGANIC · reach", "312000", "+9.9%"])
 
     xlsx_bytes = export(report).getvalue()
     parsed, errors = parse(xlsx_bytes)

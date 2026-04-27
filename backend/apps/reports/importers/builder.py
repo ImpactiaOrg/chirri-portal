@@ -7,20 +7,20 @@ from django.core.files.base import ContentFile
 from django.db import transaction
 
 from apps.reports.models import (
-    ChartDataPointWidget,
+    ChartDataPoint,
     ChartWidget,
     ImageWidget,
     KpiGridWidget,
-    KpiTileWidget,
+    KpiTile,
     Report,
     Section,
-    TableRowWidget,
+    TableRow,
     TableWidget,
     TextImageWidget,
     TextWidget,
-    TopContentItemWidget,
+    TopContentItem,
     TopContentsWidget,
-    TopCreatorItemWidget,
+    TopCreatorItem,
     TopCreatorsWidget,
 )
 
@@ -91,8 +91,8 @@ def _build_kpigrid(section, w, images):
     kw = KpiGridWidget.objects.create(
         section=section, order=w.widget_orden, title=w.widget_title,
     )
-    KpiTileWidget.objects.bulk_create([
-        KpiTileWidget(
+    KpiTile.objects.bulk_create([
+        KpiTile(
             widget=kw,
             order=item.get("tile_orden") or (idx + 1),
             label=str(item.get("label", "")),
@@ -111,7 +111,7 @@ def _build_table(section, w, images):
         show_total=bool(w.fields.get("widget_show_total")),
     )
     for idx, item in enumerate(w.items):
-        TableRowWidget.objects.create(
+        TableRow.objects.create(
             widget=tw,
             order=item.get("row_orden") or (idx + 1),
             is_header=item.get("is_header", False),
@@ -125,8 +125,8 @@ def _build_chart(section, w, images):
         network=w.fields.get("widget_network"),
         chart_type=w.fields.get("chart_type", "bar"),
     )
-    ChartDataPointWidget.objects.bulk_create([
-        ChartDataPointWidget(
+    ChartDataPoint.objects.bulk_create([
+        ChartDataPoint(
             widget=cw,
             order=item.get("point_orden") or (idx + 1),
             label=str(item.get("point_label", "")),
@@ -143,7 +143,7 @@ def _build_topcontents(section, w, images):
         period_label=w.fields.get("widget_period_label", ""),
     )
     for idx, item in enumerate(w.items):
-        child = TopContentItemWidget(
+        child = TopContentItem(
             widget=tcw,
             order=item.get("item_orden") or (idx + 1),
             caption=str(item.get("caption") or ""),
@@ -166,7 +166,7 @@ def _build_topcreators(section, w, images):
         period_label=w.fields.get("widget_period_label", ""),
     )
     for idx, item in enumerate(w.items):
-        child = TopCreatorItemWidget(
+        child = TopCreatorItem(
             widget=tcw,
             order=item.get("item_orden") or (idx + 1),
             handle=str(item.get("handle", "")),
