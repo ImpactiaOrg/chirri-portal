@@ -35,6 +35,8 @@ from apps.reports.models import (
     OneLinkAttribution,
     Report,
     ReportAttachment,
+    TableBlock,
+    TableRow,
     TextImageBlock,
     TopContentsBlock,
     TopContentItem,
@@ -456,8 +458,8 @@ class Command(BaseCommand):
 
             contents_block = TopContentsBlock.objects.filter(report=report).first()
             creators_block = TopCreatorsBlock.objects.filter(report=report).first()
-            attribution_block = AttributionTableBlock.objects.filter(
-                report=report,
+            onelink_block = TableBlock.objects.filter(
+                report=report, title="Atribución OneLink",
             ).first()
 
             # Delete-then-create for idempotency (rerun must not duplicate).
@@ -465,8 +467,8 @@ class Command(BaseCommand):
                 TopContentItem.objects.filter(block=contents_block).delete()
             if creators_block is not None:
                 TopCreatorItem.objects.filter(block=creators_block).delete()
-            if attribution_block is not None:
-                OneLinkAttribution.objects.filter(attribution_block=attribution_block).delete()
+            if onelink_block is not None:
+                onelink_block.rows.all().delete()
 
             if contents_block is not None:
                 for i, spec in enumerate(content_item_specs, start=1):
@@ -504,14 +506,19 @@ class Command(BaseCommand):
                         item.thumbnail.save(stable_name, File(fh), save=False)
                     item.save()
 
-            if attribution_block is not None:
-                for handle, clicks, downloads in onelink_specs:
-                    OneLinkAttribution.objects.create(
-                        attribution_block=attribution_block,
-                        influencer_handle=handle,
-                        clicks=clicks,
-                        app_downloads=downloads,
-                    )
+            if onelink_block is not None:
+                TableRow.objects.bulk_create([
+                    TableRow(table_block=onelink_block, order=1, is_header=True,
+                             cells=["Influencer", "Clicks", "Descargas"]),
+                    *[
+                        TableRow(
+                            table_block=onelink_block,
+                            order=i + 2,
+                            cells=[handle, str(clicks), str(downloads)],
+                        )
+                        for i, (handle, clicks, downloads) in enumerate(onelink_specs)
+                    ],
+                ])
 
         # Brand-level snapshots: one per month, keyed by (brand, network, as_of).
         snapshot_year = target_reports.order_by("-period_start").first().period_start.year
@@ -596,68 +603,61 @@ def _seed_full_layout(report) -> None:
     ])
 
     # 2) Mes a mes — cross-network (network=null)
-    mtm = MetricsTableBlock.objects.create(
-        report=report, order=2, title="Mes a mes", network=None,
+    mtm = TableBlock.objects.create(
+        report=report, order=2, title="Mes a mes",
     )
-    MetricsTableRow.objects.bulk_create([
-        MetricsTableRow(metrics_table_block=mtm, order=1,
-                        metric_name="engagement_rate", value=Decimal("4.8"),
-                        source_type=SourceType.ORGANIC,
-                        period_comparison=Decimal("0.3")),
-        MetricsTableRow(metrics_table_block=mtm, order=2,
-                        metric_name="followers_gained", value=Decimal("18400"),
-                        source_type=SourceType.ORGANIC,
-                        period_comparison=Decimal("24")),
+    TableRow.objects.bulk_create([
+        TableRow(table_block=mtm, order=1, is_header=True,
+                 cells=["Métrica", "Valor", "Δ"]),
+        TableRow(table_block=mtm, order=2,
+                 cells=["ORGANIC · engagement_rate", "4.8", "+0.3%"]),
+        TableRow(table_block=mtm, order=3,
+                 cells=["ORGANIC · followers_gained", "18400", "+24%"]),
     ])
 
     # 3) Instagram — reach per source_type
-    ig = MetricsTableBlock.objects.create(
-        report=report, order=3, title="Instagram", network=Network.INSTAGRAM,
+    ig = TableBlock.objects.create(
+        report=report, order=3, title="Instagram",
     )
-    MetricsTableRow.objects.bulk_create([
-        MetricsTableRow(metrics_table_block=ig, order=1,
-                        metric_name="reach", value=Decimal("284000"),
-                        source_type=SourceType.ORGANIC,
-                        period_comparison=Decimal("6.1")),
-        MetricsTableRow(metrics_table_block=ig, order=2,
-                        metric_name="reach", value=Decimal("512000"),
-                        source_type=SourceType.PAID),
-        MetricsTableRow(metrics_table_block=ig, order=3,
-                        metric_name="reach", value=Decimal("1640000"),
-                        source_type=SourceType.INFLUENCER,
-                        period_comparison=Decimal("14.8")),
+    TableRow.objects.bulk_create([
+        TableRow(table_block=ig, order=1, is_header=True,
+                 cells=["Métrica", "Valor", "Δ"]),
+        TableRow(table_block=ig, order=2,
+                 cells=["ORGANIC · reach", "284000", "+6.1%"]),
+        TableRow(table_block=ig, order=3,
+                 cells=["PAID · reach", "512000", ""]),
+        TableRow(table_block=ig, order=4,
+                 cells=["INFLUENCER · reach", "1640000", "+14.8%"]),
     ])
 
     # 4) TikTok
-    tk = MetricsTableBlock.objects.create(
-        report=report, order=4, title="TikTok", network=Network.TIKTOK,
+    tk = TableBlock.objects.create(
+        report=report, order=4, title="TikTok",
     )
-    MetricsTableRow.objects.bulk_create([
-        MetricsTableRow(metrics_table_block=tk, order=1,
-                        metric_name="reach", value=Decimal("98000"),
-                        source_type=SourceType.ORGANIC),
-        MetricsTableRow(metrics_table_block=tk, order=2,
-                        metric_name="reach", value=Decimal("180000"),
-                        source_type=SourceType.PAID),
-        MetricsTableRow(metrics_table_block=tk, order=3,
-                        metric_name="reach", value=Decimal("620000"),
-                        source_type=SourceType.INFLUENCER),
+    TableRow.objects.bulk_create([
+        TableRow(table_block=tk, order=1, is_header=True,
+                 cells=["Métrica", "Valor", "Δ"]),
+        TableRow(table_block=tk, order=2,
+                 cells=["ORGANIC · reach", "98000", ""]),
+        TableRow(table_block=tk, order=3,
+                 cells=["PAID · reach", "180000", ""]),
+        TableRow(table_block=tk, order=4,
+                 cells=["INFLUENCER · reach", "620000", ""]),
     ])
 
     # 5) X / Twitter
-    x = MetricsTableBlock.objects.create(
-        report=report, order=5, title="X / Twitter", network=Network.X,
+    x = TableBlock.objects.create(
+        report=report, order=5, title="X / Twitter",
     )
-    MetricsTableRow.objects.bulk_create([
-        MetricsTableRow(metrics_table_block=x, order=1,
-                        metric_name="reach", value=Decimal("30000"),
-                        source_type=SourceType.ORGANIC),
-        MetricsTableRow(metrics_table_block=x, order=2,
-                        metric_name="reach", value=Decimal("42000"),
-                        source_type=SourceType.PAID),
-        MetricsTableRow(metrics_table_block=x, order=3,
-                        metric_name="reach", value=Decimal("170000"),
-                        source_type=SourceType.INFLUENCER),
+    TableRow.objects.bulk_create([
+        TableRow(table_block=x, order=1, is_header=True,
+                 cells=["Métrica", "Valor", "Δ"]),
+        TableRow(table_block=x, order=2,
+                 cells=["ORGANIC · reach", "30000", ""]),
+        TableRow(table_block=x, order=3,
+                 cells=["PAID · reach", "42000", ""]),
+        TableRow(table_block=x, order=4,
+                 cells=["INFLUENCER · reach", "170000", ""]),
     ])
 
     # 6) Top Contenidos
@@ -672,8 +672,8 @@ def _seed_full_layout(report) -> None:
     )
 
     # 8) Attribution table
-    AttributionTableBlock.objects.create(
-        report=report, order=8, show_total=True,
+    TableBlock.objects.create(
+        report=report, order=8, title="Atribución OneLink", show_total=True,
     )
 
     # 9) Chart IG — line (DEV-128: follower growth es una curva temporal)
@@ -797,42 +797,34 @@ def _seed_all_blocks_layout(report) -> None:
                 period_comparison_label="vs mar"),
     ])
 
-    # 3) MetricsTableBlock — cross-network (Mes a mes)
-    mtm = MetricsTableBlock.objects.create(
-        report=report, order=3, title="Mes a mes", network=None,
+    # 3) TableBlock — cross-network (Mes a mes)
+    mtm = TableBlock.objects.create(
+        report=report, order=3, title="Mes a mes",
     )
-    MetricsTableRow.objects.bulk_create([
-        MetricsTableRow(metrics_table_block=mtm, order=1,
-                        metric_name="engagement_rate", value=Decimal("5.3"),
-                        source_type=SourceType.ORGANIC,
-                        period_comparison=Decimal("0.5")),
-        MetricsTableRow(metrics_table_block=mtm, order=2,
-                        metric_name="followers_gained", value=Decimal("21300"),
-                        source_type=SourceType.ORGANIC,
-                        period_comparison=Decimal("15.7")),
-        MetricsTableRow(metrics_table_block=mtm, order=3,
-                        metric_name="app_downloads", value=Decimal("310"),
-                        source_type=SourceType.INFLUENCER,
-                        period_comparison=Decimal("32")),
+    TableRow.objects.bulk_create([
+        TableRow(table_block=mtm, order=1, is_header=True,
+                 cells=["Métrica", "Valor", "Δ"]),
+        TableRow(table_block=mtm, order=2,
+                 cells=["ORGANIC · engagement_rate", "5.3", "+0.5%"]),
+        TableRow(table_block=mtm, order=3,
+                 cells=["ORGANIC · followers_gained", "21300", "+15.7%"]),
+        TableRow(table_block=mtm, order=4,
+                 cells=["INFLUENCER · app_downloads", "310", "+32%"]),
     ])
 
-    # 4) MetricsTableBlock — Instagram
-    ig = MetricsTableBlock.objects.create(
-        report=report, order=4, title="Instagram", network=Network.INSTAGRAM,
+    # 4) TableBlock — Instagram
+    ig = TableBlock.objects.create(
+        report=report, order=4, title="Instagram",
     )
-    MetricsTableRow.objects.bulk_create([
-        MetricsTableRow(metrics_table_block=ig, order=1,
-                        metric_name="reach", value=Decimal("312000"),
-                        source_type=SourceType.ORGANIC,
-                        period_comparison=Decimal("9.9")),
-        MetricsTableRow(metrics_table_block=ig, order=2,
-                        metric_name="reach", value=Decimal("594000"),
-                        source_type=SourceType.PAID,
-                        period_comparison=Decimal("16.0")),
-        MetricsTableRow(metrics_table_block=ig, order=3,
-                        metric_name="reach", value=Decimal("1810000"),
-                        source_type=SourceType.INFLUENCER,
-                        period_comparison=Decimal("10.4")),
+    TableRow.objects.bulk_create([
+        TableRow(table_block=ig, order=1, is_header=True,
+                 cells=["Métrica", "Valor", "Δ"]),
+        TableRow(table_block=ig, order=2,
+                 cells=["ORGANIC · reach", "312000", "+9.9%"]),
+        TableRow(table_block=ig, order=3,
+                 cells=["PAID · reach", "594000", "+16.0%"]),
+        TableRow(table_block=ig, order=4,
+                 cells=["INFLUENCER · reach", "1810000", "+10.4%"]),
     ])
 
     # 5) TopContentsBlock — Posts
@@ -846,8 +838,8 @@ def _seed_all_blocks_layout(report) -> None:
         network=Network.INSTAGRAM, limit=6,
     )
 
-    # 7) AttributionTableBlock
-    AttributionTableBlock.objects.create(
+    # 7) Attribution table
+    TableBlock.objects.create(
         report=report, order=7, title="Atribución OneLink", show_total=True,
     )
 

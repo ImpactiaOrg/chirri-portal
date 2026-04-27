@@ -14,9 +14,9 @@ def test_seed_demo_creates_typed_blocks():
     """Verifica que el reporte rico (Educación Marzo General) tiene los
     11 blocks tipados esperados."""
     from apps.reports.models import (
-        Report, KpiGridBlock, MetricsTableBlock,
+        Report, KpiGridBlock, TableBlock,
         TopContentsBlock, TopCreatorsBlock,
-        AttributionTableBlock, ChartBlock, ImageBlock,
+        ChartBlock, ImageBlock,
     )
     call_command("seed_demo")
 
@@ -36,10 +36,9 @@ def test_seed_demo_creates_typed_blocks():
 
     # Cada subtipo está representado
     assert KpiGridBlock.objects.filter(report=full_report).count() == 1
-    assert MetricsTableBlock.objects.filter(report=full_report).count() == 4  # mes a mes + IG + TK + X
+    assert TableBlock.objects.filter(report=full_report).count() == 5  # mes a mes + IG + TK + X + atribución
     assert TopContentsBlock.objects.filter(report=full_report).count() == 1
     assert TopCreatorsBlock.objects.filter(report=full_report).count() == 1
-    assert AttributionTableBlock.objects.filter(report=full_report).count() == 1
     assert ChartBlock.objects.filter(report=full_report).count() == 3  # IG + TK + X
 
     # Kitchen-sink (Abril) debe usar todos los block types incluyendo ImageBlock (DEV-130)
@@ -49,19 +48,39 @@ def test_seed_demo_creates_typed_blocks():
 
 
 @pytest.mark.django_db
-def test_seed_demo_instagram_metrics_table_has_typed_rows():
-    """Verifica que la metrics table de Instagram tiene rows con source_type."""
-    from apps.reports.models import MetricsTableBlock, Report
+def test_seed_demo_table_block_has_header_and_rows():
+    """Verifica que los TableBlock de métricas tienen header row y data rows."""
+    from apps.reports.models import TableBlock, TableRow, Report
     call_command("seed_demo")
     full_report = Report.objects.filter(
         stage__kind="EDUCATION", kind="GENERAL", period_start__month=3,
     ).first()
-    ig_table = MetricsTableBlock.objects.filter(
-        report=full_report, network="INSTAGRAM",
+    ig_table = TableBlock.objects.filter(
+        report=full_report, title="Instagram",
     ).first()
     assert ig_table is not None
     assert ig_table.rows.count() > 0
+    # Header row exists
+    assert ig_table.rows.filter(is_header=True).exists()
     # Spot-check: existe un row de reach orgánico
     assert ig_table.rows.filter(
-        metric_name="reach", source_type="ORGANIC",
+        cells__contains=["ORGANIC · reach"],
     ).exists()
+
+
+@pytest.mark.django_db
+def test_seed_demo_attribution_table_has_show_total_and_rows():
+    """Verifica que la tabla de atribución tiene show_total=True y rows seeded."""
+    from apps.reports.models import TableBlock, TableRow, Report
+    call_command("seed_demo")
+    full_report = Report.objects.filter(
+        stage__kind="EDUCATION", kind="GENERAL", period_start__month=3,
+    ).first()
+    attr_table = TableBlock.objects.filter(
+        report=full_report, title="Atribución OneLink",
+    ).first()
+    assert attr_table is not None
+    assert attr_table.show_total is True
+    # Header + 3 influencer rows
+    assert attr_table.rows.count() == 4
+    assert attr_table.rows.filter(is_header=True).exists()
