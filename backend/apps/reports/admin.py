@@ -1,10 +1,4 @@
-"""Django admin para DEV-116 post-refactor.
-
-Polimorfismo de ReportBlock via django-polymorphic:
-- Un solo inline en ReportAdmin (StackedPolymorphicInline) con 6 Child sub-inlines.
-- ReportBlockAdmin standalone como PolymorphicParentModelAdmin.
-- Un PolymorphicChildModelAdmin por subtipo con sus own child row inlines.
-"""
+"""Django admin — Sections + Widgets (post sections-widgets-redesign)."""
 import logging
 
 from adminsortable2.admin import SortableAdminBase, SortableTabularInline
@@ -26,45 +20,45 @@ from .importers.import_flow import import_bytes
 from .importers.pdf_form import ImportPdfForm
 from .importers.pdf_parser import submit_pdf as submit_pdf_parser
 
-logger = logging.getLogger(__name__)
-
 from .models import (
-    Report, ReportAttachment, ReportBlock,
-    TextImageBlock, ImageBlock, KpiGridBlock, KpiTile,
-    TableBlock, TableRow,
-    TopContentsBlock, TopContentItem,
-    TopCreatorsBlock, TopCreatorItem,
-    ChartBlock, ChartDataPoint,
+    Report, ReportAttachment, Section, Widget,
+    TextWidget, ImageWidget, TextImageWidget,
+    KpiGridWidget, KpiTileWidget,
+    TableWidget, TableRowWidget,
+    ChartWidget, ChartDataPointWidget,
+    TopContentsWidget, TopContentItemWidget,
+    TopCreatorsWidget, TopCreatorItemWidget,
     BrandFollowerSnapshot,
 )
 
+logger = logging.getLogger(__name__)
 
-# -------- Child row inlines --------
-#
-# Los inlines que exponen un campo de orden usable (KpiTile / ChartDataPoint /
-# TopContent) usan SortableTabularInline de adminsortable2 para habilitar
-# drag-reorder en el admin. Los modelos tienen Meta.ordering que empieza con
-# el FK al parent (para scopar el orden por parent), así que el inline
-# explicita su propio `ordering` en el campo de orden real.
 
+# ---------- Child item / row inlines ----------
 
 class KpiTileInline(SortableTabularInline):
-    model = KpiTile
+    model = KpiTileWidget
     extra = 0
-    fields = ("order", "label", "value", "period_comparison")
+    fields = ("order", "label", "value", "unit", "period_comparison", "period_comparison_label")
+    ordering = ("order",)
+
+
+class TableRowInline(SortableTabularInline):
+    model = TableRowWidget
+    extra = 0
+    fields = ("order", "is_header", "cells")
     ordering = ("order",)
 
 
 class ChartDataPointInline(SortableTabularInline):
-    model = ChartDataPoint
+    model = ChartDataPointWidget
     extra = 0
     fields = ("order", "label", "value")
     ordering = ("order",)
 
 
 class TopContentItemInline(SortableTabularInline):
-    """Cajitas de 'Top contenidos' — posts/contenidos destacados (DEV-129)."""
-    model = TopContentItem
+    model = TopContentItemWidget
     extra = 0
     fields = (
         "order", "thumbnail", "caption", "source_type", "post_url",
@@ -74,8 +68,7 @@ class TopContentItemInline(SortableTabularInline):
 
 
 class TopCreatorItemInline(SortableTabularInline):
-    """Cajitas de 'Top creadores' — retratos con @handle (DEV-129)."""
-    model = TopCreatorItem
+    model = TopCreatorItemWidget
     extra = 0
     fields = (
         "order", "thumbnail", "handle", "post_url",
@@ -84,16 +77,7 @@ class TopCreatorItemInline(SortableTabularInline):
     ordering = ("order",)
 
 
-class TableRowInline(SortableTabularInline):
-    """Filas de TableBlock — texto plano por celda. Soporta drag-reorder."""
-    model = TableRow
-    extra = 0
-    fields = ("order", "is_header", "cells")
-    ordering = ("order",)
-
-
 class ReportAttachmentInline(SortableTabularInline):
-    """Descargas asociadas al reporte (PDF oficial, exports, anexos)."""
     model = ReportAttachment
     extra = 0
     fields = ("order", "title", "file", "kind", "mime_type", "size_bytes")
@@ -101,50 +85,73 @@ class ReportAttachmentInline(SortableTabularInline):
     ordering = ("order",)
 
 
-# -------- Polymorphic inline for ReportBlock inside ReportAdmin --------
+# ---------- Polymorphic Widget inline (montado dentro de SectionAdmin) ----------
 
-class ReportBlockInline(StackedPolymorphicInline):
-    """Stacked polymorphic inline: un solo inline muestra los blocks de todos
-    los subtipos en la página de cada Report. El dropdown "Add another" deja
-    elegir de qué subtipo crear el nuevo block."""
+class WidgetInline(StackedPolymorphicInline):
+    """Stacked polymorphic inline: el dropdown 'Add another' deja crear cualquier widget."""
 
-    class TextImageBlockInline(StackedPolymorphicInline.Child):
-        model = TextImageBlock
+    class TextWidgetInline(StackedPolymorphicInline.Child):
+        model = TextWidget
 
-    class ImageBlockInline(StackedPolymorphicInline.Child):
-        model = ImageBlock
+    class ImageWidgetInline(StackedPolymorphicInline.Child):
+        model = ImageWidget
 
-    class KpiGridBlockInline(StackedPolymorphicInline.Child):
-        model = KpiGridBlock
+    class TextImageWidgetInline(StackedPolymorphicInline.Child):
+        model = TextImageWidget
 
-    class TableBlockInline(StackedPolymorphicInline.Child):
-        model = TableBlock
+    class KpiGridWidgetInline(StackedPolymorphicInline.Child):
+        model = KpiGridWidget
 
-    class TopContentsBlockInline(StackedPolymorphicInline.Child):
-        model = TopContentsBlock
+    class TableWidgetInline(StackedPolymorphicInline.Child):
+        model = TableWidget
 
-    class TopCreatorsBlockInline(StackedPolymorphicInline.Child):
-        model = TopCreatorsBlock
+    class ChartWidgetInline(StackedPolymorphicInline.Child):
+        model = ChartWidget
 
-    class ChartBlockInline(StackedPolymorphicInline.Child):
-        model = ChartBlock
+    class TopContentsWidgetInline(StackedPolymorphicInline.Child):
+        model = TopContentsWidget
 
-    model = ReportBlock
+    class TopCreatorsWidgetInline(StackedPolymorphicInline.Child):
+        model = TopCreatorsWidget
+
+    model = Widget
     child_inlines = (
-        TextImageBlockInline,
-        ImageBlockInline,
-        KpiGridBlockInline,
-        TableBlockInline,
-        TopContentsBlockInline,
-        TopCreatorsBlockInline,
-        ChartBlockInline,
+        TextWidgetInline,
+        ImageWidgetInline,
+        TextImageWidgetInline,
+        KpiGridWidgetInline,
+        TableWidgetInline,
+        ChartWidgetInline,
+        TopContentsWidgetInline,
+        TopCreatorsWidgetInline,
     )
 
 
-# -------- ReportAdmin --------
+# ---------- SectionAdmin ----------
+
+@admin.register(Section)
+class SectionAdmin(SortableAdminBase, PolymorphicInlineSupportMixin, admin.ModelAdmin):
+    list_display = ("report", "order", "title", "layout")
+    list_filter = ("layout",)
+    search_fields = ("title", "report__title")
+    inlines = [WidgetInline]
+    fields = ("report", "order", "title", "layout", "instructions")
+
+
+# ---------- Section inline para ReportAdmin ----------
+
+class SectionInline(SortableTabularInline):
+    model = Section
+    extra = 0
+    fields = ("order", "title", "layout")
+    ordering = ("order",)
+    show_change_link = True
+
+
+# ---------- ReportAdmin ----------
 
 @admin.register(Report)
-class ReportAdmin(SortableAdminBase, PolymorphicInlineSupportMixin, admin.ModelAdmin):
+class ReportAdmin(SortableAdminBase, admin.ModelAdmin):
     list_display = (
         "display_title", "client_col", "brand_col", "campaign_col", "stage",
         "kind", "period_start", "period_end", "status", "published_at",
@@ -173,7 +180,8 @@ class ReportAdmin(SortableAdminBase, PolymorphicInlineSupportMixin, admin.ModelA
     @admin.display(description="Campaña", ordering="stage__campaign__name")
     def campaign_col(self, obj):
         return obj.stage.campaign.name
-    inlines = [ReportAttachmentInline, ReportBlockInline]
+
+    inlines = [ReportAttachmentInline, SectionInline]
     fieldsets = (
         (None, {
             "fields": (
@@ -193,9 +201,7 @@ class ReportAdmin(SortableAdminBase, PolymorphicInlineSupportMixin, admin.ModelA
         )
         self.message_user(request, f"{updated} reporte(s) publicado(s).")
 
-    # ------------------------------------------------------------------
-    # DEV-83 · Importer/Exporter xlsx
-    # ------------------------------------------------------------------
+    # ---- Importer / Exporter custom URLs ----
     def get_urls(self):
         urls = super().get_urls()
         custom = [
@@ -228,7 +234,6 @@ class ReportAdmin(SortableAdminBase, PolymorphicInlineSupportMixin, admin.ModelA
         return custom + urls
 
     def import_cascade_view(self, request, level: str):
-        """JSON feed para los selects cascading del form (Cliente → Etapa)."""
         if not request.user.has_perm("reports.add_report"):
             return JsonResponse({"results": []}, status=403)
         parent = request.GET.get("parent")
@@ -301,7 +306,7 @@ class ReportAdmin(SortableAdminBase, PolymorphicInlineSupportMixin, admin.ModelA
                     messages.success(
                         request,
                         f"Reporte importado como DRAFT (id={report.pk}, "
-                        f"{report.blocks.count()} blocks).",
+                        f"{report.sections.count()} sections).",
                     )
                     return redirect(reverse(
                         "admin:reports_report_change", args=[report.pk],
@@ -361,83 +366,74 @@ class ReportAdmin(SortableAdminBase, PolymorphicInlineSupportMixin, admin.ModelA
         })
 
 
-# -------- Polymorphic parent/child admins for standalone ReportBlock --------
+# ---------- Standalone polymorphic Widget admin (debug/búsqueda) ----------
 
-@admin.register(ReportBlock)
-class ReportBlockAdmin(PolymorphicParentModelAdmin):
-    """Vista standalone de todos los blocks, polimórfica."""
-    base_model = ReportBlock
+@admin.register(Widget)
+class WidgetParentAdmin(PolymorphicParentModelAdmin):
+    base_model = Widget
     child_models = (
-        TextImageBlock, ImageBlock, KpiGridBlock, TableBlock,
-        TopContentsBlock, TopCreatorsBlock, ChartBlock,
+        TextWidget, ImageWidget, TextImageWidget,
+        KpiGridWidget, TableWidget, ChartWidget,
+        TopContentsWidget, TopCreatorsWidget,
     )
-    list_display = ("report", "order", "polymorphic_ctype")
+    list_display = ("section", "order", "title", "polymorphic_ctype")
     list_filter = ("polymorphic_ctype",)
-    search_fields = ("report__title",)
+    search_fields = ("title", "section__title", "section__report__title")
 
 
-class _BlockChildAdminBase(SortableAdminBase, PolymorphicChildModelAdmin):
-    """Base común para los subtipos de ReportBlock. Cada uno puede sobrescribir
-    `inlines` para agregar sus child rows.
-
-    Hereda `SortableAdminBase` para que los child admins que hostean
-    SortableTabularInline (KpiGrid / Chart / TopContent / Table) emitan el
-    CSS/JS de adminsortable2 y habiliten drag-reorder en el UI. Subtipos
-    que no usan sortable inlines (TextImage, ImageBlock) lo heredan
-    inofensivamente — el mixin es no-op si no hay sortable inlines.
-    """
-    base_model = ReportBlock
-    # Los fields se derivan automáticamente del modelo subtipo.
-    # Se podría explicitar cada uno con `base_fieldsets`, pero Django introspection
-    # produce un form razonable por default.
+class _WidgetChildAdminBase(SortableAdminBase, PolymorphicChildModelAdmin):
+    base_model = Widget
 
 
-@admin.register(TextImageBlock)
-class TextImageBlockAdmin(_BlockChildAdminBase):
-    list_display = ("report", "order", "title")
-    search_fields = ("title", "body")
+@admin.register(TextWidget)
+class TextWidgetAdmin(_WidgetChildAdminBase):
+    list_display = ("section", "order", "title")
 
 
-@admin.register(ImageBlock)
-class ImageBlockAdmin(_BlockChildAdminBase):
-    list_display = ("report", "order", "title")
-    search_fields = ("title", "caption")
+@admin.register(ImageWidget)
+class ImageWidgetAdmin(_WidgetChildAdminBase):
+    list_display = ("section", "order", "title")
 
 
-@admin.register(KpiGridBlock)
-class KpiGridBlockAdmin(_BlockChildAdminBase):
+@admin.register(TextImageWidget)
+class TextImageWidgetAdmin(_WidgetChildAdminBase):
+    list_display = ("section", "order", "title")
+
+
+@admin.register(KpiGridWidget)
+class KpiGridWidgetAdmin(_WidgetChildAdminBase):
     inlines = [KpiTileInline]
-    list_display = ("report", "order", "title")
+    list_display = ("section", "order", "title")
 
 
-@admin.register(TableBlock)
-class TableBlockAdmin(_BlockChildAdminBase):
+@admin.register(TableWidget)
+class TableWidgetAdmin(_WidgetChildAdminBase):
     inlines = [TableRowInline]
-    list_display = ("report", "order", "title", "show_total")
+    list_display = ("section", "order", "title", "show_total")
 
 
-@admin.register(TopContentsBlock)
-class TopContentsBlockAdmin(_BlockChildAdminBase):
-    inlines = [TopContentItemInline]
-    list_display = ("report", "order", "title", "network", "limit")
-    list_filter = ("network",)
-
-
-@admin.register(TopCreatorsBlock)
-class TopCreatorsBlockAdmin(_BlockChildAdminBase):
-    inlines = [TopCreatorItemInline]
-    list_display = ("report", "order", "title", "network", "limit")
-    list_filter = ("network",)
-
-
-@admin.register(ChartBlock)
-class ChartBlockAdmin(_BlockChildAdminBase):
+@admin.register(ChartWidget)
+class ChartWidgetAdmin(_WidgetChildAdminBase):
     inlines = [ChartDataPointInline]
-    list_display = ("report", "order", "title", "network", "chart_type")
+    list_display = ("section", "order", "title", "network", "chart_type")
     list_filter = ("network", "chart_type")
 
 
-# -------- Standalone admins for debugging --------
+@admin.register(TopContentsWidget)
+class TopContentsWidgetAdmin(_WidgetChildAdminBase):
+    inlines = [TopContentItemInline]
+    list_display = ("section", "order", "title", "network")
+    list_filter = ("network",)
+
+
+@admin.register(TopCreatorsWidget)
+class TopCreatorsWidgetAdmin(_WidgetChildAdminBase):
+    inlines = [TopCreatorItemInline]
+    list_display = ("section", "order", "title", "network")
+    list_filter = ("network",)
+
+
+# ---------- Standalone admins for debugging ----------
 
 @admin.register(BrandFollowerSnapshot)
 class BrandFollowerSnapshotAdmin(admin.ModelAdmin):

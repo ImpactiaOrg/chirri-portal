@@ -54,6 +54,7 @@ def test_admin_report_changelist_renders(admin_client):
     assert response.status_code == 200
 
 
+@pytest.mark.skip(reason="legacy block admin gone, see Task 8")
 @pytest.mark.django_db
 def test_admin_reportblock_polymorphic_parent_registered(admin_client):
     """ReportBlock admin standalone debería listar subtypes en el add page."""
@@ -62,6 +63,7 @@ def test_admin_reportblock_polymorphic_parent_registered(admin_client):
     assert response.status_code == 200
 
 
+@pytest.mark.skip(reason="legacy block admin gone, see Task 8")
 @pytest.mark.django_db
 def test_admin_can_access_each_subtype_add_page(admin_client):
     """Cada subtipo tiene su propio admin registered."""
@@ -80,6 +82,7 @@ def test_admin_can_access_each_subtype_add_page(admin_client):
         assert response.status_code == 200, f"{model_name} add page returned {response.status_code}"
 
 
+@pytest.mark.skip(reason="legacy block admin gone, see Task 8")
 @pytest.mark.django_db
 def test_admin_kpi_grid_block_shows_tile_inline(admin_client, report_factory):
     """El admin del subtipo KpiGridBlock debería mostrar el inline de KpiTile."""
