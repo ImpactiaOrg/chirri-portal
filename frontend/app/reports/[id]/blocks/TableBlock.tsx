@@ -13,7 +13,9 @@ function classify(cell: string): CellKind {
 }
 
 function parseNumber(cell: string): number | null {
-  const n = Number(cell.trim().replace(",", "."));
+  const trimmed = cell.trim();
+  if (!trimmed) return null;
+  const n = Number(trimmed.replaceAll(",", "."));
   return Number.isFinite(n) ? n : null;
 }
 
@@ -25,7 +27,7 @@ function formatNumber(cell: string): string {
 }
 
 function formatPercent(cell: string): { text: string; positive: boolean } {
-  const stripped = cell.trim().replace("%", "").replace(",", ".");
+  const stripped = cell.trim().replace("%", "").replaceAll(",", ".");
   const n = Number(stripped);
   const positive = n >= 0;
   const sign = positive ? "+" : "";
