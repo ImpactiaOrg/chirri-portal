@@ -45,7 +45,7 @@ def import_bytes(
         "report_import_success",
         extra={
             "stage_id": stage_id, "filename": filename,
-            "report_id": report.pk, "blocks": report.blocks.count(),
+            "report_id": report.pk, "sections": report.sections.count(),
         },
     )
     return report, []

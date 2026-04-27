@@ -1,4 +1,4 @@
-"""Parser xlsx → ParsedReport + builder → Report (DEV-83 · Etapa 2).
+"""Parser xlsx → ParsedReport + builder → Report (post sections-widgets-redesign).
 
 Incluye un roundtrip pesado (writer → exporter → parser → builder)
 que garantiza que las 4 piezas (template, export, parse, build) se
@@ -17,19 +17,21 @@ from apps.reports.importers.excel_exporter import export
 from apps.reports.importers.excel_parser import parse
 from apps.reports.importers.excel_writer import build_template, to_bytes
 from apps.reports.models import (
-    ChartBlock,
-    ChartDataPoint,
-    ImageBlock,
-    KpiGridBlock,
-    KpiTile,
+    ChartDataPointWidget,
+    ChartWidget,
+    ImageWidget,
+    KpiGridWidget,
+    KpiTileWidget,
     Report,
-    TableBlock,
-    TableRow,
-    TextImageBlock,
-    TopContentItem,
-    TopContentsBlock,
-    TopCreatorItem,
-    TopCreatorsBlock,
+    Section,
+    TableRowWidget,
+    TableWidget,
+    TextImageWidget,
+    TextWidget,
+    TopContentItemWidget,
+    TopContentsWidget,
+    TopCreatorItemWidget,
+    TopCreatorsWidget,
 )
 from apps.reports.tests.factories import make_stage
 
@@ -49,12 +51,12 @@ def test_parse_empty_template_returns_errors_for_missing_required():
 
 def test_parse_missing_sheet_fatal():
     wb = load_workbook(build_template())
-    wb.remove(wb["Kpis"])
+    wb.remove(wb["KpiGrids"])
     buf = BytesIO()
     wb.save(buf)
     parsed, errors = parse(buf.getvalue())
     assert parsed is None
-    assert any(e.sheet == "Kpis" and e.reason == "hoja faltante" for e in errors)
+    assert any(e.sheet == "KpiGrids" and e.reason == "hoja faltante" for e in errors)
 
 
 def test_parse_corrupt_xlsx():
@@ -77,48 +79,73 @@ def test_parse_invalid_kind_enum():
     assert any(e.column == "tipo" and "'Trimestral' inválido" in e.reason for e in errors)
 
 
-def test_parse_nombre_duplicated_across_sheets():
-    """Un mismo nombre en dos hojas distintas → error de uniqueness cross-sheet."""
+def test_parse_section_nombre_duplicated():
+    """Mismo nombre de section dos veces → error."""
     wb = load_workbook(build_template())
     _fill_scalars(wb[s.SHEET_REPORTE])
+    ws_sec = wb[s.SHEET_SECTIONS]
+    ws_sec.cell(row=2, column=1, value="seccion")
+    ws_sec.cell(row=2, column=3, value="stack")
+    ws_sec.cell(row=2, column=4, value=1)
+    ws_sec.cell(row=3, column=1, value="seccion")
+    ws_sec.cell(row=3, column=3, value="stack")
+    ws_sec.cell(row=3, column=4, value=2)
 
-    ws_ti = wb[s.SHEET_TEXTIMAGE]
-    ws_ti.cell(row=2, column=1, value="duplicado")
-    ws_ti.cell(row=2, column=2, value="Intro")
-
-    ws_img = wb[s.SHEET_IMAGENES]
-    ws_img.cell(row=2, column=1, value="duplicado")
-    ws_img.cell(row=2, column=2, value="Hero")
-    ws_img.cell(row=2, column=4, value="hero.jpg")  # imagen obligatoria
-
-    _add_layout(wb[s.SHEET_REPORTE], [(1, "duplicado")])
-
-    buf = BytesIO()
-    wb.save(buf)
-    parsed, errors = parse(buf.getvalue(), available_images={"hero.jpg"})
-    assert parsed is None
-    assert any("duplicado" in e.reason.lower() for e in errors)
-
-
-def test_parse_layout_references_unknown_nombre():
-    wb = load_workbook(build_template())
-    _fill_scalars(wb[s.SHEET_REPORTE])
-    _add_layout(wb[s.SHEET_REPORTE], [(1, "fantasma")])
     buf = BytesIO()
     wb.save(buf)
     parsed, errors = parse(buf.getvalue())
     assert parsed is None
-    assert any("'fantasma'" in e.reason for e in errors)
+    assert any("duplicado" in e.reason.lower() for e in errors)
+
+
+def test_parse_widget_references_unknown_section():
+    """Un widget apunta a section_nombre inexistente → error."""
+    wb = load_workbook(build_template())
+    _fill_scalars(wb[s.SHEET_REPORTE])
+    _add_section(wb[s.SHEET_SECTIONS], nombre="real", order=1)
+
+    ws_texts = wb[s.SHEET_TEXTS]
+    ws_texts.cell(row=2, column=1, value="fantasma")   # section_nombre
+    ws_texts.cell(row=2, column=2, value=1)             # widget_orden
+
+    buf = BytesIO()
+    wb.save(buf)
+    parsed, errors = parse(buf.getvalue())
+    assert parsed is None
+    assert any("fantasma" in e.reason for e in errors)
+
+
+def test_parse_widget_orden_duplicated_within_section():
+    """Dos widgets con el mismo (section_nombre, widget_orden) → error."""
+    wb = load_workbook(build_template())
+    _fill_scalars(wb[s.SHEET_REPORTE])
+    _add_section(wb[s.SHEET_SECTIONS], nombre="sec1", order=1)
+
+    ws_texts = wb[s.SHEET_TEXTS]
+    ws_texts.cell(row=2, column=1, value="sec1")
+    ws_texts.cell(row=2, column=2, value=1)
+    ws_texts.cell(row=2, column=4, value="body 1")
+
+    # Second widget in same sheet, same section + orden → duplicate
+    ws_texts.cell(row=3, column=1, value="sec1")
+    ws_texts.cell(row=3, column=2, value=1)
+    ws_texts.cell(row=3, column=4, value="body 2")
+
+    buf = BytesIO()
+    wb.save(buf)
+    parsed, errors = parse(buf.getvalue())
+    assert parsed is None
+    assert any("widget_orden" in e.column and "duplicado" in e.reason for e in errors)
 
 
 def test_parse_image_ref_missing_in_bundle():
     wb = load_workbook(build_template())
     _fill_scalars(wb[s.SHEET_REPORTE])
-    ws_img = wb[s.SHEET_IMAGENES]
-    ws_img.cell(row=2, column=1, value="hero")
-    ws_img.cell(row=2, column=2, value="Hero")
-    ws_img.cell(row=2, column=4, value="hero.jpg")
-    _add_layout(wb[s.SHEET_REPORTE], [(1, "hero")])
+    _add_section(wb[s.SHEET_SECTIONS], nombre="sec1", order=1)
+    ws_img = wb[s.SHEET_IMAGES]
+    ws_img.cell(row=2, column=1, value="sec1")
+    ws_img.cell(row=2, column=2, value=1)
+    ws_img.cell(row=2, column=4, value="hero.jpg")  # imagen obligatoria
     buf = BytesIO()
     wb.save(buf)
 
@@ -127,22 +154,24 @@ def test_parse_image_ref_missing_in_bundle():
     assert any("no presente en images/" in e.reason for e in errors)
 
 
-def test_parse_kpi_denormalized_consistency_violation():
+def test_parse_kpigrid_denormalized_consistency_violation():
     wb = load_workbook(build_template())
     _fill_scalars(wb[s.SHEET_REPORTE])
-    ws = wb[s.SHEET_KPIS]
-    # Dos rows con mismo nombre pero block_title distinto.
-    ws.cell(row=2, column=1, value="kpis")
-    ws.cell(row=2, column=2, value="KPIs del mes")
-    ws.cell(row=2, column=3, value=1)
-    ws.cell(row=2, column=4, value="Reach")
-    ws.cell(row=2, column=5, value=1000)
-    ws.cell(row=3, column=1, value="kpis")
-    ws.cell(row=3, column=2, value="KPIs DISTINTO")
-    ws.cell(row=3, column=3, value=2)
-    ws.cell(row=3, column=4, value="Engagement")
-    ws.cell(row=3, column=5, value=5.5)
-    _add_layout(wb[s.SHEET_REPORTE], [(1, "kpis")])
+    _add_section(wb[s.SHEET_SECTIONS], nombre="sec1", order=1)
+    ws = wb[s.SHEET_KPIGRIDS]
+    # Two rows with same (section, widget_orden) but different widget_title.
+    ws.cell(row=2, column=1, value="sec1")   # section_nombre
+    ws.cell(row=2, column=2, value=1)         # widget_orden
+    ws.cell(row=2, column=3, value="KPIs A")  # widget_title
+    ws.cell(row=2, column=4, value=1)         # tile_orden
+    ws.cell(row=2, column=5, value="Reach")   # label
+    ws.cell(row=2, column=6, value=1000)      # value
+    ws.cell(row=3, column=1, value="sec1")
+    ws.cell(row=3, column=2, value=1)
+    ws.cell(row=3, column=3, value="KPIs B")  # different title
+    ws.cell(row=3, column=4, value=2)
+    ws.cell(row=3, column=5, value="Eng")
+    ws.cell(row=3, column=6, value=5.5)
     buf = BytesIO()
     wb.save(buf)
     parsed, errors = parse(buf.getvalue())
@@ -155,7 +184,7 @@ def test_parse_kpi_denormalized_consistency_violation():
 # ---------------------------------------------------------------------------
 @pytest.fixture
 def full_report(db):
-    """Report con 1 instancia de cada block type (7 blocks), sin imágenes."""
+    """Report con 1 Section y 1 widget de cada tipo (8 total), sin imágenes."""
     stage = make_stage()
     report = Report.objects.create(
         stage=stage,
@@ -167,87 +196,70 @@ def full_report(db):
         conclusions_text="Concl",
         status=Report.Status.DRAFT,
     )
-    TextImageBlock.objects.create(
-        report=report, order=1, title="Intro", body="Body",
+    section = Section.objects.create(report=report, order=1, title="Main", layout="stack")
+
+    TextWidget.objects.create(section=section, order=1, title="Text1", body="Body")
+    TextImageWidget.objects.create(
+        section=section, order=2, title="TI", body="Body",
         image_position="left", columns=1,
     )
-    # ImageBlock requiere imagen — le adjuntamos un contenido en memoria
-    from django.core.files.base import ContentFile
-    img_block = ImageBlock(
-        report=report, order=2, title="Hero", caption="Caption",
-    )
-    img_block.image.save("hero.jpg", ContentFile(b"fake-image"), save=False)
-    img_block.save()
 
-    kpi = KpiGridBlock.objects.create(report=report, order=3, title="KPIs")
-    KpiTile.objects.create(
-        kpi_grid_block=kpi, order=1, label="Reach",
+    # ImageWidget requiere imagen — le adjuntamos un contenido en memoria
+    from django.core.files.base import ContentFile
+    img_widget = ImageWidget(section=section, order=3, title="Hero", caption="Caption")
+    img_widget.image.save("hero.jpg", ContentFile(b"fake-image"), save=False)
+    img_widget.save()
+
+    kpi = KpiGridWidget.objects.create(section=section, order=4, title="KPIs")
+    KpiTileWidget.objects.create(
+        widget=kpi, order=1, label="Reach",
         value=Decimal("1000"), period_comparison=Decimal("5.0"),
     )
 
-    tbl = TableBlock.objects.create(report=report, order=4, title="Mes")
-    TableRow.objects.create(
-        table_block=tbl, order=1, is_header=True,
-        cells=["Métrica", "Valor"],
-    )
-    TableRow.objects.create(
-        table_block=tbl, order=2,
-        cells=["reach", "500"],
-    )
+    tbl = TableWidget.objects.create(section=section, order=5, title="Mes")
+    TableRowWidget.objects.create(widget=tbl, order=1, is_header=True, cells=["Métrica", "Valor"])
+    TableRowWidget.objects.create(widget=tbl, order=2, cells=["reach", "500"])
 
-    tc = TopContentsBlock.objects.create(
-        report=report, order=5, title="Top posts",
-        network="INSTAGRAM", period_label="abril", limit=6,
+    tc = TopContentsWidget.objects.create(
+        section=section, order=6, title="Top posts",
+        network="INSTAGRAM", period_label="abril",
     )
-    TopContentItem.objects.create(
-        block=tc, order=1, caption="P1",
-        source_type="ORGANIC", views=100,
-    )
+    TopContentItemWidget.objects.create(widget=tc, order=1, caption="P1", source_type="ORGANIC", views=100)
 
-    tcr = TopCreatorsBlock.objects.create(
-        report=report, order=6, title="Creators",
-        network="INSTAGRAM", period_label="abril", limit=6,
+    tcr = TopCreatorsWidget.objects.create(
+        section=section, order=7, title="Creators",
+        network="INSTAGRAM", period_label="abril",
     )
-    TopCreatorItem.objects.create(
-        block=tcr, order=1, handle="@test", views=200,
-    )
+    TopCreatorItemWidget.objects.create(widget=tcr, order=1, handle="@test", views=200)
 
-    chart = ChartBlock.objects.create(
-        report=report, order=7, title="Followers",
+    chart = ChartWidget.objects.create(
+        section=section, order=8, title="Followers",
         network="INSTAGRAM", chart_type="bar",
     )
-    ChartDataPoint.objects.create(
-        chart_block=chart, order=1, label="Ene", value=Decimal("100"),
-    )
-    ChartDataPoint.objects.create(
-        chart_block=chart, order=2, label="Feb", value=Decimal("120"),
-    )
+    ChartDataPointWidget.objects.create(widget=chart, order=1, label="Ene", value=Decimal("100"))
+    ChartDataPointWidget.objects.create(widget=chart, order=2, label="Feb", value=Decimal("120"))
 
     return report
 
 
 def test_roundtrip_export_parse_build_reconstructs_same_shape(full_report, db):
     """writer→exporter→parser→builder produce un Report funcionalmente equivalente."""
-    # Django puede sufijar el filename ("hero.jpg" → "hero_abc.jpg") al
-    # guardar. Leemos el filename real que escribió el exporter.
-    img_filename = _image_filename(ImageBlock.objects.get(report=full_report))
+    img_filename = _image_filename(ImageWidget.objects.get(section__report=full_report))
 
     # 1. Export
     xlsx_bytes = export(full_report).getvalue()
 
     # 2. Parse
-    parsed, errors = parse(
-        xlsx_bytes, available_images={img_filename},
-    )
+    parsed, errors = parse(xlsx_bytes, available_images={img_filename})
     assert errors == [], f"Parser encontró errores: {[e.to_dict() for e in errors]}"
     assert parsed is not None
 
-    # 3. Build (reusa el stage del fixture — evita colisión de UNIQUE en Client.name)
+    # 3. Build
     fake_images = {img_filename: b"fake-image-bytes"}
     new_report = build_report(parsed, fake_images, stage_id=full_report.stage.pk)
 
     # 4. Verify shape
-    assert new_report.pk != full_report.pk  # es un report nuevo
+    assert new_report.pk != full_report.pk
     assert new_report.kind == full_report.kind
     assert new_report.period_start == full_report.period_start
     assert new_report.period_end == full_report.period_end
@@ -256,71 +268,106 @@ def test_roundtrip_export_parse_build_reconstructs_same_shape(full_report, db):
     assert new_report.conclusions_text == full_report.conclusions_text
     assert new_report.status == Report.Status.DRAFT
 
-    # Mismo número de blocks
-    assert new_report.blocks.count() == full_report.blocks.count()
+    # Same number of sections
+    assert new_report.sections.count() == full_report.sections.count()
 
-    # Un block de cada tipo
-    assert TextImageBlock.objects.filter(report=new_report).count() == 1
-    assert ImageBlock.objects.filter(report=new_report).count() == 1
-    assert KpiGridBlock.objects.filter(report=new_report).count() == 1
-    assert TableBlock.objects.filter(report=new_report).count() == 1
-    assert TopContentsBlock.objects.filter(report=new_report).count() == 1
-    assert TopCreatorsBlock.objects.filter(report=new_report).count() == 1
-    assert ChartBlock.objects.filter(report=new_report).count() == 1
+    # One widget of each type
+    new_section = new_report.sections.first()
+    assert TextWidget.objects.filter(section__report=new_report).count() == 1
+    assert TextImageWidget.objects.filter(section__report=new_report).count() == 1
+    assert ImageWidget.objects.filter(section__report=new_report).count() == 1
+    assert KpiGridWidget.objects.filter(section__report=new_report).count() == 1
+    assert TableWidget.objects.filter(section__report=new_report).count() == 1
+    assert TopContentsWidget.objects.filter(section__report=new_report).count() == 1
+    assert TopCreatorsWidget.objects.filter(section__report=new_report).count() == 1
+    assert ChartWidget.objects.filter(section__report=new_report).count() == 1
 
-    # Items anidados
-    new_kpi = KpiGridBlock.objects.get(report=new_report)
+    # Nested items
+    new_kpi = KpiGridWidget.objects.get(section__report=new_report)
     assert new_kpi.tiles.count() == 1
-    new_tbl = TableBlock.objects.get(report=new_report)
+    new_tbl = TableWidget.objects.get(section__report=new_report)
     assert new_tbl.rows.count() == 2
-    new_chart = ChartBlock.objects.get(report=new_report)
+    new_chart = ChartWidget.objects.get(section__report=new_report)
     assert new_chart.data_points.count() == 2
 
-    # Image persistida en ImageBlock
-    new_img = ImageBlock.objects.get(report=new_report)
-    assert new_img.image.name  # ImageField tiene contenido
+    # Image persisted
+    new_img = ImageWidget.objects.get(section__report=new_report)
+    assert new_img.image.name
 
 
-def test_roundtrip_preserves_block_order(full_report, db):
-    img_filename = _image_filename(ImageBlock.objects.get(report=full_report))
+def test_roundtrip_preserves_widget_order(full_report, db):
+    img_filename = _image_filename(ImageWidget.objects.get(section__report=full_report))
     xlsx_bytes = export(full_report).getvalue()
     parsed, errors = parse(xlsx_bytes, available_images={img_filename})
     assert errors == []
-    new_report = build_report(
-        parsed, {img_filename: b"data"}, stage_id=full_report.stage.pk,
-    )
+    new_report = build_report(parsed, {img_filename: b"data"}, stage_id=full_report.stage.pk)
+    section = new_report.sections.first()
     orders = list(
-        new_report.blocks.all().order_by("order").values_list("order", flat=True)
+        section.widgets.all().order_by("order").values_list("order", flat=True)
     )
-    assert orders == [1, 2, 3, 4, 5, 6, 7]
+    assert orders == [1, 2, 3, 4, 5, 6, 7, 8]
 
 
 def test_builder_rolls_back_on_failure(db, full_report, monkeypatch):
     """Si el builder falla a mitad de transacción, ningún Report nuevo queda en DB."""
-    img_filename = _image_filename(ImageBlock.objects.get(report=full_report))
+    img_filename = _image_filename(ImageWidget.objects.get(section__report=full_report))
     xlsx_bytes = export(full_report).getvalue()
     parsed, errors = parse(xlsx_bytes, available_images={img_filename})
     assert errors == []
     pre_count = Report.objects.count()
 
-    # Forzar un fallo a mitad de la transacción: interceptar el builder
-    # del ChartBlock (que corre después de que ya se crearon varios blocks).
     from apps.reports.importers import builder as b
 
     def boom(*args, **kwargs):
         raise RuntimeError("explotó a mitad del build")
 
-    monkeypatch.setitem(b._BUILDERS, "ChartBlock", boom)
+    monkeypatch.setitem(b._BUILDERS, "ChartWidget", boom)
 
     with pytest.raises(RuntimeError, match="explotó"):
         build_report(parsed, {img_filename: b"x"}, stage_id=full_report.stage.pk)
 
-    # Ningún report nuevo quedó persistido (rollback total)
     assert Report.objects.count() == pre_count
 
 
-def _image_filename(img_block) -> str:
-    return img_block.image.name.rsplit("/", 1)[-1]
+# ---------------------------------------------------------------------------
+# Roundtrip: Section + Widget (from task spec)
+# ---------------------------------------------------------------------------
+@pytest.mark.django_db
+def test_section_widget_roundtrip_export_then_parse():
+    """Export a report with sections + widgets, parse the bytes back, verify structure survives."""
+    from apps.reports.importers.excel_exporter import export
+    from apps.reports.importers.excel_parser import parse
+    from apps.reports.tests.factories import make_report
+
+    report = make_report()
+    s_obj = Section.objects.create(report=report, order=1, title="Análisis", layout=Section.Layout.STACK)
+    TextWidget.objects.create(section=s_obj, order=1, title="", body="Marzo arrancó con...")
+    tw = TableWidget.objects.create(section=s_obj, order=2, title="IG", show_total=True)
+    TableRowWidget.objects.create(widget=tw, order=1, is_header=True, cells=["Métrica", "Valor", "Δ"])
+    TableRowWidget.objects.create(widget=tw, order=2, cells=["ORGANIC · reach", "312000", "+9.9%"])
+
+    xlsx_bytes = export(report).getvalue()
+    parsed, errors = parse(xlsx_bytes)
+    assert errors == []
+    assert parsed is not None
+
+    secs = parsed.sections
+    assert len(secs) == 1
+    assert secs[0].title == "Análisis"
+    assert secs[0].layout == "stack"
+
+    widgets = parsed.widgets_by_section[secs[0].nombre]
+    assert len(widgets) == 2
+    assert widgets[0].type_name == "TextWidget"
+    assert widgets[0].fields["body"] == "Marzo arrancó con..."
+    assert widgets[1].type_name == "TableWidget"
+    assert widgets[1].widget_title == "IG"
+    assert widgets[1].fields["widget_show_total"] is True
+    assert len(widgets[1].items) == 2
+
+
+def _image_filename(img_widget) -> str:
+    return img_widget.image.name.rsplit("/", 1)[-1]
 
 
 # ---------------------------------------------------------------------------
@@ -331,10 +378,10 @@ def _fill_minimal_xlsx(
     fecha_inicio: str = "01/04/2026",
     fecha_fin: str = "30/04/2026",
 ) -> bytes:
-    """Generates a template with minimal valid scalars + 1 TextImageBlock in Layout."""
+    """Generates a template with minimal valid scalars. No sections needed for parse errors."""
     wb = load_workbook(build_template())
     ws = wb[s.SHEET_REPORTE]
-    # Filas KV: tipo=2, fecha_inicio=3, fecha_fin=4.
+    # KV rows: tipo=2, fecha_inicio=3, fecha_fin=4.
     ws.cell(row=2, column=2, value=tipo)
     ws.cell(row=3, column=2, value=fecha_inicio)
     ws.cell(row=4, column=2, value=fecha_fin)
@@ -349,51 +396,12 @@ def _fill_scalars(ws) -> None:
     ws.cell(row=4, column=2, value="30/04/2026")
 
 
-def _add_layout(ws, rows: list[tuple[int, str]]) -> None:
-    """Encuentra el header `orden` en la hoja Reporte y escribe las rows debajo."""
-    header_row = None
-    for r in range(1, ws.max_row + 1):
-        if ws.cell(row=r, column=1).value == "orden":
-            header_row = r
-            break
-    assert header_row is not None, "No encontré el header 'orden' en Reporte"
-    for i, (orden, nombre) in enumerate(rows, start=1):
-        ws.cell(row=header_row + i, column=1, value=orden)
-        ws.cell(row=header_row + i, column=2, value=nombre)
-
-
-# ---------------------------------------------------------------------------
-# TableBlock roundtrip
-# ---------------------------------------------------------------------------
-@pytest.mark.django_db
-def test_table_block_roundtrip_export_then_parse():
-    """Exportar un report con TableBlock y volverlo a parsear devuelve la misma estructura."""
-    from apps.reports.importers.excel_exporter import export
-    from apps.reports.importers.excel_parser import parse
-    from apps.reports.tests.factories import make_report
-
-    report = make_report()
-    block = TableBlock.objects.create(
-        report=report, order=1, title="IG", show_total=True,
-    )
-    TableRow.objects.bulk_create([
-        TableRow(table_block=block, order=1, is_header=True,
-                 cells=["Métrica", "Valor", "Δ"]),
-        TableRow(table_block=block, order=2,
-                 cells=["ORGANIC · reach", "312000", "+9.9%"]),
-    ])
-
-    xlsx_bytes = export(report).getvalue()
-    parsed, errors = parse(xlsx_bytes)
-    assert errors == []
-    assert parsed is not None
-
-    table_blocks = [b for b in parsed.blocks.values() if b.type_name == "TableBlock"]
-    assert len(table_blocks) == 1
-    pb = table_blocks[0]
-    assert pb.fields["block_title"] == "IG"
-    assert pb.fields["block_show_total"] is True
-    assert len(pb.items) == 2
-    assert pb.items[0]["is_header"] is True
-    assert pb.items[0]["cells"] == ["Métrica", "Valor", "Δ"]
-    assert pb.items[1]["cells"] == ["ORGANIC · reach", "312000", "+9.9%"]
+def _add_section(ws, nombre: str, order: int, layout: str = "stack") -> None:
+    """Write a section row to the Sections sheet."""
+    # Find first blank row after header
+    row = 2
+    while ws.cell(row=row, column=1).value is not None:
+        row += 1
+    ws.cell(row=row, column=1, value=nombre)
+    ws.cell(row=row, column=3, value=layout)
+    ws.cell(row=row, column=4, value=order)

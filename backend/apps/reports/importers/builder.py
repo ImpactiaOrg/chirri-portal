@@ -1,39 +1,34 @@
-"""Builder: ParsedReport + image_bytes → Report persistido (DEV-83 · Etapa 2).
-
-Corre en `transaction.atomic()`. Si cualquier cosa falla, rollback total
-y las imágenes no quedan persistidas. Los ImageField se llenan con
-`ContentFile` dentro de la transacción — Django los persiste al llamar
-`block.save()`.
-"""
+"""Builder: ParsedReport → Report+Section+Widgets persistidos."""
 from __future__ import annotations
+
+from decimal import Decimal, InvalidOperation
 
 from django.core.files.base import ContentFile
 from django.db import transaction
 
 from apps.reports.models import (
-    ChartBlock,
-    ChartDataPoint,
-    ImageBlock,
-    KpiGridBlock,
-    KpiTile,
+    ChartDataPointWidget,
+    ChartWidget,
+    ImageWidget,
+    KpiGridWidget,
+    KpiTileWidget,
     Report,
-    TableBlock,
-    TableRow,
-    TextImageBlock,
-    TopContentItem,
-    TopContentsBlock,
-    TopCreatorItem,
-    TopCreatorsBlock,
+    Section,
+    TableRowWidget,
+    TableWidget,
+    TextImageWidget,
+    TextWidget,
+    TopContentItemWidget,
+    TopContentsWidget,
+    TopCreatorItemWidget,
+    TopCreatorsWidget,
 )
 
-from .parsed import ParsedBlock, ParsedReport
+from .parsed import ParsedReport, ParsedWidget
 
 
 @transaction.atomic
-def build_report(
-    parsed: ParsedReport, image_bytes: dict[str, bytes], *, stage_id: int,
-) -> Report:
-    """Crea Report + blocks + items + persiste imágenes. Raises si algo falla."""
+def build_report(parsed: ParsedReport, image_bytes: dict[str, bytes], *, stage_id: int) -> Report:
     report = Report.objects.create(
         stage_id=stage_id,
         kind=parsed.kind,
@@ -45,169 +40,184 @@ def build_report(
         status=Report.Status.DRAFT,
     )
 
-    for order, nombre in parsed.layout:
-        pb = parsed.blocks[nombre]
-        _BUILDERS[pb.type_name](report, order, pb, image_bytes)
+    for ps in parsed.sections:
+        section = Section.objects.create(
+            report=report,
+            order=ps.order,
+            title=ps.title,
+            layout=ps.layout,
+            instructions=ps.instructions,
+        )
+        widgets = parsed.widgets_by_section.get(ps.nombre, [])
+        for w in sorted(widgets, key=lambda x: x.widget_orden):
+            _BUILDERS[w.type_name](section, w, image_bytes)
 
     return report
 
 
-# ---------------------------------------------------------------------------
-# Per-type builders
-# ---------------------------------------------------------------------------
-def _build_textimage(report, order, pb: ParsedBlock, images):
-    block = TextImageBlock(
-        report=report, order=order,
-        title=pb.fields["title"],
-        body=pb.fields["body"],
-        image_alt=pb.fields["image_alt"],
-        image_position=pb.fields["image_position"],
-        columns=pb.fields["columns"],
+def _build_text(section, w, images):
+    TextWidget.objects.create(
+        section=section, order=w.widget_orden,
+        title=w.widget_title,
+        body=w.fields.get("body", ""),
     )
-    _attach_image(block, "image", pb.fields.get("imagen"), images)
-    block.save()
 
 
-def _build_imagen(report, order, pb: ParsedBlock, images):
-    block = ImageBlock(
-        report=report, order=order,
-        title=pb.fields["title"],
-        caption=pb.fields["caption"],
-        image_alt=pb.fields["image_alt"],
+def _build_image(section, w, images):
+    iw = ImageWidget(
+        section=section, order=w.widget_orden,
+        title=w.widget_title,
+        image_alt=w.fields.get("image_alt", ""),
+        caption=w.fields.get("caption", ""),
     )
-    _attach_image(block, "image", pb.fields["imagen"], images)
-    block.save()
+    _attach_image(iw, "image", w.fields.get("imagen"), images)
+    iw.save()
 
 
-def _build_kpis(report, order, pb: ParsedBlock, images):
-    block = KpiGridBlock.objects.create(
-        report=report, order=order, title=pb.fields["block_title"],
+def _build_textimage(section, w, images):
+    iw = TextImageWidget(
+        section=section, order=w.widget_orden,
+        title=w.widget_title,
+        body=w.fields.get("body", ""),
+        image_alt=w.fields.get("image_alt", ""),
+        image_position=w.fields.get("image_position", "top"),
+        columns=int(w.fields.get("columns") or 1),
     )
-    KpiTile.objects.bulk_create([
-        KpiTile(
-            kpi_grid_block=block,
-            order=item.get("item_orden") or (idx + 1),
-            label=item["label"],
-            value=item["value"],
-            period_comparison=item.get("period_comparison"),
+    _attach_image(iw, "image", w.fields.get("imagen"), images)
+    iw.save()
+
+
+def _build_kpigrid(section, w, images):
+    kw = KpiGridWidget.objects.create(
+        section=section, order=w.widget_orden, title=w.widget_title,
+    )
+    KpiTileWidget.objects.bulk_create([
+        KpiTileWidget(
+            widget=kw,
+            order=item.get("tile_orden") or (idx + 1),
+            label=str(item.get("label", "")),
+            value=_dec(item.get("value"), Decimal("0")),
+            unit=str(item.get("unit") or ""),
+            period_comparison=_dec(item.get("period_comparison"), None),
+            period_comparison_label=str(item.get("period_comparison_label") or ""),
         )
-        for idx, item in enumerate(pb.items)
+        for idx, item in enumerate(w.items)
     ])
 
 
-def _build_tables(report, order, pb: ParsedBlock, images):
-    block = TableBlock.objects.create(
-        report=report, order=order,
-        title=pb.fields["block_title"],
-        show_total=pb.fields.get("block_show_total", False),
+def _build_table(section, w, images):
+    tw = TableWidget.objects.create(
+        section=section, order=w.widget_orden, title=w.widget_title,
+        show_total=bool(w.fields.get("widget_show_total")),
     )
-    TableRow.objects.bulk_create([
-        TableRow(
-            table_block=block,
-            order=item["row_orden"],
+    for idx, item in enumerate(w.items):
+        TableRowWidget.objects.create(
+            widget=tw,
+            order=item.get("row_orden") or (idx + 1),
             is_header=item.get("is_header", False),
-            cells=item["cells"],
+            cells=item.get("cells", []),
         )
-        for item in pb.items
-    ])
 
 
-def _build_topcontents(report, order, pb: ParsedBlock, images):
-    block = TopContentsBlock.objects.create(
-        report=report, order=order,
-        title=pb.fields["block_title"],
-        network=pb.fields.get("block_network"),
-        period_label=pb.fields.get("block_period_label", ""),
-        limit=_coerce_int_or_default(pb.fields.get("block_limit"), 6),
+def _build_chart(section, w, images):
+    cw = ChartWidget.objects.create(
+        section=section, order=w.widget_orden, title=w.widget_title,
+        network=w.fields.get("widget_network"),
+        chart_type=w.fields.get("chart_type", "bar"),
     )
-    for idx, item in enumerate(pb.items):
-        child = TopContentItem(
-            block=block,
-            order=item.get("item_orden") or (idx + 1),
-            caption=item.get("caption") or "",
-            post_url=item.get("post_url") or "",
-            source_type=item.get("source_type") or "ORGANIC",
-            views=item.get("views"),
-            likes=item.get("likes"),
-            comments=item.get("comments"),
-            shares=item.get("shares"),
-            saves=item.get("saves"),
-        )
-        _attach_image(child, "thumbnail", item.get("imagen"), images)
-        child.save()
-
-
-def _build_topcreators(report, order, pb: ParsedBlock, images):
-    block = TopCreatorsBlock.objects.create(
-        report=report, order=order,
-        title=pb.fields["block_title"],
-        network=pb.fields.get("block_network"),
-        period_label=pb.fields.get("block_period_label", ""),
-        limit=_coerce_int_or_default(pb.fields.get("block_limit"), 6),
-    )
-    for idx, item in enumerate(pb.items):
-        child = TopCreatorItem(
-            block=block,
-            order=item.get("item_orden") or (idx + 1),
-            handle=item["handle"],
-            post_url=item.get("post_url") or "",
-            views=item.get("views"),
-            likes=item.get("likes"),
-            comments=item.get("comments"),
-            shares=item.get("shares"),
-        )
-        _attach_image(child, "thumbnail", item.get("imagen"), images)
-        child.save()
-
-
-def _build_chart(report, order, pb: ParsedBlock, images):
-    block = ChartBlock.objects.create(
-        report=report, order=order,
-        title=pb.fields["block_title"],
-        network=pb.fields.get("block_network"),
-        chart_type=pb.fields["chart_type"],
-    )
-    ChartDataPoint.objects.bulk_create([
-        ChartDataPoint(
-            chart_block=block,
+    ChartDataPointWidget.objects.bulk_create([
+        ChartDataPointWidget(
+            widget=cw,
             order=item.get("point_orden") or (idx + 1),
-            label=item["point_label"],
-            value=item["point_value"],
+            label=str(item.get("point_label", "")),
+            value=_dec(item.get("point_value"), Decimal("0")),
         )
-        for idx, item in enumerate(pb.items)
+        for idx, item in enumerate(w.items)
     ])
+
+
+def _build_topcontents(section, w, images):
+    tcw = TopContentsWidget.objects.create(
+        section=section, order=w.widget_orden, title=w.widget_title,
+        network=w.fields.get("widget_network"),
+        period_label=w.fields.get("widget_period_label", ""),
+    )
+    for idx, item in enumerate(w.items):
+        child = TopContentItemWidget(
+            widget=tcw,
+            order=item.get("item_orden") or (idx + 1),
+            caption=str(item.get("caption") or ""),
+            post_url=str(item.get("post_url") or ""),
+            source_type=str(item.get("source_type") or "ORGANIC"),
+            views=_int_or_none(item.get("views")),
+            likes=_int_or_none(item.get("likes")),
+            comments=_int_or_none(item.get("comments")),
+            shares=_int_or_none(item.get("shares")),
+            saves=_int_or_none(item.get("saves")),
+        )
+        _attach_image(child, "thumbnail", item.get("imagen"), images)
+        child.save()
+
+
+def _build_topcreators(section, w, images):
+    tcw = TopCreatorsWidget.objects.create(
+        section=section, order=w.widget_orden, title=w.widget_title,
+        network=w.fields.get("widget_network"),
+        period_label=w.fields.get("widget_period_label", ""),
+    )
+    for idx, item in enumerate(w.items):
+        child = TopCreatorItemWidget(
+            widget=tcw,
+            order=item.get("item_orden") or (idx + 1),
+            handle=str(item.get("handle", "")),
+            post_url=str(item.get("post_url") or ""),
+            views=_int_or_none(item.get("views")),
+            likes=_int_or_none(item.get("likes")),
+            comments=_int_or_none(item.get("comments")),
+            shares=_int_or_none(item.get("shares")),
+        )
+        _attach_image(child, "thumbnail", item.get("imagen"), images)
+        child.save()
 
 
 _BUILDERS = {
-    "TextImageBlock": _build_textimage,
-    "ImageBlock": _build_imagen,
-    "KpiGridBlock": _build_kpis,
-    "TableBlock": _build_tables,
-    "TopContentsBlock": _build_topcontents,
-    "TopCreatorsBlock": _build_topcreators,
-    "ChartBlock": _build_chart,
+    "TextWidget": _build_text,
+    "ImageWidget": _build_image,
+    "TextImageWidget": _build_textimage,
+    "KpiGridWidget": _build_kpigrid,
+    "TableWidget": _build_table,
+    "ChartWidget": _build_chart,
+    "TopContentsWidget": _build_topcontents,
+    "TopCreatorsWidget": _build_topcreators,
 }
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-def _attach_image(instance, field_name: str, filename: str | None, images: dict[str, bytes]):
+def _attach_image(instance, field_name, filename, images):
     if not filename:
         return
     data = images.get(filename)
     if data is None:
-        # El parser debió detectar esto — si llegó acá es un bug, pero
-        # preferimos error explícito a silencio.
         raise ValueError(f"Imagen '{filename}' no está en el bundle.")
     field = getattr(instance, field_name)
     field.save(filename, ContentFile(data), save=False)
 
 
-def _coerce_int_or_default(value, default: int) -> int:
-    if value in (None, ""):
+def _dec(value, default):
+    if value is None or (isinstance(value, str) and not value.strip()):
         return default
+    try:
+        return Decimal(str(value))
+    except (InvalidOperation, ValueError, TypeError):
+        return default
+
+
+def _int_or_none(value):
+    if value is None:
+        return None
     try:
         return int(value)
     except (TypeError, ValueError):
-        return default
+        try:
+            return int(float(value))
+        except (TypeError, ValueError):
+            return None

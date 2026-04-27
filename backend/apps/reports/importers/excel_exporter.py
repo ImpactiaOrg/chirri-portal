@@ -1,9 +1,7 @@
-"""Exporter xlsx de un Report existente (DEV-83 · Etapa 1).
+"""Exporter xlsx de un Report existente (post sections-widgets-redesign).
 
 Genera un xlsx con la misma shape que el template vacío de `excel_writer`
-pero poblado con la data de un Report real. Uso principal: producir el
-`reporte-abril-ejemplo.xlsx` que sirve como few-shot canónico (humano y
-LLM) y referencia ante dudas de formato.
+pero poblado con la data de un Report real (sections + widgets).
 """
 from __future__ import annotations
 
@@ -14,14 +12,16 @@ from pathlib import PurePosixPath
 from openpyxl.worksheet.worksheet import Worksheet
 
 from apps.reports.models import (
-    ChartBlock,
-    ImageBlock,
-    KpiGridBlock,
+    ChartWidget,
+    ImageWidget,
+    KpiGridWidget,
     Report,
-    TableBlock,
-    TextImageBlock,
-    TopContentsBlock,
-    TopCreatorsBlock,
+    Section,
+    TableWidget,
+    TextImageWidget,
+    TextWidget,
+    TopContentsWidget,
+    TopCreatorsWidget,
 )
 
 from . import schema as s
@@ -34,40 +34,39 @@ from .excel_writer import build_skeleton, to_bytes
 def export(report: Report) -> BytesIO:
     """Serializa `report` al mismo xlsx que produciría el importer."""
     wb = build_skeleton()
-    names = _assign_names(report)
+    section_names = _assign_section_names(report)
 
-    _populate_reporte(wb[s.SHEET_REPORTE], report, names)
-    _populate_textimage(wb[s.SHEET_TEXTIMAGE], report, names)
-    _populate_imagenes(wb[s.SHEET_IMAGENES], report, names)
-    _populate_kpis(wb[s.SHEET_KPIS], report, names)
-    _populate_tables(wb[s.SHEET_TABLES], report, names)
-    _populate_topcontents(wb[s.SHEET_TOPCONTENTS], report, names)
-    _populate_topcreators(wb[s.SHEET_TOPCREATORS], report, names)
-    _populate_charts(wb[s.SHEET_CHARTS], report, names)
+    _populate_reporte(wb[s.SHEET_REPORTE], report)
+    _populate_sections(wb[s.SHEET_SECTIONS], report, section_names)
+    _populate_texts(wb[s.SHEET_TEXTS], report, section_names)
+    _populate_images(wb[s.SHEET_IMAGES], report, section_names)
+    _populate_textimages(wb[s.SHEET_TEXTIMAGES], report, section_names)
+    _populate_kpigrids(wb[s.SHEET_KPIGRIDS], report, section_names)
+    _populate_tables(wb[s.SHEET_TABLES], report, section_names)
+    _populate_charts(wb[s.SHEET_CHARTS], report, section_names)
+    _populate_topcontents(wb[s.SHEET_TOPCONTENTS], report, section_names)
+    _populate_topcreators(wb[s.SHEET_TOPCREATORS], report, section_names)
 
     return to_bytes(wb)
 
 
 # ---------------------------------------------------------------------------
-# Name assignment: block.pk → `{prefix}_{N}` (ej. textimage_1, kpi_1, imagen_2)
+# Section name assignment: section.pk → "section_N"
 # ---------------------------------------------------------------------------
-def _assign_names(report: Report) -> dict[int, str]:
-    counters: dict[str, int] = {}
+def _assign_section_names(report: Report) -> dict[int, str]:
+    """Returns {section.pk: 'section_N'} where N counts in order."""
     names: dict[int, str] = {}
-    for block in report.blocks.all().order_by("order"):
-        type_name = type(block).__name__
-        prefix = s.TYPE_PREFIX[type_name]
-        counters[prefix] = counters.get(prefix, 0) + 1
-        names[block.pk] = f"{prefix}_{counters[prefix]}"
+    for idx, section in enumerate(
+        Section.objects.filter(report=report).order_by("order"), start=1
+    ):
+        names[section.pk] = f"section_{idx}"
     return names
 
 
 # ---------------------------------------------------------------------------
 # Per-sheet populators
 # ---------------------------------------------------------------------------
-def _populate_reporte(
-    ws: Worksheet, report: Report, names: dict[int, str]
-) -> None:
+def _populate_reporte(ws: Worksheet, report: Report) -> None:
     kv_values = {
         "tipo": s.KIND_LABELS.get(report.kind, report.kind),
         "fecha_inicio": _fmt_date(report.period_start),
@@ -79,76 +78,112 @@ def _populate_reporte(
     for idx, (key, _type, _required, _example) in enumerate(s.REPORTE_KV_ROWS, start=2):
         ws.cell(row=idx, column=2, value=kv_values.get(key, ""))
 
-    # Layout rows — encontrar fila del header "orden" y empezar debajo.
-    layout_row = _find_row_starting_with(ws, "orden")
-    if layout_row is None:
-        return
-    for i, block in enumerate(report.blocks.all().order_by("order"), start=1):
-        row = layout_row + i
-        ws.cell(row=row, column=1, value=block.order)
-        ws.cell(row=row, column=2, value=names[block.pk])
 
-
-def _populate_textimage(
-    ws: Worksheet, report: Report, names: dict[int, str]
+def _populate_sections(
+    ws: Worksheet, report: Report, section_names: dict[int, str],
 ) -> None:
-    for i, block in enumerate(
-        TextImageBlock.objects.filter(report=report).order_by("order"), start=2
+    for i, section in enumerate(
+        Section.objects.filter(report=report).order_by("order"), start=2
     ):
-        _write_row(ws, i, s.TEXTIMAGE_HEADERS, {
-            "nombre": names[block.pk],
-            "title": block.title,
-            "body": block.body,
-            "imagen": _filename(block.image),
-            "image_alt": block.image_alt,
-            "image_position": block.image_position,
-            "columns": block.columns,
+        _write_row(ws, i, s.SECTIONS_HEADERS, {
+            "nombre": section_names[section.pk],
+            "title": section.title,
+            "layout": section.layout,
+            "order": section.order,
+            "instructions": section.instructions,
         })
 
 
-def _populate_imagenes(
-    ws: Worksheet, report: Report, names: dict[int, str]
-) -> None:
-    for i, block in enumerate(
-        ImageBlock.objects.filter(report=report).order_by("order"), start=2
-    ):
-        _write_row(ws, i, s.IMAGENES_HEADERS, {
-            "nombre": names[block.pk],
-            "title": block.title,
-            "caption": block.caption,
-            "imagen": _filename(block.image),
-            "image_alt": block.image_alt,
-        })
-
-
-def _populate_kpis(
-    ws: Worksheet, report: Report, names: dict[int, str]
+def _populate_texts(
+    ws: Worksheet, report: Report, section_names: dict[int, str],
 ) -> None:
     row = 2
-    for block in KpiGridBlock.objects.filter(report=report).order_by("order"):
-        for tile in block.tiles.all().order_by("order"):
-            _write_row(ws, row, s.KPIS_HEADERS, {
-                "nombre": names[block.pk],
-                "block_title": block.title,
-                "item_orden": tile.order,
+    for widget in TextWidget.objects.filter(section__report=report).order_by(
+        "section__order", "order"
+    ):
+        _write_row(ws, row, s.TEXTS_HEADERS, {
+            "section_nombre": section_names[widget.section_id],
+            "widget_orden": widget.order,
+            "widget_title": widget.title,
+            "body": widget.body,
+        })
+        row += 1
+
+
+def _populate_images(
+    ws: Worksheet, report: Report, section_names: dict[int, str],
+) -> None:
+    row = 2
+    for widget in ImageWidget.objects.filter(section__report=report).order_by(
+        "section__order", "order"
+    ):
+        _write_row(ws, row, s.IMAGES_HEADERS, {
+            "section_nombre": section_names[widget.section_id],
+            "widget_orden": widget.order,
+            "widget_title": widget.title,
+            "imagen": _filename(widget.image),
+            "image_alt": widget.image_alt,
+            "caption": widget.caption,
+        })
+        row += 1
+
+
+def _populate_textimages(
+    ws: Worksheet, report: Report, section_names: dict[int, str],
+) -> None:
+    row = 2
+    for widget in TextImageWidget.objects.filter(section__report=report).order_by(
+        "section__order", "order"
+    ):
+        _write_row(ws, row, s.TEXTIMAGES_HEADERS, {
+            "section_nombre": section_names[widget.section_id],
+            "widget_orden": widget.order,
+            "widget_title": widget.title,
+            "body": widget.body,
+            "imagen": _filename(widget.image),
+            "image_alt": widget.image_alt,
+            "image_position": widget.image_position,
+            "columns": widget.columns,
+        })
+        row += 1
+
+
+def _populate_kpigrids(
+    ws: Worksheet, report: Report, section_names: dict[int, str],
+) -> None:
+    row = 2
+    for widget in KpiGridWidget.objects.filter(section__report=report).order_by(
+        "section__order", "order"
+    ):
+        for tile in widget.tiles.all().order_by("order"):
+            _write_row(ws, row, s.KPIGRIDS_HEADERS, {
+                "section_nombre": section_names[widget.section_id],
+                "widget_orden": widget.order,
+                "widget_title": widget.title,
+                "tile_orden": tile.order,
                 "label": tile.label,
                 "value": _num(tile.value),
+                "unit": tile.unit,
                 "period_comparison": _num(tile.period_comparison),
+                "period_comparison_label": tile.period_comparison_label,
             })
             row += 1
 
 
 def _populate_tables(
-    ws: Worksheet, report: Report, names: dict[int, str]
+    ws: Worksheet, report: Report, section_names: dict[int, str],
 ) -> None:
     row = 2
-    for block in TableBlock.objects.filter(report=report).order_by("order"):
-        for r in block.rows.all().order_by("order"):
+    for widget in TableWidget.objects.filter(section__report=report).order_by(
+        "section__order", "order"
+    ):
+        for r in widget.rows.all().order_by("order"):
             cells_padded = list(r.cells) + [""] * (8 - len(r.cells))
             values = {
-                "nombre": names[block.pk],
-                "block_title": block.title,
-                "block_show_total": "TRUE" if block.show_total else "FALSE",
+                "section_nombre": section_names[widget.section_id],
+                "widget_orden": widget.order,
+                "widget_title": widget.title,
+                "widget_show_total": "TRUE" if widget.show_total else "FALSE",
                 "row_orden": r.order,
                 "is_header": "TRUE" if r.is_header else "FALSE",
             }
@@ -158,18 +193,41 @@ def _populate_tables(
             row += 1
 
 
-def _populate_topcontents(
-    ws: Worksheet, report: Report, names: dict[int, str]
+def _populate_charts(
+    ws: Worksheet, report: Report, section_names: dict[int, str],
 ) -> None:
     row = 2
-    for block in TopContentsBlock.objects.filter(report=report).order_by("order"):
-        for item in block.items.all().order_by("order"):
+    for widget in ChartWidget.objects.filter(section__report=report).order_by(
+        "section__order", "order"
+    ):
+        for p in widget.data_points.all().order_by("order"):
+            _write_row(ws, row, s.CHARTS_HEADERS, {
+                "section_nombre": section_names[widget.section_id],
+                "widget_orden": widget.order,
+                "widget_title": widget.title,
+                "widget_network": s.NETWORK_LABELS.get(widget.network, ""),
+                "chart_type": widget.chart_type,
+                "point_orden": p.order,
+                "point_label": p.label,
+                "point_value": _num(p.value),
+            })
+            row += 1
+
+
+def _populate_topcontents(
+    ws: Worksheet, report: Report, section_names: dict[int, str],
+) -> None:
+    row = 2
+    for widget in TopContentsWidget.objects.filter(section__report=report).order_by(
+        "section__order", "order"
+    ):
+        for item in widget.items.all().order_by("order"):
             _write_row(ws, row, s.TOPCONTENTS_HEADERS, {
-                "nombre": names[block.pk],
-                "block_title": block.title,
-                "block_network": s.NETWORK_LABELS.get(block.network, ""),
-                "block_period_label": block.period_label,
-                "block_limit": block.limit,
+                "section_nombre": section_names[widget.section_id],
+                "widget_orden": widget.order,
+                "widget_title": widget.title,
+                "widget_network": s.NETWORK_LABELS.get(widget.network, ""),
+                "widget_period_label": widget.period_label,
                 "item_orden": item.order,
                 "imagen": _filename(item.thumbnail),
                 "caption": item.caption,
@@ -185,17 +243,19 @@ def _populate_topcontents(
 
 
 def _populate_topcreators(
-    ws: Worksheet, report: Report, names: dict[int, str]
+    ws: Worksheet, report: Report, section_names: dict[int, str],
 ) -> None:
     row = 2
-    for block in TopCreatorsBlock.objects.filter(report=report).order_by("order"):
-        for item in block.items.all().order_by("order"):
+    for widget in TopCreatorsWidget.objects.filter(section__report=report).order_by(
+        "section__order", "order"
+    ):
+        for item in widget.items.all().order_by("order"):
             _write_row(ws, row, s.TOPCREATORS_HEADERS, {
-                "nombre": names[block.pk],
-                "block_title": block.title,
-                "block_network": s.NETWORK_LABELS.get(block.network, ""),
-                "block_period_label": block.period_label,
-                "block_limit": block.limit,
+                "section_nombre": section_names[widget.section_id],
+                "widget_orden": widget.order,
+                "widget_title": widget.title,
+                "widget_network": s.NETWORK_LABELS.get(widget.network, ""),
+                "widget_period_label": widget.period_label,
                 "item_orden": item.order,
                 "imagen": _filename(item.thumbnail),
                 "handle": item.handle,
@@ -204,24 +264,6 @@ def _populate_topcreators(
                 "likes": item.likes,
                 "comments": item.comments,
                 "shares": item.shares,
-            })
-            row += 1
-
-
-def _populate_charts(
-    ws: Worksheet, report: Report, names: dict[int, str]
-) -> None:
-    row = 2
-    for block in ChartBlock.objects.filter(report=report).order_by("order"):
-        for p in block.data_points.all().order_by("order"):
-            _write_row(ws, row, s.CHARTS_HEADERS, {
-                "nombre": names[block.pk],
-                "block_title": block.title,
-                "block_network": s.NETWORK_LABELS.get(block.network, ""),
-                "chart_type": block.chart_type,
-                "point_orden": p.order,
-                "point_label": p.label,
-                "point_value": _num(p.value),
             })
             row += 1
 
@@ -256,11 +298,3 @@ def _fmt_date(d) -> str:
     if d is None:
         return ""
     return d.strftime("%d/%m/%Y")
-
-
-def _find_row_starting_with(ws: Worksheet, header: str) -> int | None:
-    for row in range(1, ws.max_row + 1):
-        cell = ws.cell(row=row, column=1).value
-        if cell == header:
-            return row
-    return None

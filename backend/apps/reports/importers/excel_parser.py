@@ -1,12 +1,11 @@
-"""Parser del xlsx a `ParsedReport` (DEV-83 · Etapa 2).
+"""Parser del xlsx a `ParsedReport` (post sections-widgets-redesign).
 
 Pure function: no toca Django ni modelos. Recibe los bytes del xlsx + el
 set de filenames disponibles en el ZIP, valida el contenido y devuelve
 (ParsedReport | None, List[ImporterError]). Si hay errores, retorna
-ParsedReport=None — el caller no debe intentar commitear.
+ParsedReport=None — el caller no debe intentar commiteer.
 
-Estrategia: acumular errores en vez de fail-fast. Así Julián ve todo
-junto y corrige en una pasada.
+Estrategia: acumular errores en vez de fail-fast.
 """
 from __future__ import annotations
 
@@ -21,7 +20,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 
 from . import schema as s
 from .errors import ImporterError
-from .parsed import ParsedBlock, ParsedReport
+from .parsed import ParsedReport, ParsedSection, ParsedWidget
 
 
 _NOMBRE_RE = re.compile(s.NOMBRE_PATTERN)
@@ -36,7 +35,7 @@ def parse(
 
     try:
         wb = load_workbook(BytesIO(xlsx_bytes), data_only=True)
-    except Exception:  # noqa: BLE001 — queremos cualquier corrupción
+    except Exception:  # noqa: BLE001
         return None, [ImporterError(
             sheet="(workbook)", row=None, column=None,
             reason="xlsx corrupto o ilegible",
@@ -51,52 +50,53 @@ def parse(
             ))
         return None, errors
 
-    report_scalars, layout, errors_reporte = _parse_reporte(wb[s.SHEET_REPORTE])
+    report_scalars, errors_reporte = _parse_reporte(wb[s.SHEET_REPORTE])
     errors.extend(errors_reporte)
 
-    blocks: dict[str, ParsedBlock] = {}
-    nombre_to_sheet: dict[str, str] = {}
+    sections, errors_sections = _parse_sections(wb[s.SHEET_SECTIONS])
+    errors.extend(errors_sections)
 
-    for sheet_name, parser_fn in _BLOCK_PARSERS.items():
-        parsed_blocks, sheet_errors = parser_fn(wb[sheet_name])
+    # Build a set of valid section nombres for cross-reference
+    section_nombres = {ps.nombre for ps in sections}
+
+    # Parse all widget sheets
+    widgets_by_section: dict[str, list[ParsedWidget]] = {}
+    for sheet_name, parser_fn in _WIDGET_PARSERS.items():
+        parsed_widgets, sheet_errors = parser_fn(wb[sheet_name])
         errors.extend(sheet_errors)
-        for pb in parsed_blocks:
-            if pb.nombre in nombre_to_sheet:
+        for pw in parsed_widgets:
+            # Validate section_nombre exists
+            if pw.section_nombre not in section_nombres:
                 errors.append(ImporterError(
-                    sheet=sheet_name, row=None, column="nombre",
+                    sheet=sheet_name, row=None, column="section_nombre",
                     reason=(
-                        f"'{pb.nombre}' duplicado — ya existe en hoja "
-                        f"{nombre_to_sheet[pb.nombre]}. 'nombre' debe ser "
-                        "único en todo el archivo."
+                        f"section_nombre '{pw.section_nombre}' no existe en la "
+                        "hoja Sections."
                     ),
                 ))
                 continue
-            nombre_to_sheet[pb.nombre] = sheet_name
-            blocks[pb.nombre] = pb
+            # Validate widget_orden uniqueness within section
+            existing = widgets_by_section.setdefault(pw.section_nombre, [])
+            duplicate = any(
+                w.widget_orden == pw.widget_orden for w in existing
+            )
+            if duplicate:
+                errors.append(ImporterError(
+                    sheet=sheet_name, row=None, column="widget_orden",
+                    reason=(
+                        f"widget_orden {pw.widget_orden} duplicado en section "
+                        f"'{pw.section_nombre}'. Cada widget debe tener un orden único."
+                    ),
+                ))
+                continue
+            existing.append(pw)
 
-    # Cross-reference Layout ↔ hojas de blocks.
-    layout_nombres = {n for _, n in layout}
-    for orden, nombre in layout:
-        if nombre not in blocks:
-            errors.append(ImporterError(
-                sheet=s.SHEET_REPORTE, row=None, column="nombre",
-                reason=(
-                    f"'{nombre}' en Layout (orden {orden}) no existe en "
-                    "ninguna hoja de blocks."
-                ),
-            ))
-
-    # Bloques definidos pero no listados en Layout → warning no-bloqueante:
-    # acumulamos pero no impedimos el import. El builder solo crea los que
-    # están en Layout para no inventar orders ajenos.
-    # (decisión: por ahora ni siquiera warning — silencioso. Si se vuelve
-    # problema, subir el flag.)
-
-    # Validar image refs contra bundle.
+    # Collect image refs and validate against available_images
     image_refs: set[str] = set()
-    for pb in blocks.values():
-        for filename in _collect_image_refs(pb):
-            image_refs.add(filename)
+    for widgets in widgets_by_section.values():
+        for pw in widgets:
+            for filename in _collect_image_refs(pw):
+                image_refs.add(filename)
     for filename in sorted(image_refs):
         if filename not in available_images:
             errors.append(ImporterError(
@@ -110,41 +110,33 @@ def parse(
     if errors:
         return None, errors
 
-    assert report_scalars is not None  # si no hubiera report_scalars, habría errores
+    assert report_scalars is not None
     return ParsedReport(
         stage_id=None,
-        layout=layout,
-        blocks=blocks,
+        sections=sections,
+        widgets_by_section=widgets_by_section,
         image_refs=image_refs,
         **report_scalars,
     ), errors
 
 
 # ---------------------------------------------------------------------------
-# Reporte (KV + Layout)
+# Reporte (KV only — no Layout table)
 # ---------------------------------------------------------------------------
-def _parse_reporte(ws: Worksheet) -> tuple[dict | None, list[tuple[int, str]], list[ImporterError]]:
+def _parse_reporte(ws: Worksheet) -> tuple[dict | None, list[ImporterError]]:
     errors: list[ImporterError] = []
 
-    # Parsear KV rows. Labels viven en columna A con posible '*', values en B.
     raw_kv: dict[str, object] = {}
-    layout_header_row: int | None = None
-
     for row_idx in range(1, ws.max_row + 1):
         key_cell = ws.cell(row=row_idx, column=1).value
         if not isinstance(key_cell, str):
             continue
         key = key_cell.strip()
-        if key.startswith("# Layout"):
-            # El header de tabla `orden | nombre` está en la fila siguiente.
-            layout_header_row = row_idx + 1
-            break
         if key.startswith("#") or key == "":
             continue
         normalized = key.rstrip("*").strip()
         raw_kv[normalized] = ws.cell(row=row_idx, column=2).value
 
-    # Validar y normalizar KV.
     scalars: dict[str, object] = {}
     required_by_key = {key: req for key, _t, req, _ex in s.REPORTE_KV_ROWS}
     type_by_key = {key: t for key, t, _r, _ex in s.REPORTE_KV_ROWS}
@@ -159,12 +151,11 @@ def _parse_reporte(ws: Worksheet) -> tuple[dict | None, list[tuple[int, str]], l
                     sheet=s.SHEET_REPORTE, row=None, column=key,
                     reason="obligatorio",
                 ))
-            # Defaults para opcionales vacíos
             if type_hint == "text":
                 scalars[_kv_dataclass_name(key)] = ""
             continue
 
-        if type_hint == "enum":  # `tipo`
+        if type_hint == "enum":
             label = str(value).strip()
             if label not in s.KIND_FROM_LABEL:
                 errors.append(ImporterError(
@@ -191,97 +182,165 @@ def _parse_reporte(ws: Worksheet) -> tuple[dict | None, list[tuple[int, str]], l
         elif type_hint == "text":
             scalars[_kv_dataclass_name(key)] = str(value)
 
-    # Parsear Layout rows.
-    layout: list[tuple[int, str]] = []
-    seen_orders: set[int] = set()
+    return (scalars if scalars else None), errors
+
+
+# ---------------------------------------------------------------------------
+# Sections sheet
+# ---------------------------------------------------------------------------
+def _parse_sections(ws: Worksheet) -> tuple[list[ParsedSection], list[ImporterError]]:
+    sections: list[ParsedSection] = []
+    errors: list[ImporterError] = []
     seen_nombres: set[str] = set()
-    if layout_header_row is not None:
-        header_cells = [
-            ws.cell(row=layout_header_row, column=c).value
-            for c in (1, 2)
-        ]
-        if header_cells != s.REPORTE_LAYOUT_HEADERS:
+    seen_orders: set[int] = set()
+
+    for row_idx, row in _iter_data_rows(ws, s.SECTIONS_HEADERS):
+        nombre_raw = str(row.get("nombre") or "").strip()
+        if not nombre_raw:
             errors.append(ImporterError(
-                sheet=s.SHEET_REPORTE, row=layout_header_row, column="A/B",
+                sheet=s.SHEET_SECTIONS, row=row_idx, column="nombre",
+                reason="obligatorio",
+            ))
+            continue
+        if not _NOMBRE_RE.match(nombre_raw):
+            errors.append(ImporterError(
+                sheet=s.SHEET_SECTIONS, row=row_idx, column="nombre",
                 reason=(
-                    f"headers del Layout inesperados: {header_cells}. "
-                    f"Esperado: {s.REPORTE_LAYOUT_HEADERS}."
+                    f"'{nombre_raw}' no cumple el patrón {s.NOMBRE_PATTERN} "
+                    f"(max {s.NOMBRE_MAX_LEN} chars, a-z 0-9 _ -)."
                 ),
             ))
-        for row_idx in range(layout_header_row + 1, ws.max_row + 1):
-            orden_v = ws.cell(row=row_idx, column=1).value
-            nombre_v = ws.cell(row=row_idx, column=2).value
-            if _is_blank(orden_v) and _is_blank(nombre_v):
-                continue
-            orden = _coerce_int(orden_v)
-            if orden is None or orden < 1:
-                errors.append(ImporterError(
-                    sheet=s.SHEET_REPORTE, row=row_idx, column="orden",
-                    reason=f"entero ≥ 1 esperado, recibí '{orden_v}'",
-                ))
-                continue
-            if orden in seen_orders:
-                errors.append(ImporterError(
-                    sheet=s.SHEET_REPORTE, row=row_idx, column="orden",
-                    reason=f"orden {orden} duplicado en Layout",
-                ))
-                continue
-            seen_orders.add(orden)
+            continue
+        if nombre_raw in seen_nombres:
+            errors.append(ImporterError(
+                sheet=s.SHEET_SECTIONS, row=row_idx, column="nombre",
+                reason=f"'{nombre_raw}' duplicado en Sections.",
+            ))
+            continue
+        seen_nombres.add(nombre_raw)
 
-            nombre = str(nombre_v or "").strip()
-            if not _NOMBRE_RE.match(nombre):
-                errors.append(ImporterError(
-                    sheet=s.SHEET_REPORTE, row=row_idx, column="nombre",
-                    reason=(
-                        f"'{nombre}' no cumple el patrón {s.NOMBRE_PATTERN} "
-                        f"(max {s.NOMBRE_MAX_LEN} chars, a-z 0-9 _ -)."
-                    ),
-                ))
-                continue
-            if nombre in seen_nombres:
-                errors.append(ImporterError(
-                    sheet=s.SHEET_REPORTE, row=row_idx, column="nombre",
-                    reason=f"'{nombre}' duplicado en Layout",
-                ))
-                continue
-            seen_nombres.add(nombre)
-            layout.append((orden, nombre))
+        layout_raw = str(row.get("layout") or "stack").strip()
+        if layout_raw not in s.LAYOUT_VALUES:
+            errors.append(ImporterError(
+                sheet=s.SHEET_SECTIONS, row=row_idx, column="layout",
+                reason=(
+                    f"valor '{layout_raw}' inválido. Esperado: "
+                    + ", ".join(s.LAYOUT_VALUES)
+                ),
+            ))
+            layout_raw = "stack"
 
-    layout.sort()
-    return (scalars if scalars else None), layout, errors
+        order_raw = row.get("order")
+        order = _coerce_int(order_raw)
+        if order is None or order < 1:
+            errors.append(ImporterError(
+                sheet=s.SHEET_SECTIONS, row=row_idx, column="order",
+                reason=f"entero ≥ 1 esperado, recibí '{order_raw}'",
+            ))
+            continue
+        if order in seen_orders:
+            errors.append(ImporterError(
+                sheet=s.SHEET_SECTIONS, row=row_idx, column="order",
+                reason=f"order {order} duplicado en Sections.",
+            ))
+            continue
+        seen_orders.add(order)
+
+        sections.append(ParsedSection(
+            nombre=nombre_raw,
+            title=_str(row.get("title")),
+            layout=layout_raw,
+            order=order,
+            instructions=_str(row.get("instructions")),
+        ))
+
+    sections.sort(key=lambda ps: ps.order)
+    return sections, errors
 
 
 # ---------------------------------------------------------------------------
-# Per-block-type parsers
+# Widget sheet parsers
 # ---------------------------------------------------------------------------
-def _parse_textimage(ws: Worksheet) -> tuple[list[ParsedBlock], list[ImporterError]]:
-    blocks: list[ParsedBlock] = []
+def _parse_texts(ws: Worksheet) -> tuple[list[ParsedWidget], list[ImporterError]]:
+    widgets: list[ParsedWidget] = []
     errors: list[ImporterError] = []
-    for row_idx, row in _iter_data_rows(ws, s.TEXTIMAGE_HEADERS):
-        nombre = _valid_nombre(row, s.SHEET_TEXTIMAGE, row_idx, errors)
-        if nombre is None:
+    for row_idx, row in _iter_data_rows(ws, s.TEXTS_HEADERS):
+        section_nombre, widget_orden, widget_title, ok = _parse_widget_key(
+            row, s.SHEET_TEXTS, row_idx, errors,
+        )
+        if not ok:
+            continue
+        widgets.append(ParsedWidget(
+            type_name="TextWidget",
+            section_nombre=section_nombre,
+            widget_orden=widget_orden,
+            widget_title=widget_title,
+            fields={"body": _str(row.get("body"))},
+        ))
+    return widgets, errors
+
+
+def _parse_images(ws: Worksheet) -> tuple[list[ParsedWidget], list[ImporterError]]:
+    widgets: list[ParsedWidget] = []
+    errors: list[ImporterError] = []
+    for row_idx, row in _iter_data_rows(ws, s.IMAGES_HEADERS):
+        section_nombre, widget_orden, widget_title, ok = _parse_widget_key(
+            row, s.SHEET_IMAGES, row_idx, errors,
+        )
+        if not ok:
+            continue
+        imagen = _str(row.get("imagen"))
+        if not imagen:
+            errors.append(ImporterError(
+                sheet=s.SHEET_IMAGES, row=row_idx, column="imagen",
+                reason="obligatorio (ImageWidget requiere imagen)",
+            ))
+            continue
+        widgets.append(ParsedWidget(
+            type_name="ImageWidget",
+            section_nombre=section_nombre,
+            widget_orden=widget_orden,
+            widget_title=widget_title,
+            fields={
+                "imagen": imagen,
+                "image_alt": _str(row.get("image_alt")),
+                "caption": _str(row.get("caption")),
+            },
+        ))
+    return widgets, errors
+
+
+def _parse_textimages(ws: Worksheet) -> tuple[list[ParsedWidget], list[ImporterError]]:
+    widgets: list[ParsedWidget] = []
+    errors: list[ImporterError] = []
+    for row_idx, row in _iter_data_rows(ws, s.TEXTIMAGES_HEADERS):
+        section_nombre, widget_orden, widget_title, ok = _parse_widget_key(
+            row, s.SHEET_TEXTIMAGES, row_idx, errors,
+        )
+        if not ok:
             continue
         columns = _coerce_int(row.get("columns"))
         if columns not in (None, 1, 2, 3):
             errors.append(ImporterError(
-                sheet=s.SHEET_TEXTIMAGE, row=row_idx, column="columns",
+                sheet=s.SHEET_TEXTIMAGES, row=row_idx, column="columns",
                 reason=f"valor '{row.get('columns')}' inválido. Esperado: 1, 2 o 3.",
             ))
-        image_position = (row.get("image_position") or "top")
+        image_position = str(row.get("image_position") or "top").strip()
         if image_position not in s.IMAGE_POSITION_VALUES:
             errors.append(ImporterError(
-                sheet=s.SHEET_TEXTIMAGE, row=row_idx, column="image_position",
+                sheet=s.SHEET_TEXTIMAGES, row=row_idx, column="image_position",
                 reason=(
                     f"valor '{image_position}' inválido. Esperado: "
                     + ", ".join(s.IMAGE_POSITION_VALUES)
                 ),
             ))
             image_position = "top"
-        blocks.append(ParsedBlock(
-            type_name="TextImageBlock",
-            nombre=nombre,
+        widgets.append(ParsedWidget(
+            type_name="TextImageWidget",
+            section_nombre=section_nombre,
+            widget_orden=widget_orden,
+            widget_title=widget_title,
             fields={
-                "title": _str(row.get("title")),
                 "body": _str(row.get("body")),
                 "imagen": _str(row.get("imagen")),
                 "image_alt": _str(row.get("image_alt")),
@@ -289,63 +348,38 @@ def _parse_textimage(ws: Worksheet) -> tuple[list[ParsedBlock], list[ImporterErr
                 "columns": columns or 1,
             },
         ))
-    return blocks, errors
+    return widgets, errors
 
 
-def _parse_imagenes(ws: Worksheet) -> tuple[list[ParsedBlock], list[ImporterError]]:
-    blocks: list[ParsedBlock] = []
-    errors: list[ImporterError] = []
-    for row_idx, row in _iter_data_rows(ws, s.IMAGENES_HEADERS):
-        nombre = _valid_nombre(row, s.SHEET_IMAGENES, row_idx, errors)
-        if nombre is None:
-            continue
-        imagen = _str(row.get("imagen"))
-        if not imagen:
-            errors.append(ImporterError(
-                sheet=s.SHEET_IMAGENES, row=row_idx, column="imagen",
-                reason="obligatorio (ImageBlock requiere imagen)",
-            ))
-            continue
-        blocks.append(ParsedBlock(
-            type_name="ImageBlock",
-            nombre=nombre,
-            fields={
-                "title": _str(row.get("title")),
-                "caption": _str(row.get("caption")),
-                "imagen": imagen,
-                "image_alt": _str(row.get("image_alt")),
-            },
-        ))
-    return blocks, errors
-
-
-def _parse_kpis(ws: Worksheet) -> tuple[list[ParsedBlock], list[ImporterError]]:
-    return _parse_denormalized(
-        ws, s.SHEET_KPIS, s.KPIS_HEADERS,
-        type_name="KpiGridBlock",
-        block_field_cols=("block_title",),
-        item_field_cols=("item_orden", "label", "value", "period_comparison"),
+def _parse_kpigrids(ws: Worksheet) -> tuple[list[ParsedWidget], list[ImporterError]]:
+    return _parse_grouped_widget(
+        ws, s.SHEET_KPIGRIDS, s.KPIGRIDS_HEADERS,
+        type_name="KpiGridWidget",
+        widget_field_cols=(),
+        item_field_cols=(
+            "tile_orden", "label", "value", "unit",
+            "period_comparison", "period_comparison_label",
+        ),
         numeric_item_cols={"value", "period_comparison"},
         required_item_cols=("label", "value"),
     )
 
 
-def _parse_tables(ws: Worksheet) -> tuple[list[ParsedBlock], list[ImporterError]]:
-    """Parser de la hoja Tables: agrupa filas por 'nombre', cada fila es una row.
-
-    block_title + block_show_total deben ser consistentes entre filas del mismo
-    block. Las celdas se leen de cell_1..cell_8 y se truncan al último no-vacío.
-    """
+def _parse_tables(ws: Worksheet) -> tuple[list[ParsedWidget], list[ImporterError]]:
+    """Parser de la hoja Tables: agrupa filas por (section_nombre, widget_orden)."""
     errors: list[ImporterError] = []
-    groups: dict[str, dict] = {}
+    # key: (section_nombre, widget_orden) → {widget_title, show_total, rows}
+    groups: dict[tuple[str, int], dict] = {}
+    group_order: list[tuple[str, int]] = []
 
     for row_idx, row in _iter_data_rows(ws, s.TABLES_HEADERS):
-        nombre = _valid_nombre(row, s.SHEET_TABLES, row_idx, errors)
-        if nombre is None:
+        section_nombre, widget_orden, widget_title, ok = _parse_widget_key(
+            row, s.SHEET_TABLES, row_idx, errors,
+        )
+        if not ok:
             continue
 
-        block_title = _str(row.get("block_title"))
-        block_show_total = _coerce_bool(row.get("block_show_total"))
+        widget_show_total = _coerce_bool(row.get("widget_show_total"))
         is_header = _coerce_bool(row.get("is_header"))
         row_orden = _coerce_int(row.get("row_orden"))
         if row_orden is None or row_orden < 1:
@@ -356,180 +390,177 @@ def _parse_tables(ws: Worksheet) -> tuple[list[ParsedBlock], list[ImporterError]
             continue
 
         cells_raw = [row.get(col) for col in s.TABLE_CELL_COLS]
-        # Truncar después del último no-vacío.
         last_non_blank = -1
         for i, v in enumerate(cells_raw):
             if not _is_blank(v):
                 last_non_blank = i
         cells = [_str(v) for v in cells_raw[: last_non_blank + 1]]
 
-        if nombre not in groups:
-            groups[nombre] = {
-                "title": block_title,
-                "show_total": block_show_total,
+        key = (section_nombre, widget_orden)
+        if key not in groups:
+            groups[key] = {
+                "widget_title": widget_title,
+                "show_total": widget_show_total,
                 "rows": [],
             }
+            group_order.append(key)
         else:
-            existing = groups[nombre]
-            if existing["title"] != block_title:
+            existing = groups[key]
+            if existing["widget_title"] != widget_title:
                 errors.append(ImporterError(
-                    sheet=s.SHEET_TABLES, row=row_idx, column="block_title",
+                    sheet=s.SHEET_TABLES, row=row_idx, column="widget_title",
                     reason=(
-                        f"valor '{block_title}' difiere del usado antes para "
-                        f"'{nombre}' ('{existing['title']}'). "
-                        "Los block_* fields deben ser idénticos en todas las filas."
+                        f"valor '{widget_title}' difiere del usado antes para "
+                        f"({section_nombre}, {widget_orden}) ('{existing['widget_title']}'). "
+                        "Los widget_* fields deben ser idénticos en todas las filas."
                     ),
                 ))
-            if existing["show_total"] != block_show_total:
+            if existing["show_total"] != widget_show_total:
                 errors.append(ImporterError(
-                    sheet=s.SHEET_TABLES, row=row_idx, column="block_show_total",
+                    sheet=s.SHEET_TABLES, row=row_idx, column="widget_show_total",
                     reason=(
-                        f"valor '{block_show_total}' difiere del usado antes para "
-                        f"'{nombre}' ('{existing['show_total']}')."
+                        f"valor '{widget_show_total}' difiere del usado antes para "
+                        f"({section_nombre}, {widget_orden}) ('{existing['show_total']}')."
                     ),
                 ))
-        groups[nombre]["rows"].append({
+        groups[key]["rows"].append({
             "row_orden": row_orden,
             "is_header": is_header,
             "cells": cells,
         })
 
     result = [
-        ParsedBlock(
-            type_name="TableBlock",
-            nombre=nombre,
+        ParsedWidget(
+            type_name="TableWidget",
+            section_nombre=key[0],
+            widget_orden=key[1],
+            widget_title=data["widget_title"],
             fields={
-                "block_title": data["title"],
-                "block_show_total": data["show_total"],
+                "widget_show_total": data["show_total"],
             },
             items=sorted(data["rows"], key=lambda r: r["row_orden"]),
         )
-        for nombre, data in groups.items()
+        for key, data in ((k, groups[k]) for k in group_order)
     ]
     return result, errors
 
 
-def _parse_topcontents(ws: Worksheet) -> tuple[list[ParsedBlock], list[ImporterError]]:
-    return _parse_denormalized(
+def _parse_charts(ws: Worksheet) -> tuple[list[ParsedWidget], list[ImporterError]]:
+    widgets, errors = _parse_grouped_widget(
+        ws, s.SHEET_CHARTS, s.CHARTS_HEADERS,
+        type_name="ChartWidget",
+        widget_field_cols=("widget_network", "chart_type"),
+        item_field_cols=("point_orden", "point_label", "point_value"),
+        numeric_item_cols={"point_value"},
+        enum_widget_cols={
+            "widget_network": (s.NETWORK_FROM_LABEL, True),
+        },
+        required_item_cols=("point_label", "point_value"),
+    )
+    # Validate chart_type
+    for pw in widgets:
+        ct = pw.fields.get("chart_type")
+        if ct not in s.CHART_TYPE_VALUES:
+            errors.append(ImporterError(
+                sheet=s.SHEET_CHARTS, row=None, column="chart_type",
+                reason=(
+                    f"widget ({pw.section_nombre}, {pw.widget_orden}): "
+                    f"chart_type '{ct}' inválido. "
+                    f"Esperado: {', '.join(s.CHART_TYPE_VALUES)}."
+                ),
+            ))
+    return widgets, errors
+
+
+def _parse_topcontents(ws: Worksheet) -> tuple[list[ParsedWidget], list[ImporterError]]:
+    return _parse_grouped_widget(
         ws, s.SHEET_TOPCONTENTS, s.TOPCONTENTS_HEADERS,
-        type_name="TopContentsBlock",
-        block_field_cols=(
-            "block_title", "block_network", "block_period_label", "block_limit",
-        ),
+        type_name="TopContentsWidget",
+        widget_field_cols=("widget_network", "widget_period_label"),
         item_field_cols=(
             "item_orden", "imagen", "caption", "post_url", "source_type",
             "views", "likes", "comments", "shares", "saves",
         ),
         numeric_item_cols={"views", "likes", "comments", "shares", "saves"},
+        enum_widget_cols={
+            "widget_network": (s.NETWORK_FROM_LABEL, True),
+        },
         enum_item_cols={
             "source_type": (s.SOURCE_TYPE_FROM_LABEL, True),
-        },
-        enum_block_cols={
-            "block_network": (s.NETWORK_FROM_LABEL, True),
         },
         required_item_cols=(),
     )
 
 
-def _parse_topcreators(ws: Worksheet) -> tuple[list[ParsedBlock], list[ImporterError]]:
-    return _parse_denormalized(
+def _parse_topcreators(ws: Worksheet) -> tuple[list[ParsedWidget], list[ImporterError]]:
+    return _parse_grouped_widget(
         ws, s.SHEET_TOPCREATORS, s.TOPCREATORS_HEADERS,
-        type_name="TopCreatorsBlock",
-        block_field_cols=(
-            "block_title", "block_network", "block_period_label", "block_limit",
-        ),
+        type_name="TopCreatorsWidget",
+        widget_field_cols=("widget_network", "widget_period_label"),
         item_field_cols=(
             "item_orden", "imagen", "handle", "post_url",
             "views", "likes", "comments", "shares",
         ),
         numeric_item_cols={"views", "likes", "comments", "shares"},
-        enum_block_cols={
-            "block_network": (s.NETWORK_FROM_LABEL, True),
+        enum_widget_cols={
+            "widget_network": (s.NETWORK_FROM_LABEL, True),
         },
         required_item_cols=("handle",),
     )
 
 
-def _parse_charts(ws: Worksheet) -> tuple[list[ParsedBlock], list[ImporterError]]:
-    blocks, errors = _parse_denormalized(
-        ws, s.SHEET_CHARTS, s.CHARTS_HEADERS,
-        type_name="ChartBlock",
-        block_field_cols=("block_title", "block_network", "chart_type"),
-        item_field_cols=("point_orden", "point_label", "point_value"),
-        numeric_item_cols={"point_value"},
-        enum_block_cols={
-            "block_network": (s.NETWORK_FROM_LABEL, True),
-        },
-        required_item_cols=("point_label", "point_value"),
-    )
-    # Validar chart_type
-    for pb in blocks:
-        ct = pb.fields.get("chart_type")
-        if ct not in s.CHART_TYPE_VALUES:
-            errors.append(ImporterError(
-                sheet=s.SHEET_CHARTS, row=None, column="chart_type",
-                reason=(
-                    f"chart '{pb.nombre}': chart_type '{ct}' inválido. "
-                    f"Esperado: {', '.join(s.CHART_TYPE_VALUES)}."
-                ),
-            ))
-    return blocks, errors
-
-
-_BLOCK_PARSERS: dict[str, Callable[[Worksheet], tuple[list[ParsedBlock], list[ImporterError]]]] = {
-    s.SHEET_TEXTIMAGE: _parse_textimage,
-    s.SHEET_IMAGENES: _parse_imagenes,
-    s.SHEET_KPIS: _parse_kpis,
+_WIDGET_PARSERS: dict[str, Callable[[Worksheet], tuple[list[ParsedWidget], list[ImporterError]]]] = {
+    s.SHEET_TEXTS: _parse_texts,
+    s.SHEET_IMAGES: _parse_images,
+    s.SHEET_TEXTIMAGES: _parse_textimages,
+    s.SHEET_KPIGRIDS: _parse_kpigrids,
     s.SHEET_TABLES: _parse_tables,
+    s.SHEET_CHARTS: _parse_charts,
     s.SHEET_TOPCONTENTS: _parse_topcontents,
     s.SHEET_TOPCREATORS: _parse_topcreators,
-    s.SHEET_CHARTS: _parse_charts,
 }
 
 
 # ---------------------------------------------------------------------------
-# Generic denormalized sheet parser
+# Generic grouped widget parser
 # ---------------------------------------------------------------------------
-def _parse_denormalized(
+def _parse_grouped_widget(
     ws: Worksheet,
     sheet_name: str,
     headers: list[str],
     *,
     type_name: str,
-    block_field_cols: tuple[str, ...],
+    widget_field_cols: tuple[str, ...],
     item_field_cols: tuple[str, ...],
     numeric_item_cols: set[str],
+    enum_widget_cols: dict[str, tuple[dict, bool]] | None = None,
     enum_item_cols: dict[str, tuple[dict, bool]] | None = None,
-    enum_block_cols: dict[str, tuple[dict, bool]] | None = None,
     required_item_cols: tuple[str, ...] = (),
-) -> tuple[list[ParsedBlock], list[ImporterError]]:
-    """Parser genérico para hojas denormalizadas (block fields repetidos en cada row).
-
-    - `block_field_cols` + `item_field_cols` deben cubrir todas las cols relevantes.
-    - Los rows se agrupan por `nombre`. Para cada grupo:
-        · Los block_field_cols deben ser consistentes en todas las rows.
-        · Los item_field_cols construyen la lista de items.
-    """
+) -> tuple[list[ParsedWidget], list[ImporterError]]:
+    """Generic parser for grouped widget sheets (one row = one item)."""
+    enum_widget_cols = enum_widget_cols or {}
     enum_item_cols = enum_item_cols or {}
-    enum_block_cols = enum_block_cols or {}
     errors: list[ImporterError] = []
-    # nombre → {fields: dict, items: list, first_row: int}
-    groups: dict[str, dict] = {}
+    # (section_nombre, widget_orden) → {widget_title, fields, items, first_row}
+    groups: dict[tuple[str, int], dict] = {}
+    group_order: list[tuple[str, int]] = []
 
     for row_idx, row in _iter_data_rows(ws, headers):
-        nombre = _valid_nombre(row, sheet_name, row_idx, errors)
-        if nombre is None:
+        section_nombre, widget_orden, widget_title, ok = _parse_widget_key(
+            row, sheet_name, row_idx, errors,
+        )
+        if not ok:
             continue
 
-        block_fields = {}
-        for col in block_field_cols:
+        widget_fields = {}
+        for col in widget_field_cols:
             raw = row.get(col)
-            if col in enum_block_cols:
-                label_map, blank_ok = enum_block_cols[col]
+            if col in enum_widget_cols:
+                label_map, blank_ok = enum_widget_cols[col]
                 val = _parse_enum(raw, label_map, blank_ok, sheet_name, row_idx, col, errors)
             else:
                 val = _str(raw) if raw is not None else ""
-            block_fields[col] = val
+            widget_fields[col] = val
 
         item = {}
         item_errors_this_row = 0
@@ -542,13 +573,12 @@ def _parse_denormalized(
                 val = _parse_number(raw, sheet_name, row_idx, col, errors, required=col in required_item_cols)
                 if val is None and col in required_item_cols and not _is_blank(raw):
                     item_errors_this_row += 1
-            elif col == "item_orden" or col == "point_orden":
+            elif col in ("tile_orden", "item_orden", "point_orden"):
                 val = _coerce_int(raw) if not _is_blank(raw) else None
             else:
                 val = _str(raw) if raw is not None else ""
             item[col] = val
 
-        # Required item fields
         for req_col in required_item_cols:
             if _is_blank(item.get(req_col)):
                 errors.append(ImporterError(
@@ -557,38 +587,53 @@ def _parse_denormalized(
                 ))
                 item_errors_this_row += 1
 
-        if nombre not in groups:
-            groups[nombre] = {
-                "fields": block_fields,
+        key = (section_nombre, widget_orden)
+        if key not in groups:
+            groups[key] = {
+                "widget_title": widget_title,
+                "fields": widget_fields,
                 "items": [],
                 "first_row": row_idx,
             }
+            group_order.append(key)
         else:
-            # Block field consistency check
-            for col in block_field_cols:
-                existing = groups[nombre]["fields"][col]
-                new_val = block_fields[col]
-                if existing != new_val:
+            existing = groups[key]
+            if existing["widget_title"] != widget_title:
+                errors.append(ImporterError(
+                    sheet=sheet_name, row=row_idx, column="widget_title",
+                    reason=(
+                        f"valor '{widget_title}' difiere del usado antes para "
+                        f"({section_nombre}, {widget_orden}) "
+                        f"('{existing['widget_title']}'). "
+                        "Los widget_* fields deben ser idénticos en todos los rows."
+                    ),
+                ))
+            for col in widget_field_cols:
+                existing_val = existing["fields"][col]
+                new_val = widget_fields[col]
+                if existing_val != new_val:
                     errors.append(ImporterError(
                         sheet=sheet_name, row=row_idx, column=col,
                         reason=(
                             f"valor '{new_val}' difiere del usado antes para "
-                            f"'{nombre}' ('{existing}'). Los block_* fields "
-                            "deben ser idénticos en todos los rows del mismo bloque."
+                            f"({section_nombre}, {widget_orden}) ('{existing_val}'). "
+                            "Los widget_* fields deben ser idénticos en todos los rows."
                         ),
                     ))
 
         if item_errors_this_row == 0:
-            groups[nombre]["items"].append(item)
+            groups[key]["items"].append(item)
 
     result = [
-        ParsedBlock(
+        ParsedWidget(
             type_name=type_name,
-            nombre=nombre,
+            section_nombre=key[0],
+            widget_orden=key[1],
+            widget_title=data["widget_title"],
             fields=data["fields"],
             items=data["items"],
         )
-        for nombre, data in groups.items()
+        for key, data in ((k, groups[k]) for k in group_order)
     ]
     return result, errors
 
@@ -596,14 +641,12 @@ def _parse_denormalized(
 # ---------------------------------------------------------------------------
 # Image ref collector
 # ---------------------------------------------------------------------------
-def _collect_image_refs(pb: ParsedBlock):
-    """Yields every non-empty filename referenced by the block."""
-    # Block-level image (TextImage, Imagenes)
-    img = pb.fields.get("imagen")
+def _collect_image_refs(pw: ParsedWidget):
+    """Yields every non-empty filename referenced by the widget."""
+    img = pw.fields.get("imagen")
     if img:
         yield img
-    # Item-level thumbnails (TopContents, TopCreators)
-    for item in pb.items:
+    for item in pw.items:
         if item.get("imagen"):
             yield item["imagen"]
 
@@ -611,6 +654,31 @@ def _collect_image_refs(pb: ParsedBlock):
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+def _parse_widget_key(
+    row: dict, sheet: str, row_idx: int, errors: list[ImporterError],
+) -> tuple[str, int, str, bool]:
+    """Parse section_nombre + widget_orden + widget_title. Returns (sn, wo, wt, ok)."""
+    section_nombre = str(row.get("section_nombre") or "").strip()
+    if not section_nombre:
+        errors.append(ImporterError(
+            sheet=sheet, row=row_idx, column="section_nombre",
+            reason="obligatorio",
+        ))
+        return "", 0, "", False
+
+    widget_orden_raw = row.get("widget_orden")
+    widget_orden = _coerce_int(widget_orden_raw)
+    if widget_orden is None or widget_orden < 1:
+        errors.append(ImporterError(
+            sheet=sheet, row=row_idx, column="widget_orden",
+            reason=f"entero ≥ 1 esperado, recibí '{widget_orden_raw}'",
+        ))
+        return "", 0, "", False
+
+    widget_title = _str(row.get("widget_title"))
+    return section_nombre, widget_orden, widget_title, True
+
+
 def _iter_data_rows(ws: Worksheet, headers: list[str]):
     """Yields (row_idx, {header: value}) pairs skipping fully-blank rows."""
     for row_idx in range(2, ws.max_row + 1):
@@ -618,29 +686,6 @@ def _iter_data_rows(ws: Worksheet, headers: list[str]):
         if all(_is_blank(v) for v in values):
             continue
         yield row_idx, dict(zip(headers, values))
-
-
-def _valid_nombre(
-    row: dict, sheet: str, row_idx: int, errors: list[ImporterError]
-) -> str | None:
-    raw = row.get("nombre")
-    nombre = str(raw or "").strip()
-    if not nombre:
-        errors.append(ImporterError(
-            sheet=sheet, row=row_idx, column="nombre",
-            reason="obligatorio",
-        ))
-        return None
-    if not _NOMBRE_RE.match(nombre):
-        errors.append(ImporterError(
-            sheet=sheet, row=row_idx, column="nombre",
-            reason=(
-                f"'{nombre}' no cumple el patrón {s.NOMBRE_PATTERN} "
-                f"(max {s.NOMBRE_MAX_LEN} chars, a-z 0-9 _ -)."
-            ),
-        ))
-        return None
-    return nombre
 
 
 def _parse_enum(

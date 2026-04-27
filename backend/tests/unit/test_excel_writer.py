@@ -1,7 +1,7 @@
-"""Smoke + shape tests del template writer y exporter (DEV-83 · Etapa 1).
+"""Smoke + shape tests del template writer y exporter (post sections-widgets-redesign).
 
-No cubren el parser (Etapa 2). El foco es que el archivo que ve Julián
-tenga las 9 hojas en orden, headers correctos, dropdowns en los enums
+No cubren el parser. El foco es que el archivo que ve el operador
+tenga las 11 hojas en orden, headers correctos, dropdowns en los enums
 y que la hoja Instrucciones cubra A/B/C/D.
 """
 from datetime import date, datetime, timezone
@@ -15,19 +15,21 @@ from apps.reports.importers import schema as s
 from apps.reports.importers.excel_exporter import export
 from apps.reports.importers.excel_writer import build_template
 from apps.reports.models import (
-    ChartBlock,
-    ChartDataPoint,
-    ImageBlock,
-    KpiGridBlock,
-    KpiTile,
+    ChartDataPointWidget,
+    ChartWidget,
+    ImageWidget,
+    KpiGridWidget,
+    KpiTileWidget,
     Report,
-    TableBlock,
-    TableRow,
-    TextImageBlock,
-    TopContentsBlock,
-    TopContentItem,
-    TopCreatorsBlock,
-    TopCreatorItem,
+    Section,
+    TableRowWidget,
+    TableWidget,
+    TextImageWidget,
+    TextWidget,
+    TopContentItemWidget,
+    TopContentsWidget,
+    TopCreatorItemWidget,
+    TopCreatorsWidget,
 )
 from apps.reports.tests.factories import make_stage
 
@@ -35,7 +37,7 @@ from apps.reports.tests.factories import make_stage
 # ---------------------------------------------------------------------------
 # Template writer — no DB
 # ---------------------------------------------------------------------------
-def test_template_has_9_sheets_in_order():
+def test_template_has_11_sheets_in_order():
     buf = build_template()
     wb = load_workbook(buf)
     assert wb.sheetnames == s.SHEETS_IN_ORDER
@@ -52,23 +54,32 @@ def test_template_instrucciones_covers_llm_and_human_sections():
     assert "B. Cómo armar el ZIP" in text
     assert "C. Regenerar el template" in text
     assert "D. Para LLMs" in text
-    # Contrato explícito para el LLM
-    assert "nombre" in text
+    # Widget types mentioned
+    assert "TextWidget" in text
+    assert "TableWidget" in text
+    # Image extension contract
     assert ".jpg" in text and ".png" in text
 
 
-def test_template_reporte_sheet_has_kv_rows_and_layout_header():
+def test_template_reporte_sheet_has_kv_rows_without_layout():
     wb = load_workbook(build_template())
     ws = wb[s.SHEET_REPORTE]
 
-    # KV keys en columna A (marcadas con * los obligatorios)
     col_a = [str(ws.cell(row=r, column=1).value or "") for r in range(1, ws.max_row + 1)]
     assert any("tipo*" in v for v in col_a), "tipo debería estar marcado obligatorio"
     assert any("fecha_inicio*" in v for v in col_a)
-    assert any("# Layout" in v for v in col_a)
+    # No Layout table in new schema
+    assert not any("# Layout" in v for v in col_a), "Reporte ya no tiene tabla Layout"
 
 
-def test_template_block_sheets_have_exact_headers():
+def test_template_sections_sheet_has_exact_headers():
+    wb = load_workbook(build_template())
+    ws = wb[s.SHEET_SECTIONS]
+    actual = [ws.cell(row=1, column=c).value for c in range(1, len(s.SECTIONS_HEADERS) + 1)]
+    assert actual == s.SECTIONS_HEADERS
+
+
+def test_template_widget_sheets_have_exact_headers():
     wb = load_workbook(build_template())
     for sheet_name, expected_headers in s.SHEET_HEADERS.items():
         ws = wb[sheet_name]
@@ -82,7 +93,7 @@ def test_template_has_dropdown_on_tipo():
     assert ws.data_validations.count > 0, "Reporte debería tener al menos un dropdown"
 
 
-def test_template_dropdowns_on_block_sheets_match_schema():
+def test_template_dropdowns_on_widget_sheets_match_schema():
     wb = load_workbook(build_template())
     for (sheet_name, _header), _choices in s.DROPDOWNS.items():
         if sheet_name == s.SHEET_REPORTE:
@@ -98,7 +109,7 @@ def test_template_dropdowns_on_block_sheets_match_schema():
 # ---------------------------------------------------------------------------
 @pytest.fixture
 def tiny_report(db):
-    """Report con 1 block de cada tipo (sin imágenes reales, paths dummy)."""
+    """Report con 1 Section y 1 widget de cada tipo (sin imágenes reales)."""
     stage = make_stage()
     report = Report.objects.create(
         stage=stage,
@@ -111,61 +122,62 @@ def tiny_report(db):
         status=Report.Status.DRAFT,
         published_at=datetime(2026, 5, 2, 12, 0, tzinfo=timezone.utc),
     )
+    section = Section.objects.create(
+        report=report, order=1, title="Análisis", layout="stack",
+    )
 
-    TextImageBlock.objects.create(
-        report=report, order=1, title="Intro", body="Body text",
-        image_position="left", columns=1,
+    TextWidget.objects.create(section=section, order=1, title="Intro", body="Body text")
+    TextImageWidget.objects.create(
+        section=section, order=2, title="Hero",
+        body="Body", image_position="left", columns=1,
     )
-    ImageBlock.objects.create(
-        report=report, order=2, title="Hero",
-        caption="Caption",
-    )
-    kpi = KpiGridBlock.objects.create(report=report, order=3, title="KPIs")
-    KpiTile.objects.create(
-        kpi_grid_block=kpi, order=1, label="Reach",
+
+    kpi = KpiGridWidget.objects.create(section=section, order=3, title="KPIs")
+    KpiTileWidget.objects.create(
+        widget=kpi, order=1, label="Reach",
         value=Decimal("1000"), period_comparison=Decimal("5.0"),
     )
-    KpiTile.objects.create(
-        kpi_grid_block=kpi, order=2, label="Engagement",
+    KpiTileWidget.objects.create(
+        widget=kpi, order=2, label="Engagement",
         value=Decimal("5.5"), period_comparison=None,
     )
 
-    tbl = TableBlock.objects.create(report=report, order=4, title="Mes a mes")
-    TableRow.objects.create(
-        table_block=tbl, order=1, is_header=True,
+    tbl = TableWidget.objects.create(section=section, order=4, title="Mes a mes")
+    TableRowWidget.objects.create(
+        widget=tbl, order=1, is_header=True,
         cells=["Métrica", "Valor", "Δ"],
     )
-    TableRow.objects.create(
-        table_block=tbl, order=2,
+    TableRowWidget.objects.create(
+        widget=tbl, order=2,
         cells=["reach", "500", "+5%"],
     )
 
-    tc = TopContentsBlock.objects.create(
-        report=report, order=5, title="Top posts",
-        network="INSTAGRAM", period_label="abril", limit=6,
+    tc = TopContentsWidget.objects.create(
+        section=section, order=5, title="Top posts",
+        network="INSTAGRAM", period_label="abril",
     )
-    TopContentItem.objects.create(
-        block=tc, order=1, caption="Post 1",
+    TopContentItemWidget.objects.create(
+        widget=tc, order=1, caption="Post 1",
         source_type="ORGANIC", views=100, likes=10,
     )
 
-    tcr = TopCreatorsBlock.objects.create(
-        report=report, order=6, title="Top creators",
-        network="INSTAGRAM", period_label="abril", limit=6,
+    tcr = TopCreatorsWidget.objects.create(
+        section=section, order=6, title="Top creators",
+        network="INSTAGRAM", period_label="abril",
     )
-    TopCreatorItem.objects.create(
-        block=tcr, order=1, handle="@test", views=200,
+    TopCreatorItemWidget.objects.create(
+        widget=tcr, order=1, handle="@test", views=200,
     )
 
-    chart = ChartBlock.objects.create(
-        report=report, order=7, title="Followers",
+    chart = ChartWidget.objects.create(
+        section=section, order=7, title="Followers",
         network="INSTAGRAM", chart_type="bar",
     )
-    ChartDataPoint.objects.create(
-        chart_block=chart, order=1, label="Ene", value=Decimal("100"),
+    ChartDataPointWidget.objects.create(
+        widget=chart, order=1, label="Ene", value=Decimal("100"),
     )
-    ChartDataPoint.objects.create(
-        chart_block=chart, order=2, label="Feb", value=Decimal("120"),
+    ChartDataPointWidget.objects.create(
+        widget=chart, order=2, label="Feb", value=Decimal("120"),
     )
 
     return report
@@ -183,16 +195,13 @@ def test_exporter_preserves_sheet_layout_from_template(tiny_report):
     assert wb.sheetnames == s.SHEETS_IN_ORDER
 
 
-def test_exporter_populates_reporte_kv_and_layout(tiny_report):
+def test_exporter_populates_reporte_kv(tiny_report):
     wb = load_workbook(export(tiny_report))
     ws = wb[s.SHEET_REPORTE]
 
-    # Recoger key-value — parar al entrar a la sección Layout
     kv = {}
     for r in range(2, ws.max_row + 1):
         key = ws.cell(row=r, column=1).value
-        if isinstance(key, str) and key.startswith("# Layout"):
-            break
         if isinstance(key, str) and key and not key.startswith("#"):
             kv[key.rstrip("*")] = ws.cell(row=r, column=2).value
 
@@ -203,30 +212,26 @@ def test_exporter_populates_reporte_kv_and_layout(tiny_report):
     assert kv["intro"] == "Intro de prueba"
     assert kv["conclusiones"] == "Conclusiones de prueba"
 
-    # Layout: 7 blocks, orden 1..7 con nombres `{prefix}_1`
-    layout_rows = _read_layout(ws)
-    assert len(layout_rows) == 7
-    orders = [r["orden"] for r in layout_rows]
-    assert orders == [1, 2, 3, 4, 5, 6, 7]
-    nombres = [r["nombre"] for r in layout_rows]
-    expected = [
-        "textimage_1", "imagen_1", "kpi_1", "table_1",
-        "topcontents_1", "topcreators_1", "chart_1",
-    ]
-    assert nombres == expected
+
+def test_exporter_populates_sections_sheet(tiny_report):
+    wb = load_workbook(export(tiny_report))
+    rows = _read_tabular(wb[s.SHEET_SECTIONS], s.SECTIONS_HEADERS)
+    assert len(rows) == 1
+    assert rows[0]["nombre"] == "section_1"
+    assert rows[0]["title"] == "Análisis"
+    assert rows[0]["layout"] == "stack"
+    assert rows[0]["order"] == 1
 
 
 def test_exporter_writes_kpi_tiles_denormalized(tiny_report):
     wb = load_workbook(export(tiny_report))
-    rows = _read_tabular(wb[s.SHEET_KPIS], s.KPIS_HEADERS)
+    rows = _read_tabular(wb[s.SHEET_KPIGRIDS], s.KPIGRIDS_HEADERS)
     assert len(rows) == 2
-    # block_title repetido en cada row
-    assert all(r["nombre"] == "kpi_1" for r in rows)
-    assert all(r["block_title"] == "KPIs" for r in rows)
+    assert all(r["section_nombre"] == "section_1" for r in rows)
+    assert all(r["widget_title"] == "KPIs" for r in rows)
     assert rows[0]["label"] == "Reach"
     assert rows[0]["value"] == 1000.0
     assert rows[0]["period_comparison"] == 5.0
-    # period_comparison=None en DB → celda vacía en xlsx (openpyxl la lee como None)
     assert rows[1]["period_comparison"] in (None, "")
 
 
@@ -234,26 +239,26 @@ def test_exporter_writes_chart_points(tiny_report):
     wb = load_workbook(export(tiny_report))
     rows = _read_tabular(wb[s.SHEET_CHARTS], s.CHARTS_HEADERS)
     assert len(rows) == 2
-    assert rows[0]["nombre"] == "chart_1"
+    assert rows[0]["section_nombre"] == "section_1"
     assert rows[0]["chart_type"] == "bar"
     assert rows[0]["point_label"] == "Ene"
     assert rows[1]["point_label"] == "Feb"
 
 
-def test_exporter_writes_textimage_and_imagen_one_row_per_block(tiny_report):
+def test_exporter_writes_text_and_textimage_one_row_per_widget(tiny_report):
     wb = load_workbook(export(tiny_report))
-    ti_rows = _read_tabular(wb[s.SHEET_TEXTIMAGE], s.TEXTIMAGE_HEADERS)
-    im_rows = _read_tabular(wb[s.SHEET_IMAGENES], s.IMAGENES_HEADERS)
+    text_rows = _read_tabular(wb[s.SHEET_TEXTS], s.TEXTS_HEADERS)
+    ti_rows = _read_tabular(wb[s.SHEET_TEXTIMAGES], s.TEXTIMAGES_HEADERS)
+    assert len(text_rows) == 1
     assert len(ti_rows) == 1
-    assert len(im_rows) == 1
-    assert ti_rows[0]["nombre"] == "textimage_1"
+    assert text_rows[0]["section_nombre"] == "section_1"
+    assert text_rows[0]["body"] == "Body text"
+    assert ti_rows[0]["section_nombre"] == "section_1"
     assert ti_rows[0]["image_position"] == "left"
-    assert im_rows[0]["nombre"] == "imagen_1"
-    assert im_rows[0]["caption"] == "Caption"
 
 
-def test_exporter_empty_sheets_when_no_blocks_of_that_type(db):
-    """Report sin ImageBlock → hoja Imagenes queda vacía (solo headers)."""
+def test_exporter_empty_sheets_when_no_widgets_of_that_type(db):
+    """Report sin ImageWidget → hoja Images queda vacía (solo headers)."""
     stage = make_stage()
     report = Report.objects.create(
         stage=stage,
@@ -263,12 +268,12 @@ def test_exporter_empty_sheets_when_no_blocks_of_that_type(db):
         title="Sin images",
         status=Report.Status.DRAFT,
     )
-    TextImageBlock.objects.create(report=report, order=1, title="Solo")
+    section = Section.objects.create(report=report, order=1, title="Solo")
+    TextWidget.objects.create(section=section, order=1, title="")
 
     wb = load_workbook(export(report))
-    ws = wb[s.SHEET_IMAGENES]
-    # Solo el header row
-    rows = _read_tabular(ws, s.IMAGENES_HEADERS)
+    ws = wb[s.SHEET_IMAGES]
+    rows = _read_tabular(ws, s.IMAGES_HEADERS)
     assert rows == []
 
 
@@ -282,23 +287,4 @@ def _read_tabular(ws, headers: list[str]) -> list[dict]:
             continue
         row = {h: ws.cell(row=r, column=i).value for i, h in enumerate(headers, start=1)}
         out.append(row)
-    return out
-
-
-def _read_layout(ws) -> list[dict]:
-    """Lee la sección # Layout de la hoja Reporte."""
-    header_row = None
-    for r in range(1, ws.max_row + 1):
-        if ws.cell(row=r, column=1).value == "orden":
-            header_row = r
-            break
-    if header_row is None:
-        return []
-    out = []
-    for r in range(header_row + 1, ws.max_row + 1):
-        orden = ws.cell(row=r, column=1).value
-        nombre = ws.cell(row=r, column=2).value
-        if orden in (None, ""):
-            continue
-        out.append({"orden": orden, "nombre": nombre})
     return out
