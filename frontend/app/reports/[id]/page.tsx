@@ -9,7 +9,7 @@ import { reportDetailCrumbs } from "@/lib/breadcrumbs";
 
 import HeaderSection from "./sections/HeaderSection";
 import ConclusionsSection from "./sections/ConclusionsSection";
-import BlockRenderer from "./blocks/BlockRenderer";
+import SectionRenderer from "./sections/SectionRenderer";
 
 export default async function ReportPage({ params }: { params: { id: string } }) {
   const user = await getCurrentUser();
@@ -39,7 +39,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
       />
       <main className="page" style={{ background: "var(--chirri-pink)" }}>
         <HeaderSection report={report} />
-        {report.blocks.length === 0 ? (
+        {report.sections.length === 0 ? (
           <>
             <ConclusionsSection report={report} />
             <section
@@ -58,17 +58,18 @@ export default async function ReportPage({ params }: { params: { id: string } })
           </>
         ) : (
           (() => {
-            const kpiIdx = report.blocks.findIndex((b) => b.type === "KpiGridBlock");
-            // Conclusions land right after the first KpiGridBlock so the
-            // takeaway sits next to the top-line numbers. When the report has
-            // no KpiGridBlock, fall through and render conclusions before the
-            // block list so it stays at the top of the page.
+            const kpiIdx = report.sections.findIndex((s) =>
+              s.widgets.some((w) => w.type === "KpiGridWidget"),
+            );
+            // Conclusions land right after the first section containing a
+            // KpiGridWidget so the takeaway sits next to the top-line numbers.
+            // When no such section exists, conclusions render before the list.
             return (
               <>
                 {kpiIdx === -1 && <ConclusionsSection report={report} />}
-                {report.blocks.map((block, i) => (
-                  <Fragment key={block.id}>
-                    <BlockRenderer block={block} />
+                {report.sections.map((section, i) => (
+                  <Fragment key={section.id}>
+                    <SectionRenderer section={section} />
                     {i === kpiIdx && <ConclusionsSection report={report} />}
                   </Fragment>
                 ))}

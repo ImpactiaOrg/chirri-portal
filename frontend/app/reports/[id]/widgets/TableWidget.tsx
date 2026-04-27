@@ -1,4 +1,4 @@
-import type { TableBlockDto, TableRowDto } from "@/lib/api";
+import type { TableWidgetDto, TableRowDto } from "@/lib/api";
 
 const NUMBER_RE = /^[+-]?\d+(?:[.,]\d+)?\s*$/;
 const PERCENT_RE = /^[+-]?\d+(?:[.,]\d+)?\s*%$/;
@@ -104,24 +104,26 @@ function computeTotals(rows: TableRowDto[], colCount: number): string[] {
   return totals;
 }
 
-export default function TableBlock({ block }: { block: TableBlockDto }) {
-  const sorted = [...(block.rows ?? [])].sort((a, b) => a.order - b.order);
+export default function TableWidget({ widget }: { widget: TableWidgetDto }) {
+  const sorted = [...(widget.rows ?? [])].sort((a, b) => a.order - b.order);
   if (sorted.length === 0) return null;
 
   const headerRows = sorted.filter((r) => r.is_header);
   const dataRows = sorted.filter((r) => !r.is_header);
   const colCount = Math.max(...sorted.map((r) => r.cells.length));
-  const showTotal = block.show_total && dataRows.length > 0;
+  const showTotal = widget.show_total && dataRows.length > 0;
   const totals = showTotal ? computeTotals(sorted, colCount) : null;
-  const title = block.title?.trim();
 
   return (
-    <section style={{ marginBottom: 48 }}>
-      {title && <span className="pill-title">{title.toUpperCase()}</span>}
+    <div>
+      {widget.title && (
+        <h3 style={{ margin: 0, marginBottom: 12, fontSize: 18 }}>
+          {widget.title}
+        </h3>
+      )}
       <div
         className="card"
         style={{
-          marginTop: title ? 16 : 0,
           padding: 0,
           overflow: "hidden",
           background: "#fff",
@@ -195,6 +197,6 @@ export default function TableBlock({ block }: { block: TableBlockDto }) {
           </tbody>
         </table>
       </div>
-    </section>
+    </div>
   );
 }

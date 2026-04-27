@@ -1,14 +1,18 @@
 import type { ReportDto } from "./api";
 
 export function hasTopContents(report: ReportDto): boolean {
-  return report.blocks.some(
-    (b) => b.type === "TopContentsBlock" && (b.items ?? []).length > 0,
+  return report.sections.some((s) =>
+    s.widgets.some(
+      (w) => w.type === "TopContentsWidget" && (w.items ?? []).length > 0,
+    ),
   );
 }
 
 export function hasTopCreators(report: ReportDto): boolean {
-  return report.blocks.some(
-    (b) => b.type === "TopCreatorsBlock" && (b.items ?? []).length > 0,
+  return report.sections.some((s) =>
+    s.widgets.some(
+      (w) => w.type === "TopCreatorsWidget" && (w.items ?? []).length > 0,
+    ),
   );
 }
 

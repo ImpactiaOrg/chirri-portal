@@ -114,15 +114,21 @@ export type CampaignDetailDto = {
   stages_with_reports: StageWithReportsDto[];
 };
 
-// -- Child row DTOs --
+// -- Child DTOs --
 
 export type KpiTileDto = {
   label: string;
-  value: string; // Decimal serialized as string
+  value: string;
   unit: string;
   period_comparison: string | null;
   period_comparison_label: string;
   order: number;
+};
+
+export type TableRowDto = {
+  order: number;
+  is_header: boolean;
+  cells: string[];
 };
 
 export type ChartDataPointDto = {
@@ -155,23 +161,29 @@ export type TopCreatorItemDto = {
   shares: number | null;
 };
 
-export type TableRowDto = {
-  order: number;
-  is_header: boolean;
-  cells: string[];
-};
+// -- Widget subtype DTOs (discriminated union on `type`) --
 
-// -- Block subtype DTOs (discriminated union on `type`) --
-
-type BaseBlockFields = {
+type BaseWidgetFields = {
   id: number;
   order: number;
+  title: string;
   instructions: string;
 };
 
-export type TextImageBlockDto = BaseBlockFields & {
-  type: "TextImageBlock";
-  title: string;
+export type TextWidgetDto = BaseWidgetFields & {
+  type: "TextWidget";
+  body: string;
+};
+
+export type ImageWidgetDto = BaseWidgetFields & {
+  type: "ImageWidget";
+  image_url: string | null;
+  image_alt: string;
+  caption: string;
+};
+
+export type TextImageWidgetDto = BaseWidgetFields & {
+  type: "TextImageWidget";
   body: string;
   columns: 1 | 2 | 3;
   image_position: "left" | "right" | "top";
@@ -179,62 +191,60 @@ export type TextImageBlockDto = BaseBlockFields & {
   image_url: string | null;
 };
 
-export type ImageBlockDto = BaseBlockFields & {
-  type: "ImageBlock";
-  image_url: string | null;
-  image_alt: string;
-  title: string;
-  caption: string;
-};
-
-export type KpiGridBlockDto = BaseBlockFields & {
-  type: "KpiGridBlock";
-  title: string;
+export type KpiGridWidgetDto = BaseWidgetFields & {
+  type: "KpiGridWidget";
   tiles: KpiTileDto[];
 };
 
-export type TableBlockDto = BaseBlockFields & {
-  type: "TableBlock";
-  title: string;
+export type TableWidgetDto = BaseWidgetFields & {
+  type: "TableWidget";
   show_total: boolean;
   rows: TableRowDto[];
 };
 
-export type TopContentsBlockDto = BaseBlockFields & {
-  type: "TopContentsBlock";
-  title: string;
-  network: Network | null;
-  period_label: string;
-  limit: number;
-  items: TopContentItemDto[];
-};
-
-export type TopCreatorsBlockDto = BaseBlockFields & {
-  type: "TopCreatorsBlock";
-  title: string;
-  network: Network | null;
-  period_label: string;
-  limit: number;
-  items: TopCreatorItemDto[];
-};
-
-export type ChartBlockDto = BaseBlockFields & {
-  type: "ChartBlock";
-  title: string;
-  description: string;
+export type ChartWidgetDto = BaseWidgetFields & {
+  type: "ChartWidget";
   network: Network | null;
   chart_type: "bar" | "line";
   data_points: ChartDataPointDto[];
 };
 
-export type ReportBlockDto =
-  | TextImageBlockDto
-  | ImageBlockDto
-  | KpiGridBlockDto
-  | TableBlockDto
-  | TopContentsBlockDto
-  | TopCreatorsBlockDto
-  | ChartBlockDto;
+export type TopContentsWidgetDto = BaseWidgetFields & {
+  type: "TopContentsWidget";
+  network: Network | null;
+  period_label: string;
+  items: TopContentItemDto[];
+};
+
+export type TopCreatorsWidgetDto = BaseWidgetFields & {
+  type: "TopCreatorsWidget";
+  network: Network | null;
+  period_label: string;
+  items: TopCreatorItemDto[];
+};
+
+export type WidgetDto =
+  | TextWidgetDto
+  | ImageWidgetDto
+  | TextImageWidgetDto
+  | KpiGridWidgetDto
+  | TableWidgetDto
+  | ChartWidgetDto
+  | TopContentsWidgetDto
+  | TopCreatorsWidgetDto;
+
+// -- Section --
+
+export type SectionLayout = "stack" | "columns_2" | "columns_3";
+
+export type SectionDto = {
+  id: number;
+  order: number;
+  title: string;
+  layout: SectionLayout;
+  instructions: string;
+  widgets: WidgetDto[];
+};
 
 export type ReportAttachmentKind = "PDF_REPORT" | "DATA_EXPORT" | "ANNEX" | "OTHER";
 
@@ -264,7 +274,7 @@ export type ReportDto = {
   campaign_id: number;
   campaign_name: string;
   brand_name: string;
-  blocks: ReportBlockDto[];
+  sections: SectionDto[];
   attachments: ReportAttachmentDto[];
 };
 

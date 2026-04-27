@@ -3,9 +3,9 @@ import Link from "next/link";
 import {
   apiFetch,
   type CampaignDto,
-  type KpiGridBlockDto,
+  type KpiGridWidgetDto,
   type PagedResponse,
-  type ReportBlockDto,
+  type WidgetDto,
   type ReportDto,
 } from "@/lib/api";
 import { getAccessToken, getCurrentUser } from "@/lib/auth";
@@ -19,15 +19,15 @@ function firstName(full: string, fallback: string): string {
 
 function sumReach(report: ReportDto | null): number {
   if (!report) return 0;
-  // Post-DEV-116: metrics live inside typed blocks instead of a flat
-  // report.metrics list. The "Reach total" headline number is authored
-  // as the first tile of the first KpiGridBlock in seed_demo and in
-  // production reports. We look it up by label (case-insensitive) with
-  // a fallback to the first tile so the hero never renders empty when
-  // the label drifts.
-  const isKpi = (b: ReportBlockDto): b is KpiGridBlockDto =>
-    b.type === "KpiGridBlock";
-  const kpiBlock = report.blocks.find(isKpi);
+  // Post-DEV-116: metrics live inside typed widgets inside sections.
+  // The "Reach total" headline number is authored as the first tile of
+  // the first KpiGridWidget in seed_demo and production reports.
+  // We look it up by label (case-insensitive) with a fallback to the
+  // first tile so the hero never renders empty when the label drifts.
+  const isKpi = (w: WidgetDto): w is KpiGridWidgetDto =>
+    w.type === "KpiGridWidget";
+  const allWidgets = report.sections.flatMap((s) => s.widgets);
+  const kpiBlock = allWidgets.find(isKpi);
   if (!kpiBlock) return 0;
   const tiles = kpiBlock.tiles ?? [];
   const reachTile =
