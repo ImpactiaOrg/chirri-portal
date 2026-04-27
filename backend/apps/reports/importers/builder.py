@@ -124,6 +124,7 @@ def _build_chart(section, w, images):
         section=section, order=w.widget_orden, title=w.widget_title,
         network=w.fields.get("widget_network"),
         chart_type=w.fields.get("chart_type", "bar"),
+        description=w.fields.get("widget_description") or "",
     )
     ChartDataPoint.objects.bulk_create([
         ChartDataPoint(

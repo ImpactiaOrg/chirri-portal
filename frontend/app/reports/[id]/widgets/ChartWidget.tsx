@@ -62,7 +62,7 @@ export default function ChartWidget({ widget }: { widget: ChartWidgetDto }) {
         }}
       />
 
-      {/* Header: pill */}
+      {/* Header: pill + description */}
       <div style={{ position: "relative", zIndex: 1, marginBottom: 24 }}>
         {pillText && (
           <div
@@ -83,6 +83,21 @@ export default function ChartWidget({ widget }: { widget: ChartWidgetDto }) {
           >
             <span style={{ fontSize: 12 }}>{emoji}</span>
             {pillText}
+          </div>
+        )}
+        {widget.description && (
+          <div
+            className="font-display"
+            style={{
+              fontSize: 32,
+              lineHeight: 1.1,
+              letterSpacing: "-0.02em",
+              fontWeight: 700,
+              maxWidth: "70%",
+              marginTop: 4,
+            }}
+          >
+            {widget.description}
           </div>
         )}
       </div>

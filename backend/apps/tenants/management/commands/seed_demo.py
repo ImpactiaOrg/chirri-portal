@@ -657,7 +657,11 @@ def _seed_full_layout(report) -> None:
 
     # 9) Chart IG — line
     sec = Section.objects.create(report=report, order=9, title="Followers")
-    w = ChartWidget.objects.create(section=sec, order=1, network=Network.INSTAGRAM, chart_type="line")
+    w = ChartWidget.objects.create(
+        section=sec, order=1,
+        network=Network.INSTAGRAM, chart_type="line",
+        description="cuántas personas nos siguen al cierre de cada mes.",
+    )
     ChartDataPoint.objects.bulk_create([
         ChartDataPoint(widget=w, order=i, label=label, value=Decimal(str(value)))
         for i, (label, value) in enumerate(_IG_FOLLOWERS, start=1)
@@ -665,7 +669,11 @@ def _seed_full_layout(report) -> None:
 
     # 10) Chart TikTok — bar
     sec = Section.objects.create(report=report, order=10, title="Followers")
-    w = ChartWidget.objects.create(section=sec, order=1, network=Network.TIKTOK, chart_type="bar")
+    w = ChartWidget.objects.create(
+        section=sec, order=1,
+        network=Network.TIKTOK, chart_type="bar",
+        description="evolución de seguidores en TikTok.",
+    )
     ChartDataPoint.objects.bulk_create([
         ChartDataPoint(widget=w, order=i, label=label, value=Decimal(str(value)))
         for i, (label, value) in enumerate(_TIKTOK_FOLLOWERS, start=1)
@@ -673,7 +681,11 @@ def _seed_full_layout(report) -> None:
 
     # 11) Chart X — bar
     sec = Section.objects.create(report=report, order=11, title="Followers")
-    w = ChartWidget.objects.create(section=sec, order=1, network=Network.X, chart_type="bar")
+    w = ChartWidget.objects.create(
+        section=sec, order=1,
+        network=Network.X, chart_type="bar",
+        description="evolución de seguidores en X.",
+    )
     ChartDataPoint.objects.bulk_create([
         ChartDataPoint(widget=w, order=i, label=label, value=Decimal(str(value)))
         for i, (label, value) in enumerate(_X_FOLLOWERS, start=1)
@@ -801,7 +813,11 @@ def _seed_all_blocks_layout(report) -> None:
 
     # 8) ChartWidget bar — Followers IG
     sec = Section.objects.create(report=report, order=8, title="Followers")
-    w = ChartWidget.objects.create(section=sec, order=1, network=Network.INSTAGRAM, chart_type="bar")
+    w = ChartWidget.objects.create(
+        section=sec, order=1,
+        network=Network.INSTAGRAM, chart_type="bar",
+        description="cuántas personas nos siguen al cierre de cada mes.",
+    )
     ChartDataPoint.objects.bulk_create([
         ChartDataPoint(widget=w, order=i, label=label, value=Decimal(str(value)))
         for i, (label, value) in enumerate(_IG_FOLLOWERS_APRIL, start=1)
@@ -809,7 +825,11 @@ def _seed_all_blocks_layout(report) -> None:
 
     # 9) ChartWidget line — Engagement rate evolution
     sec = Section.objects.create(report=report, order=9, title="Engagement rate")
-    w = ChartWidget.objects.create(section=sec, order=1, network=None, chart_type="line")
+    w = ChartWidget.objects.create(
+        section=sec, order=1,
+        network=None, chart_type="line",
+        description="evolución mensual del engagement rate de la marca.",
+    )
     ChartDataPoint.objects.bulk_create([
         ChartDataPoint(widget=w, order=i, label=label, value=value)
         for i, (label, value) in enumerate(_ENGAGEMENT_RATE_APRIL, start=1)

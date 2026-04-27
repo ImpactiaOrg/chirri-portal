@@ -206,6 +206,7 @@ export type ChartWidgetDto = BaseWidgetFields & {
   type: "ChartWidget";
   network: Network | null;
   chart_type: "bar" | "line";
+  description: string;
   data_points: ChartDataPointDto[];
 };
 

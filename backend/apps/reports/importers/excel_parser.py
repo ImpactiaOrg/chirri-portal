@@ -449,7 +449,7 @@ def _parse_charts(ws: Worksheet) -> tuple[list[ParsedWidget], list[ImporterError
     widgets, errors = _parse_grouped_widget(
         ws, s.SHEET_CHARTS, s.CHARTS_HEADERS,
         type_name="ChartWidget",
-        widget_field_cols=("widget_network", "chart_type"),
+        widget_field_cols=("widget_network", "chart_type", "widget_description"),
         item_field_cols=("point_orden", "point_label", "point_value"),
         numeric_item_cols={"point_value"},
         enum_widget_cols={

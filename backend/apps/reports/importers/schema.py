@@ -106,7 +106,7 @@ TABLE_CELL_COLS = [f"cell_{i}" for i in range(1, 9)]
 
 CHARTS_HEADERS = [
     "section_nombre", "widget_orden", "widget_title",
-    "widget_network", "chart_type",
+    "widget_network", "chart_type", "widget_description",
     "point_orden", "point_label", "point_value",
 ]
 

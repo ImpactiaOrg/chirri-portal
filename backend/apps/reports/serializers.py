@@ -145,7 +145,7 @@ class ChartWidgetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChartWidget
-        fields = BASE_WIDGET_FIELDS + ("type", "network", "chart_type", "data_points")
+        fields = BASE_WIDGET_FIELDS + ("type", "network", "chart_type", "description", "data_points")
 
     def get_type(self, obj) -> str:
         return "ChartWidget"

@@ -207,6 +207,7 @@ def _populate_charts(
                 "widget_title": widget.title,
                 "widget_network": s.NETWORK_LABELS.get(widget.network, ""),
                 "chart_type": widget.chart_type,
+                "widget_description": widget.description,
                 "point_orden": p.order,
                 "point_label": p.label,
                 "point_value": _num(p.value),

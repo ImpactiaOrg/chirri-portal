@@ -18,6 +18,10 @@ class ChartWidget(Widget):
     chart_type = models.CharField(
         max_length=16, choices=CHART_TYPES, default="bar",
     )
+    description = models.TextField(
+        blank=True,
+        help_text="Frase descriptiva grande mostrada al lado del chart (hero layout).",
+    )
 
     class Meta:
         app_label = "reports"
