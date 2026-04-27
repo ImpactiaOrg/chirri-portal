@@ -252,6 +252,7 @@ export type ReportAttachmentKind = "PDF_REPORT" | "DATA_EXPORT" | "ANNEX" | "OTH
 export type ReportAttachmentDto = {
   id: number;
   title: string;
+  alt_text: string;
   url: string | null;
   mime_type: string;
   size_bytes: number;

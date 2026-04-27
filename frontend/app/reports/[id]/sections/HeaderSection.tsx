@@ -47,6 +47,7 @@ function AttachmentList({ items }: { items: ReportAttachmentDto[] }) {
               href={a.url ?? "#"}
               download
               aria-disabled={!a.url}
+              aria-label={a.alt_text || a.title}
               style={{
                 display: "inline-flex",
                 alignItems: "center",

@@ -551,7 +551,8 @@ def _seed_pdf_attachment(report) -> None:
     attachment = ReportAttachment(
         report=report,
         order=0,
-        title="Reporte (PDF)",
+        title="Reporte original",
+        alt_text=file_name,
         kind=ReportAttachment.Kind.PDF_REPORT,
     )
     attachment.file.save(file_name, ContentFile(_PDF_DUMMY), save=False)

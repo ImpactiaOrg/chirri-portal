@@ -216,7 +216,7 @@ class ReportAttachmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ReportAttachment
-        fields = ("id", "title", "url", "mime_type", "size_bytes", "kind", "order")
+        fields = ("id", "title", "alt_text", "url", "mime_type", "size_bytes", "kind", "order")
 
     def get_url(self, obj) -> str | None:
         return obj.file.url if obj.file else None

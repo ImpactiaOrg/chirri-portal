@@ -104,7 +104,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
               <a
                 href={primary.url}
                 download
-                aria-label={`Descargar ${primary.title}`}
+                aria-label={primary.alt_text || `Descargar ${primary.title}`}
                 className="btn btn-primary"
                 style={{ textDecoration: "none" }}
               >

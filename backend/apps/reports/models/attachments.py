@@ -30,6 +30,11 @@ class ReportAttachment(models.Model):
     )
     order = models.PositiveIntegerField(default=0)
     title = models.CharField(max_length=200)
+    alt_text = models.CharField(
+        max_length=255, blank=True,
+        help_text="Texto alternativo para accessibility (aria-label). "
+                  "Por defecto se usa el nombre del archivo.",
+    )
     file = models.FileField(
         upload_to="reports/attachments/%Y/%m/",
         validators=[validate_pdf_size],
