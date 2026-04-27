@@ -6,12 +6,14 @@ const NETWORK_LABELS: Record<string, string> = {
   INSTAGRAM: "INSTAGRAM",
   TIKTOK: "TIKTOK",
   X: "X",
+  FACEBOOK: "FACEBOOK",
 };
 
 const NETWORK_EMOJI: Record<string, string> = {
   INSTAGRAM: "📸",
   TIKTOK: "🎵",
   X: "𝕏",
+  FACEBOOK: "ƒ",
 };
 
 function shortMonth(label: string): string {
@@ -89,11 +91,11 @@ export default function ChartWidget({ widget }: { widget: ChartWidgetDto }) {
           <div
             className="font-display"
             style={{
-              fontSize: 32,
+              fontSize: "clamp(20px, 2.4vw, 32px)",
               lineHeight: 1.1,
               letterSpacing: "-0.02em",
               fontWeight: 700,
-              maxWidth: "70%",
+              maxWidth: "100%",
               marginTop: 4,
             }}
           >
@@ -108,7 +110,7 @@ export default function ChartWidget({ widget }: { widget: ChartWidgetDto }) {
           position: "relative",
           zIndex: 1,
           display: "grid",
-          gridTemplateColumns: "minmax(220px, 0.7fr) minmax(360px, 1.3fr)",
+          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
           gap: 32,
           alignItems: "center",
         }}

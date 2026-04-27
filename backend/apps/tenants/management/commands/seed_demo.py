@@ -715,6 +715,10 @@ _ENGAGEMENT_RATE_APRIL = [
     ("Enero", Decimal("3.9")), ("Febrero", Decimal("4.2")),
     ("Marzo", Decimal("4.8")), ("Abril", Decimal("5.3")),
 ]
+_FB_FOLLOWERS_APRIL = [
+    ("Enero", 62_400), ("Febrero", 64_180),
+    ("Marzo", 66_010), ("Abril", 68_950),
+]
 
 
 def _seed_all_blocks_layout(report) -> None:
@@ -812,16 +816,28 @@ def _seed_all_blocks_layout(report) -> None:
     sec = Section.objects.create(report=report, order=7, title="Atribución OneLink")
     TableWidget.objects.create(section=sec, order=1, show_total=True)
 
-    # 8) ChartWidget bar — Followers IG
-    sec = Section.objects.create(report=report, order=8, title="Followers")
-    w = ChartWidget.objects.create(
+    # 8) Followers section — 2 widgets side-by-side (IG + Facebook)
+    sec = Section.objects.create(
+        report=report, order=8, title="Followers",
+        layout=Section.Layout.COLUMNS_2,
+    )
+    ig = ChartWidget.objects.create(
         section=sec, order=1,
         network=Network.INSTAGRAM, chart_type="bar",
         description="cuántas personas nos siguen al cierre de cada mes.",
     )
     ChartDataPoint.objects.bulk_create([
-        ChartDataPoint(widget=w, order=i, label=label, value=Decimal(str(value)))
+        ChartDataPoint(widget=ig, order=i, label=label, value=Decimal(str(value)))
         for i, (label, value) in enumerate(_IG_FOLLOWERS_APRIL, start=1)
+    ])
+    fb = ChartWidget.objects.create(
+        section=sec, order=2,
+        network=Network.FACEBOOK, chart_type="bar",
+        description="seguidores en Facebook al cierre de cada mes.",
+    )
+    ChartDataPoint.objects.bulk_create([
+        ChartDataPoint(widget=fb, order=i, label=label, value=Decimal(str(value)))
+        for i, (label, value) in enumerate(_FB_FOLLOWERS_APRIL, start=1)
     ])
 
     # 9) ChartWidget line — Engagement rate evolution

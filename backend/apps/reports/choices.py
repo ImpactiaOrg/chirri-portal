@@ -10,6 +10,7 @@ class Network(models.TextChoices):
     INSTAGRAM = "INSTAGRAM", "Instagram"
     TIKTOK = "TIKTOK", "TikTok"
     X = "X", "X/Twitter"
+    FACEBOOK = "FACEBOOK", "Facebook"
 
 
 class SourceType(models.TextChoices):
