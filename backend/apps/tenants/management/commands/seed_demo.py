@@ -46,7 +46,7 @@ from apps.users.models import ClientUser
 DEMO_CLIENT_NAME = "Nimbus Studio"
 DEMO_BRAND_NAME = "Nimbus"
 DEMO_USER_EMAIL = "demo@chirripeppers.com"
-DEMO_USER_NAME = "Usuario Demo"
+DEMO_USER_NAME = "John Doe"
 DEMO_PASSWORD = "demo2026"
 
 # Superadmins globales (sin client). Idempotente: si el usuario ya existe en
