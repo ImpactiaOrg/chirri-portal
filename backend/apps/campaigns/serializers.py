@@ -10,9 +10,9 @@ def _compute_stage_reach(stage: Stage) -> int | None:
 
     Post-DEV-116: `ReportMetric` se eliminó y no hay una fuente canónica única
     de "reach" a nivel Report — la data vive dentro de bloques tipados
-    (KpiTile / MetricsTableRow) y se interpreta al renderizar. Por ahora
-    devolvemos None desde el list/detail serializer; el campo queda en el
-    payload por estabilidad de contrato pero no se computa.
+    (KpiTile / TableRow) y se interpreta al renderizar. Por ahora devolvemos
+    None desde el list/detail serializer; el campo queda en el payload por
+    estabilidad de contrato pero no se computa.
 
     Si más adelante se quiere re-introducir, las opciones son:
     a) Sumar KpiTile.value labeled "Reach total" across stage reports.

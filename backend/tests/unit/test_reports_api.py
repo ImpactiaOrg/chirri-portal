@@ -34,7 +34,7 @@ class TestLatestReport:
         assert body["title"] == "Reporte mensual de prueba"
         assert body["status"] == "PUBLISHED"
         # Post-DEV-116: `metrics` array is gone. Data lives inside typed
-        # blocks (MetricsTableBlock.rows, KpiGridBlock.tiles, etc.).
+        # blocks (TableBlock.rows, KpiGridBlock.tiles, etc.).
         assert "metrics" not in body
         assert "blocks" in body
 
