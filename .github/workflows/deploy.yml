@@ -12,6 +12,11 @@ on:
         description: "Branch, tag o commit SHA a deployar"
         required: false
         default: main
+      reseed:
+        description: "DESTRUCTIVO: flush de la DB + seed_demo. Borra TODA la data."
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: deploy-prod
@@ -70,6 +75,15 @@ jobs:
             docker compose -f docker-compose.prod.yml up -d --force-recreate backend celery frontend
             docker compose -f docker-compose.prod.yml up -d --force-recreate nginx
             docker image prune -f
+
+            # Migrate siempre (no-op si no hay pending). Reseed solo si se pidió
+            # explícitamente (input reseed=true) — borra TODA la data.
+            docker compose -f docker-compose.prod.yml exec -T backend python manage.py migrate --noinput
+            if [ "${{ inputs.reseed }}" = "true" ]; then
+              echo "⚠ reseed=true — flushing DB and re-running seed_demo"
+              docker compose -f docker-compose.prod.yml exec -T backend python manage.py flush --no-input
+              docker compose -f docker-compose.prod.yml exec -T backend python manage.py seed_demo
+            fi
 
             sleep 5
             for i in $(seq 1 45); do
