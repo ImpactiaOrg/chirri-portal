@@ -17,10 +17,9 @@ REGLAS DURAS:
 6. Tipos válidos de block (campo `type_name`):
    - TextImageBlock — un párrafo con título e (opcional) imagen
    - KpiGridBlock — grilla de KPIs (tiles con label/value/comparación)
-   - MetricsTableBlock — tabla de métricas (filas con metric_name/value)
+   - TableBlock — tabla genérica (rows con cells: list[str]; primera row con is_header=true; show_total=true para sumar columnas numéricas)
    - TopContentsBlock — top de posts (caption + métricas + thumbnail vacío)
    - TopCreatorsBlock — top de creadores (handle + métricas + thumbnail vacío)
-   - AttributionTableBlock — tabla de OneLink attribution (handle + clicks + downloads)
    - ChartBlock — gráfico (con datapoints label/value)
 7. Si una métrica numérica no aparece, devolvé `null` (no inventes).
 8. `nombre` de cada block debe ser único dentro del reporte.
