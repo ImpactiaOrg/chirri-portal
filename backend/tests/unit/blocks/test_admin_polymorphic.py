@@ -67,11 +67,11 @@ def test_admin_can_access_each_subtype_add_page(admin_client):
     """Cada subtipo tiene su propio admin registered."""
     subtypes = [
         ("reports", "textimageblock"),
+        ("reports", "imageblock"),
         ("reports", "kpigridblock"),
-        ("reports", "metricstableblock"),
+        ("reports", "tableblock"),
         ("reports", "topcontentsblock"),
         ("reports", "topcreatorsblock"),
-        ("reports", "attributiontableblock"),
         ("reports", "chartblock"),
     ]
     for app_label, model_name in subtypes:

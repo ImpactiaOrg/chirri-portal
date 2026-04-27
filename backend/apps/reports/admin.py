@@ -31,39 +31,27 @@ logger = logging.getLogger(__name__)
 from .models import (
     Report, ReportAttachment, ReportBlock,
     TextImageBlock, ImageBlock, KpiGridBlock, KpiTile,
-    MetricsTableBlock, MetricsTableRow,
     TableBlock, TableRow,
     TopContentsBlock, TopContentItem,
     TopCreatorsBlock, TopCreatorItem,
-    AttributionTableBlock,
     ChartBlock, ChartDataPoint,
-    OneLinkAttribution, BrandFollowerSnapshot,
+    BrandFollowerSnapshot,
 )
 
 
 # -------- Child row inlines --------
 #
-# Los 4 inlines que exponen un campo de orden usable (KpiTile / MetricsTableRow
-# / ChartDataPoint / TopContent) usan SortableTabularInline de adminsortable2
-# para habilitar drag-reorder en el admin. Los modelos tienen Meta.ordering que
-# empieza con el FK al parent (para scopar el orden por parent), así que el
-# inline explicita su propio `ordering` en el campo de orden real.
-#
-# OneLinkAttributionInline queda como TabularInline plain: el orden canonical
-# es por `-app_downloads` (descending) y no es user-reorderable.
+# Los inlines que exponen un campo de orden usable (KpiTile / ChartDataPoint /
+# TopContent) usan SortableTabularInline de adminsortable2 para habilitar
+# drag-reorder en el admin. Los modelos tienen Meta.ordering que empieza con
+# el FK al parent (para scopar el orden por parent), así que el inline
+# explicita su propio `ordering` en el campo de orden real.
 
 
 class KpiTileInline(SortableTabularInline):
     model = KpiTile
     extra = 0
     fields = ("order", "label", "value", "period_comparison")
-    ordering = ("order",)
-
-
-class MetricsTableRowInline(SortableTabularInline):
-    model = MetricsTableRow
-    extra = 0
-    fields = ("order", "metric_name", "value", "source_type", "period_comparison")
     ordering = ("order",)
 
 
@@ -94,17 +82,6 @@ class TopCreatorItemInline(SortableTabularInline):
         "views", "likes", "comments", "shares",
     )
     ordering = ("order",)
-
-
-class OneLinkAttributionInline(admin.TabularInline):
-    """Inline de OneLinkAttribution dentro de AttributionTableBlock admin.
-
-    Plain TabularInline (no sortable): el orden canonical es `-app_downloads`
-    y no es user-reorderable, así que drag-reorder no aplica.
-    """
-    model = OneLinkAttribution
-    extra = 0
-    fields = ("influencer_handle", "clicks", "app_downloads")
 
 
 class TableRowInline(SortableTabularInline):
@@ -140,9 +117,6 @@ class ReportBlockInline(StackedPolymorphicInline):
     class KpiGridBlockInline(StackedPolymorphicInline.Child):
         model = KpiGridBlock
 
-    class MetricsTableBlockInline(StackedPolymorphicInline.Child):
-        model = MetricsTableBlock
-
     class TableBlockInline(StackedPolymorphicInline.Child):
         model = TableBlock
 
@@ -152,9 +126,6 @@ class ReportBlockInline(StackedPolymorphicInline):
     class TopCreatorsBlockInline(StackedPolymorphicInline.Child):
         model = TopCreatorsBlock
 
-    class AttributionTableBlockInline(StackedPolymorphicInline.Child):
-        model = AttributionTableBlock
-
     class ChartBlockInline(StackedPolymorphicInline.Child):
         model = ChartBlock
 
@@ -163,11 +134,9 @@ class ReportBlockInline(StackedPolymorphicInline):
         TextImageBlockInline,
         ImageBlockInline,
         KpiGridBlockInline,
-        MetricsTableBlockInline,
         TableBlockInline,
         TopContentsBlockInline,
         TopCreatorsBlockInline,
-        AttributionTableBlockInline,
         ChartBlockInline,
     )
 
@@ -399,8 +368,8 @@ class ReportBlockAdmin(PolymorphicParentModelAdmin):
     """Vista standalone de todos los blocks, polimórfica."""
     base_model = ReportBlock
     child_models = (
-        TextImageBlock, ImageBlock, KpiGridBlock, MetricsTableBlock, TableBlock,
-        TopContentsBlock, TopCreatorsBlock, AttributionTableBlock, ChartBlock,
+        TextImageBlock, ImageBlock, KpiGridBlock, TableBlock,
+        TopContentsBlock, TopCreatorsBlock, ChartBlock,
     )
     list_display = ("report", "order", "polymorphic_ctype")
     list_filter = ("polymorphic_ctype",)
@@ -408,13 +377,13 @@ class ReportBlockAdmin(PolymorphicParentModelAdmin):
 
 
 class _BlockChildAdminBase(SortableAdminBase, PolymorphicChildModelAdmin):
-    """Base común de los 6 subtipos. Cada uno puede sobrescribir `inlines`
-    para agregar sus child rows.
+    """Base común para los subtipos de ReportBlock. Cada uno puede sobrescribir
+    `inlines` para agregar sus child rows.
 
     Hereda `SortableAdminBase` para que los child admins que hostean
-    SortableTabularInline (KpiGrid / MetricsTable / Chart / TopContent) emitan
-    el CSS/JS de adminsortable2 y habiliten drag-reorder en el UI. Subtipos
-    que no usan sortable inlines (TextImage, AttributionTable) lo heredan
+    SortableTabularInline (KpiGrid / Chart / TopContent / Table) emitan el
+    CSS/JS de adminsortable2 y habiliten drag-reorder en el UI. Subtipos
+    que no usan sortable inlines (TextImage, ImageBlock) lo heredan
     inofensivamente — el mixin es no-op si no hay sortable inlines.
     """
     base_model = ReportBlock
@@ -441,13 +410,6 @@ class KpiGridBlockAdmin(_BlockChildAdminBase):
     list_display = ("report", "order", "title")
 
 
-@admin.register(MetricsTableBlock)
-class MetricsTableBlockAdmin(_BlockChildAdminBase):
-    inlines = [MetricsTableRowInline]
-    list_display = ("report", "order", "title", "network")
-    list_filter = ("network",)
-
-
 @admin.register(TableBlock)
 class TableBlockAdmin(_BlockChildAdminBase):
     inlines = [TableRowInline]
@@ -466,12 +428,6 @@ class TopCreatorsBlockAdmin(_BlockChildAdminBase):
     inlines = [TopCreatorItemInline]
     list_display = ("report", "order", "title", "network", "limit")
     list_filter = ("network",)
-
-
-@admin.register(AttributionTableBlock)
-class AttributionTableBlockAdmin(_BlockChildAdminBase):
-    inlines = [OneLinkAttributionInline]
-    list_display = ("report", "order", "title", "show_total")
 
 
 @admin.register(ChartBlock)

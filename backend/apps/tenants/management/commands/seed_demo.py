@@ -5,8 +5,9 @@ Usage:
     python manage.py seed_demo
     python manage.py seed_demo --wipe    # delete demo client first, then reseed
 
-Post-DEV-116: usa blocks tipados (KpiGridBlock, MetricsTableBlock, TopContentBlock,
-AttributionTableBlock, ChartBlock). ReportMetric fue eliminado.
+Post-DEV-116: usa blocks tipados (KpiGridBlock, TableBlock, TopContentBlock,
+ChartBlock). ReportMetric fue eliminado. MetricsTableBlock y AttributionTableBlock
+reemplazados por TableBlock (DEV-Task 7).
 """
 import random
 import shutil
@@ -23,16 +24,12 @@ from django.db import transaction
 from apps.campaigns.models import Campaign, Stage
 from apps.reports.choices import Network, SourceType
 from apps.reports.models import (
-    AttributionTableBlock,
     BrandFollowerSnapshot,
     ChartBlock,
     ChartDataPoint,
     ImageBlock,
     KpiGridBlock,
     KpiTile,
-    MetricsTableBlock,
-    MetricsTableRow,
-    OneLinkAttribution,
     Report,
     ReportAttachment,
     TableBlock,
@@ -573,17 +570,17 @@ def _seed_full_layout(report) -> None:
     """11 typed blocks for the rich monthly General report (Educación/Validación Marzo).
 
     Layout (order 1..11):
-      1 KpiGridBlock    — "KPIs del mes" (3 tiles)
-      2 MetricsTableBlock — "Mes a mes" (cross-network, delta vs prev month)
-      3 MetricsTableBlock — "Instagram" (reach por source_type)
-      4 MetricsTableBlock — "TikTok"    (reach por source_type)
-      5 MetricsTableBlock — "X / Twitter" (reach por source_type)
-      6 TopContentBlock — "Posts del mes"   (kind=POST)
-      7 TopContentBlock — "Creators del mes" (kind=CREATOR)
-      8 AttributionTableBlock — (show_total=True)
-      9 ChartBlock — "Followers IG"      (line, data puntos mensuales)
-     10 ChartBlock — "Followers TikTok"  (bar)
-     11 ChartBlock — "Followers X"       (bar)
+      1 KpiGridBlock — "KPIs del mes" (3 tiles)
+      2 TableBlock   — "Mes a mes" (cross-network, delta vs prev month)
+      3 TableBlock   — "Instagram" (reach por source_type)
+      4 TableBlock   — "TikTok"    (reach por source_type)
+      5 TableBlock   — "X / Twitter" (reach por source_type)
+      6 TopContentsBlock — "Posts del mes"   (kind=POST)
+      7 TopCreatorsBlock — "Creators del mes" (kind=CREATOR)
+      8 TableBlock   — "Atribución OneLink" (show_total=True)
+      9 ChartBlock   — "Followers IG"      (line, data puntos mensuales)
+     10 ChartBlock   — "Followers TikTok"  (bar)
+     11 ChartBlock   — "Followers X"       (bar)
     """
     # 1) KPI Grid
     kpi_grid = KpiGridBlock.objects.create(
@@ -750,9 +747,9 @@ def _seed_all_blocks_layout(report) -> None:
       · TextImageBlock (con imagen, position=left) y (solo texto, 2 columnas)
       · ImageBlock (hero con overlay)
       · KpiGridBlock con 4 tiles (con y sin delta)
-      · MetricsTableBlock cross-network y por-red (Instagram)
+      · TableBlock cross-network y por-red (Instagram)
       · TopContentsBlock + TopCreatorsBlock (DEV-129)
-      · AttributionTableBlock con show_total
+      · TableBlock con show_total (atribución OneLink)
       · ChartBlock bar (followers IG) y line (engagement rate)
     """
     # 1) TextImageBlock — intro narrativa con imagen

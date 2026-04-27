@@ -114,7 +114,7 @@ def balanz_published_report(balanz_stage):
         conclusions_text="Cerramos bien.",
     )
     # DEV-116 Task 2.5: ReportMetric gone. Metrics now live inside KpiGridBlock /
-    # MetricsTableBlock, created per-test when needed.
+    # TableBlock, created per-test when needed.
     return r
 
 

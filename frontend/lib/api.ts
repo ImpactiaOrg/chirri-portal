@@ -125,14 +125,6 @@ export type KpiTileDto = {
   order: number;
 };
 
-export type MetricsTableRowDto = {
-  metric_name: string;
-  value: string;
-  source_type: SourceType | null;
-  period_comparison: string | null;
-  order: number;
-};
-
 export type ChartDataPointDto = {
   label: string;
   value: string;
@@ -161,12 +153,6 @@ export type TopCreatorItemDto = {
   likes: number | null;
   comments: number | null;
   shares: number | null;
-};
-
-export type OneLinkEntryDto = {
-  influencer_handle: string;
-  clicks: number;
-  app_downloads: number;
 };
 
 export type TableRowDto = {
@@ -207,13 +193,6 @@ export type KpiGridBlockDto = BaseBlockFields & {
   tiles: KpiTileDto[];
 };
 
-export type MetricsTableBlockDto = BaseBlockFields & {
-  type: "MetricsTableBlock";
-  title: string;
-  network: Network | null;
-  rows: MetricsTableRowDto[];
-};
-
 export type TableBlockDto = BaseBlockFields & {
   type: "TableBlock";
   title: string;
@@ -239,13 +218,6 @@ export type TopCreatorsBlockDto = BaseBlockFields & {
   items: TopCreatorItemDto[];
 };
 
-export type AttributionTableBlockDto = BaseBlockFields & {
-  type: "AttributionTableBlock";
-  title: string;
-  show_total: boolean;
-  entries: OneLinkEntryDto[];
-};
-
 export type ChartBlockDto = BaseBlockFields & {
   type: "ChartBlock";
   title: string;
@@ -259,11 +231,9 @@ export type ReportBlockDto =
   | TextImageBlockDto
   | ImageBlockDto
   | KpiGridBlockDto
-  | MetricsTableBlockDto
   | TableBlockDto
   | TopContentsBlockDto
   | TopCreatorsBlockDto
-  | AttributionTableBlockDto
   | ChartBlockDto;
 
 export type ReportAttachmentKind = "PDF_REPORT" | "DATA_EXPORT" | "ANNEX" | "OTHER";

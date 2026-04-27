@@ -10,7 +10,7 @@ from django.db import connection
 def test_no_n_plus_1_on_mixed_block_types():
     from apps.reports.models import (
         Report, TextImageBlock, KpiGridBlock, KpiTile,
-        MetricsTableBlock, MetricsTableRow, ChartBlock, ChartDataPoint,
+        TableBlock, TableRow, ChartBlock, ChartDataPoint,
     )
     from apps.reports.serializers import ReportDetailSerializer
 
@@ -19,10 +19,10 @@ def test_no_n_plus_1_on_mixed_block_types():
     kpi = KpiGridBlock.objects.create(report=report, order=2)
     for i in range(3):
         KpiTile.objects.create(kpi_grid_block=kpi, label=f"t{i}", value=i, order=i)
-    mt = MetricsTableBlock.objects.create(report=report, order=3)
+    tb = TableBlock.objects.create(report=report, order=3)
     for i in range(5):
-        MetricsTableRow.objects.create(
-            metrics_table_block=mt, metric_name=f"m{i}", value=i, order=i,
+        TableRow.objects.create(
+            table_block=tb, order=i, is_header=(i == 0), cells=[f"col{i}", str(i)],
         )
     chart = ChartBlock.objects.create(report=report, order=4)
     for i in range(3):
@@ -32,11 +32,10 @@ def test_no_n_plus_1_on_mixed_block_types():
     prefetched = Report.objects.filter(pk=report.pk).prefetch_related(
         "blocks",
         "blocks__kpigridblock__tiles",
-        "blocks__metricstableblock__rows",
+        "blocks__tableblock__rows",
         "blocks__chartblock__data_points",
         "blocks__topcontentsblock__items",
         "blocks__topcreatorsblock__items",
-        "blocks__attributiontableblock__entries",
     ).first()
 
     with CaptureQueriesContext(connection) as ctx:

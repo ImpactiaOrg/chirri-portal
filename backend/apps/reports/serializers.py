@@ -9,13 +9,10 @@ from rest_framework import serializers
 from .models import (
     Report, ReportAttachment,
     TextImageBlock, ImageBlock, KpiGridBlock, KpiTile,
-    MetricsTableBlock, MetricsTableRow,
     TableBlock, TableRow,
     TopContentsBlock, TopContentItem,
     TopCreatorsBlock, TopCreatorItem,
-    AttributionTableBlock,
     ChartBlock, ChartDataPoint,
-    OneLinkAttribution,
 )
 
 
@@ -28,12 +25,6 @@ class KpiTileSerializer(serializers.ModelSerializer):
             "label", "value", "unit",
             "period_comparison", "period_comparison_label", "order",
         )
-
-
-class MetricsTableRowSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MetricsTableRow
-        fields = ("metric_name", "value", "source_type", "period_comparison", "order")
 
 
 class ChartDataPointSerializer(serializers.ModelSerializer):
@@ -68,12 +59,6 @@ class TopCreatorItemSerializer(serializers.ModelSerializer):
 
     def get_thumbnail_url(self, obj) -> str | None:
         return obj.thumbnail.url if obj.thumbnail else None
-
-
-class OneLinkEntrySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OneLinkAttribution
-        fields = ("influencer_handle", "clicks", "app_downloads")
 
 
 class TableRowSerializer(serializers.ModelSerializer):
@@ -134,18 +119,6 @@ class KpiGridBlockSerializer(serializers.ModelSerializer):
         return "KpiGridBlock"
 
 
-class MetricsTableBlockSerializer(serializers.ModelSerializer):
-    type = serializers.SerializerMethodField()
-    rows = MetricsTableRowSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = MetricsTableBlock
-        fields = BASE_BLOCK_FIELDS + ("type", "title", "network", "rows")
-
-    def get_type(self, obj) -> str:
-        return "MetricsTableBlock"
-
-
 class TableBlockSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     rows = TableRowSerializer(many=True, read_only=True)
@@ -186,18 +159,6 @@ class TopCreatorsBlockSerializer(serializers.ModelSerializer):
         return "TopCreatorsBlock"
 
 
-class AttributionTableBlockSerializer(serializers.ModelSerializer):
-    type = serializers.SerializerMethodField()
-    entries = OneLinkEntrySerializer(many=True, read_only=True)
-
-    class Meta:
-        model = AttributionTableBlock
-        fields = BASE_BLOCK_FIELDS + ("type", "title", "show_total", "entries")
-
-    def get_type(self, obj) -> str:
-        return "AttributionTableBlock"
-
-
 class ChartBlockSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     data_points = ChartDataPointSerializer(many=True, read_only=True)
@@ -218,11 +179,9 @@ _BLOCK_SERIALIZERS = {
     TextImageBlock: TextImageBlockSerializer,
     ImageBlock: ImageBlockSerializer,
     KpiGridBlock: KpiGridBlockSerializer,
-    MetricsTableBlock: MetricsTableBlockSerializer,
     TableBlock: TableBlockSerializer,
     TopContentsBlock: TopContentsBlockSerializer,
     TopCreatorsBlock: TopCreatorsBlockSerializer,
-    AttributionTableBlock: AttributionTableBlockSerializer,
     ChartBlock: ChartBlockSerializer,
 }
 
