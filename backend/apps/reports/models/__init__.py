@@ -9,6 +9,7 @@ from .blocks.text_image import TextImageBlock  # noqa: F401
 from .blocks.image import ImageBlock  # noqa: F401
 from .blocks.kpi_grid import KpiGridBlock, KpiTile  # noqa: F401
 from .blocks.metrics_table import MetricsTableBlock, MetricsTableRow  # noqa: F401
+from .blocks.table import TableBlock, TableRow  # noqa: F401
 from .blocks.top_contents import TopContentsBlock, TopContentItem  # noqa: F401
 from .blocks.top_creators import TopCreatorsBlock, TopCreatorItem  # noqa: F401
 from .blocks.attribution import AttributionTableBlock  # noqa: F401
