@@ -32,6 +32,7 @@ from .models import (
     Report, ReportAttachment, ReportBlock,
     TextImageBlock, ImageBlock, KpiGridBlock, KpiTile,
     MetricsTableBlock, MetricsTableRow,
+    TableBlock, TableRow,
     TopContentsBlock, TopContentItem,
     TopCreatorsBlock, TopCreatorItem,
     AttributionTableBlock,
@@ -106,6 +107,14 @@ class OneLinkAttributionInline(admin.TabularInline):
     fields = ("influencer_handle", "clicks", "app_downloads")
 
 
+class TableRowInline(SortableTabularInline):
+    """Filas de TableBlock — texto plano por celda. Soporta drag-reorder."""
+    model = TableRow
+    extra = 0
+    fields = ("order", "is_header", "cells")
+    ordering = ("order",)
+
+
 class ReportAttachmentInline(SortableTabularInline):
     """Descargas asociadas al reporte (PDF oficial, exports, anexos)."""
     model = ReportAttachment
@@ -134,6 +143,9 @@ class ReportBlockInline(StackedPolymorphicInline):
     class MetricsTableBlockInline(StackedPolymorphicInline.Child):
         model = MetricsTableBlock
 
+    class TableBlockInline(StackedPolymorphicInline.Child):
+        model = TableBlock
+
     class TopContentsBlockInline(StackedPolymorphicInline.Child):
         model = TopContentsBlock
 
@@ -152,6 +164,7 @@ class ReportBlockInline(StackedPolymorphicInline):
         ImageBlockInline,
         KpiGridBlockInline,
         MetricsTableBlockInline,
+        TableBlockInline,
         TopContentsBlockInline,
         TopCreatorsBlockInline,
         AttributionTableBlockInline,
@@ -386,7 +399,7 @@ class ReportBlockAdmin(PolymorphicParentModelAdmin):
     """Vista standalone de todos los blocks, polimórfica."""
     base_model = ReportBlock
     child_models = (
-        TextImageBlock, ImageBlock, KpiGridBlock, MetricsTableBlock,
+        TextImageBlock, ImageBlock, KpiGridBlock, MetricsTableBlock, TableBlock,
         TopContentsBlock, TopCreatorsBlock, AttributionTableBlock, ChartBlock,
     )
     list_display = ("report", "order", "polymorphic_ctype")
@@ -433,6 +446,12 @@ class MetricsTableBlockAdmin(_BlockChildAdminBase):
     inlines = [MetricsTableRowInline]
     list_display = ("report", "order", "title", "network")
     list_filter = ("network",)
+
+
+@admin.register(TableBlock)
+class TableBlockAdmin(_BlockChildAdminBase):
+    inlines = [TableRowInline]
+    list_display = ("report", "order", "title", "show_total")
 
 
 @admin.register(TopContentsBlock)
