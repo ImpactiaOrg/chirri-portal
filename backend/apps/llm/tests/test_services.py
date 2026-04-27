@@ -27,10 +27,9 @@ def _fake_chat_response(content, input_tokens=100, output_tokens=50):
 
 @pytest.mark.django_db
 @patch("apps.llm.services.client.chat")
-def test_run_prompt_happy_path_persists_call(mock_chat, fireworks_key):
+def test_run_prompt_happy_path_persists_call(mock_chat, fireworks_key, job):
     mock_chat.return_value = _fake_chat_response("Hello world")
     prompt = make_prompt(body="Hello {{ name }}", response_format="text")
-    job = make_job()
 
     resp = run_prompt(prompt_key=prompt.key, inputs={"name": "Dani"}, job=job)
 
@@ -50,10 +49,10 @@ def test_run_prompt_happy_path_persists_call(mock_chat, fireworks_key):
 
 
 @pytest.mark.django_db
-def test_run_prompt_unknown_key_raises():
+def test_run_prompt_unknown_key_raises(job):
     from apps.llm.models import Prompt
     with pytest.raises(Prompt.DoesNotExist):
-        run_prompt(prompt_key="does-not-exist", inputs={})
+        run_prompt(prompt_key="does-not-exist", inputs={}, job=job)
 
 
 from apps.llm.exceptions import LLMValidationError
@@ -68,22 +67,22 @@ _SCHEMA_OBJ = {
 
 @pytest.mark.django_db
 @patch("apps.llm.services.client.chat")
-def test_run_prompt_json_object_returns_parsed(mock_chat, fireworks_key):
+def test_run_prompt_json_object_returns_parsed(mock_chat, fireworks_key, job):
     mock_chat.return_value = _fake_chat_response('{"answer": "yes"}')
     prompt = make_prompt(response_format="json_object", json_schema=_SCHEMA_OBJ)
-    resp = run_prompt(prompt_key=prompt.key, inputs={})
+    resp = run_prompt(prompt_key=prompt.key, inputs={}, job=job)
     assert resp.parsed == {"answer": "yes"}
 
 
 @pytest.mark.django_db
 @patch("apps.llm.services.client.chat")
-def test_run_prompt_invalid_json_retries_once_then_succeeds(mock_chat, fireworks_key):
+def test_run_prompt_invalid_json_retries_once_then_succeeds(mock_chat, fireworks_key, job):
     mock_chat.side_effect = [
         _fake_chat_response("not json at all"),
         _fake_chat_response('{"answer": "yes"}'),
     ]
     prompt = make_prompt(response_format="json_object", json_schema=_SCHEMA_OBJ)
-    resp = run_prompt(prompt_key=prompt.key, inputs={})
+    resp = run_prompt(prompt_key=prompt.key, inputs={}, job=job)
     assert resp.parsed == {"answer": "yes"}
     assert mock_chat.call_count == 2
     # Two LLMCalls persisted: first failed, second succeeded.
@@ -96,21 +95,21 @@ def test_run_prompt_invalid_json_retries_once_then_succeeds(mock_chat, fireworks
 
 @pytest.mark.django_db
 @patch("apps.llm.services.client.chat")
-def test_run_prompt_invalid_json_after_retries_raises(mock_chat, fireworks_key):
+def test_run_prompt_invalid_json_after_retries_raises(mock_chat, fireworks_key, job):
     mock_chat.return_value = _fake_chat_response("still not json")
     prompt = make_prompt(response_format="json_object", json_schema=_SCHEMA_OBJ)
     with pytest.raises(LLMValidationError):
-        run_prompt(prompt_key=prompt.key, inputs={})
+        run_prompt(prompt_key=prompt.key, inputs={}, job=job)
     assert mock_chat.call_count == 2  # initial + 1 retry
 
 
 @pytest.mark.django_db
 @patch("apps.llm.services.client.chat")
-def test_run_prompt_schema_violation_retries_then_raises(mock_chat, fireworks_key):
+def test_run_prompt_schema_violation_retries_then_raises(mock_chat, fireworks_key, job):
     mock_chat.return_value = _fake_chat_response('{"wrong_field": 1}')
     prompt = make_prompt(response_format="json_object", json_schema=_SCHEMA_OBJ)
     with pytest.raises(LLMValidationError):
-        run_prompt(prompt_key=prompt.key, inputs={})
+        run_prompt(prompt_key=prompt.key, inputs={}, job=job)
     assert mock_chat.call_count == 2
     calls = LLMCall.objects.all()
     assert all(c.error_type == "schema_validation" for c in calls)
@@ -121,12 +120,12 @@ from apps.llm.exceptions import LLMCostExceededError
 
 @pytest.mark.django_db
 @patch("apps.llm.services.client.chat")
-def test_run_prompt_blocks_when_payload_exceeds_token_cap(mock_chat, settings):
+def test_run_prompt_blocks_when_payload_exceeds_token_cap(mock_chat, settings, job):
     settings.LLM_FIREWORKS_API_KEY = "sk-test"
     settings.LLM_MAX_TOKENS_PER_CALL = 10
     prompt = make_prompt(body="X" * 100_000)  # huge prompt
     with pytest.raises(LLMCostExceededError):
-        run_prompt(prompt_key=prompt.key, inputs={})
+        run_prompt(prompt_key=prompt.key, inputs={}, job=job)
     mock_chat.assert_not_called()
     # A failed LLMCall row was persisted with error_type=payload_too_large.
     call = LLMCall.objects.get()

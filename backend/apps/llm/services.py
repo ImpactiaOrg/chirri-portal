@@ -35,7 +35,7 @@ def run_prompt(
     prompt_key: str,
     inputs: dict,
     *,
-    job: LLMJob | None = None,
+    job: LLMJob,
     images: list[bytes] | None = None,
     model_override: str | None = None,
     max_retries: int | None = None,
@@ -49,13 +49,6 @@ def run_prompt(
     if not model:
         raise LLMConfigError(
             f"Prompt '{prompt_key}' has no model_hint and no model_override"
-        )
-
-    if job is None:
-        job = LLMJob.objects.create(
-            consumer=prompt.consumer or "ad_hoc",
-            handler_path="apps.llm.services.run_prompt",
-            status=LLMJob.Status.RUNNING,
         )
 
     rendered = _jinja.from_string(pv.body).render(**inputs)
@@ -79,7 +72,7 @@ def run_prompt(
             f"{settings.LLM_MAX_TOKENS_PER_CALL}"
         )
 
-    if job is not None and job.total_cost_usd >= settings.LLM_MAX_COST_PER_JOB_USD:
+    if job.total_cost_usd >= settings.LLM_MAX_COST_PER_JOB_USD:
         _record_blocked_call(
             pv=pv, job=job, model=model,
             error_type="cost_exceeded",
