@@ -1,4 +1,4 @@
-"""Smoke tests para el management command seed_demo — post-DEV-116."""
+"""Smoke tests para el management command seed_demo — post-Task-6 (Sections + Widgets)."""
 import pytest
 from django.core.management import call_command
 
@@ -10,13 +10,14 @@ def test_seed_demo_runs_without_error():
 
 
 @pytest.mark.django_db
-def test_seed_demo_creates_typed_blocks():
-    """Verifica que el reporte rico (Educación Marzo General) tiene los
-    11 blocks tipados esperados."""
+def test_seed_demo_creates_sections_and_widgets():
+    """Verifica que el reporte rico (Educación Marzo General) tiene las
+    11 secciones + widgets tipados esperados."""
     from apps.reports.models import (
-        Report, KpiGridBlock, TableBlock,
-        TopContentsBlock, TopCreatorsBlock,
-        ChartBlock, ImageBlock,
+        Report, Section,
+        KpiGridWidget, TableWidget,
+        TopContentsWidget, TopCreatorsWidget,
+        ChartWidget, ImageWidget,
     )
     call_command("seed_demo")
 
@@ -31,32 +32,32 @@ def test_seed_demo_creates_typed_blocks():
     )
     assert full_report is not None, "Expected an Educación Marzo General report"
 
-    # 11 blocks esperados
-    assert full_report.blocks.count() == 11
+    # 11 secciones esperadas
+    assert full_report.sections.count() == 11
 
-    # Cada subtipo está representado
-    assert KpiGridBlock.objects.filter(report=full_report).count() == 1
-    assert TableBlock.objects.filter(report=full_report).count() == 5  # mes a mes + IG + TK + X + atribución
-    assert TopContentsBlock.objects.filter(report=full_report).count() == 1
-    assert TopCreatorsBlock.objects.filter(report=full_report).count() == 1
-    assert ChartBlock.objects.filter(report=full_report).count() == 3  # IG + TK + X
+    # Cada subtipo de widget está representado
+    assert KpiGridWidget.objects.filter(section__report=full_report).count() == 1
+    assert TableWidget.objects.filter(section__report=full_report).count() == 5  # mes a mes + IG + TK + X + atribución
+    assert TopContentsWidget.objects.filter(section__report=full_report).count() == 1
+    assert TopCreatorsWidget.objects.filter(section__report=full_report).count() == 1
+    assert ChartWidget.objects.filter(section__report=full_report).count() == 3  # IG + TK + X
 
-    # Kitchen-sink (Abril) debe usar todos los block types incluyendo ImageBlock (DEV-130)
+    # Kitchen-sink (Abril) debe usar todos los widget types incluyendo ImageWidget
     abril = Report.objects.filter(title="Reporte general · Abril").first()
     assert abril is not None
-    assert ImageBlock.objects.filter(report=abril).count() == 1
+    assert ImageWidget.objects.filter(section__report=abril).count() == 1
 
 
 @pytest.mark.django_db
-def test_seed_demo_table_block_has_header_and_rows():
-    """Verifica que los TableBlock de métricas tienen header row y data rows."""
-    from apps.reports.models import TableBlock, TableRow, Report
+def test_seed_demo_table_widget_has_header_and_rows():
+    """Verifica que los TableWidget de métricas tienen header row y data rows."""
+    from apps.reports.models import TableWidget, TableRowWidget, Report, Section
     call_command("seed_demo")
     full_report = Report.objects.filter(
         stage__kind="EDUCATION", kind="GENERAL", period_start__month=3,
     ).first()
-    ig_table = TableBlock.objects.filter(
-        report=full_report, title="Instagram",
+    ig_table = TableWidget.objects.filter(
+        section__report=full_report, section__title="Instagram",
     ).first()
     assert ig_table is not None
     assert ig_table.rows.count() > 0
@@ -71,13 +72,13 @@ def test_seed_demo_table_block_has_header_and_rows():
 @pytest.mark.django_db
 def test_seed_demo_attribution_table_has_show_total_and_rows():
     """Verifica que la tabla de atribución tiene show_total=True y rows seeded."""
-    from apps.reports.models import TableBlock, TableRow, Report
+    from apps.reports.models import TableWidget, TableRowWidget, Report
     call_command("seed_demo")
     full_report = Report.objects.filter(
         stage__kind="EDUCATION", kind="GENERAL", period_start__month=3,
     ).first()
-    attr_table = TableBlock.objects.filter(
-        report=full_report, title="Atribución OneLink",
+    attr_table = TableWidget.objects.filter(
+        section__report=full_report, section__title="Atribución OneLink",
     ).first()
     assert attr_table is not None
     assert attr_table.show_total is True
